@@ -1,9 +1,10 @@
 use serde::{Deserialize, Serialize};
 use tokio_postgres::{Error as PGError};
-use crate::utils::error::TokenGenerateError;
+use crate::utils::error::{AuthenticateError, TokenGenerateError};
 
 pub(crate) type PGResult<T> = Result<T, PGError>;
 pub(crate) type TokenResult<T> = Result<T, TokenGenerateError>;
+pub(crate) type AuthenticateResult<T> = Result<T, AuthenticateError>;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TokenInfo {

@@ -1,11 +1,19 @@
 export const EmailPattern = /[A-Za-z0-9.+_-]+@[A-Za-z0-9.-]+\.[a-z0-9.]+/;
 
 export type LoginInput = {
-    mail: string,
+    user_email: string,
     password: string,
-    validation_token: string,
 }
 
 export type LoginResponse = {
-    is_authed: boolean
+    request_success: boolean,
+    data: string,
+    failed_reason: string | null,
+    endpoint: string,
+}
+
+export type LoginData = {
+    authenticated: boolean,
+    access_token: string,
+    refresh_token: string,
 }

@@ -6,14 +6,14 @@ SET TIME ZONE 'Asia/Tokyo';
 -- CREATE TABLES --
 CREATE TABLE users
 (
-    id                serial PRIMARY KEY,
+    id                varchar   PRIMARY KEY,
     username          varchar   not null,
     email             varchar   not null unique,
     password          varchar   not null,
     created_timestamp timestamp,
-    updated_timestamp timestamp,
+    updated_timestamp timestamp DEFAULT NULL,
     updated_numbers   integer            DEFAULT 0,
-    last_login        timestamp,
+    last_login        timestamp DEFAULT NULL,
     is_deleted        bool      not null DEFAULT FALSE
 );
 
@@ -93,7 +93,6 @@ SET search_path TO time_schema;
 SET TIME ZONE 'Asia/Tokyo';
 
 GRANT USAGE ON SCHEMA time_schema TO app;
-GRANT USAGE, SELECT ON SEQUENCE users_id_seq TO app;
 GRANT USAGE, SELECT ON SEQUENCE categories_id_seq TO app;
 GRANT USAGE, SELECT ON SEQUENCE subcategories_id_seq TO app;
 GRANT USAGE, SELECT ON SEQUENCE option1_id_seq TO app;
@@ -155,9 +154,9 @@ EXECUTE FUNCTION insert_auto_timestamp();
 
 -- CREATE DATA --
 INSERT INTO
-    users (username, email, password, updated_timestamp, last_login)
+    users (id, username, email, password)
 VALUES
-    ('user1', 'taro@example.com', 'password', NULL, NULL);
+    ('debcc72a-789b-4046-b954-0825d3331861', 'user1', 'taro@example.com', '$argon2id$v=19$m=19456,t=2,p=1$AOeGaO91HfTgGSNHcxPbqA$3J/8xAuRdnp9qUM4XoLFXAAbIQzBMU3nw+8gFTy4yp8');
 
 INSERT INTO
     categories (category)

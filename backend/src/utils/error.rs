@@ -17,3 +17,20 @@ impl Display for TokenGenerateError {
 }
 
 impl Error for TokenGenerateError {}
+
+#[derive(Debug, PartialEq)]
+pub enum AuthenticateError {
+    DBConnectionException(String),
+    RegisterAuthenticationException(String),
+}
+
+impl Display for AuthenticateError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::DBConnectionException(e) => write!(f, "DB connection failed due to: {}", e),
+            Self::RegisterAuthenticationException(e) => write!(f, "Register failed by : {}", e),
+        }
+    }
+}
+
+impl Error for AuthenticateError {}

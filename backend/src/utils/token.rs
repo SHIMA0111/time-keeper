@@ -41,16 +41,26 @@ pub async fn token_generate(user_id: &str, refresh: bool, connection: Option<&DB
         Err(e) => {
             return Err(TokenGenerateError::GenerationFailedException(
                 format!(
-                    "jwt token generation failed due to {}", e.to_string())));
+                    "jwt token generation failed: ({})", e.to_string())));
         }
     };
 
     if refresh {
         let uid = user_id.to_string();
+        let statement = match connection.unwrap().client()
+            .prepare("INSERT INTO time_schema.refresh_token (uid, token, exp, iat) \
+            VALUES ($1, $2, $3, $4)").await {
+            Ok(statement) => statement,
+            Err(e) => {
+                return Err(TokenGenerateError::GenerationFailedException(
+                    format!(
+                        "refresh token cannot register: ({})", e.to_string()
+                    )
+                ))
+            }
+        };
         let res = connection.unwrap().client()
-            .execute(
-                "INSERT INTO (uid, token, exp, iat) VALUES ($1, $2, $3, $4)",
-                &[&uid, &token, &(exp_time as i64), &(now.timestamp())]).await;
+            .execute(&statement, &[&uid, &token, &(exp_time as i64), &(now.timestamp())]).await;
 
         if let Err(_) = res {
             return Err(TokenGenerateError::GenerationFailedException(
@@ -61,4 +71,3 @@ pub async fn token_generate(user_id: &str, refresh: bool, connection: Option<&DB
 
     Ok(token)
 }
-

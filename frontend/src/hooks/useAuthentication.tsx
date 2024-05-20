@@ -1,45 +1,47 @@
 import {useCallback, useState} from "react";
-import {LoginInput, LoginResponse} from "../types/api/login.ts";
+import {LoginData, LoginInput, LoginResponse} from "../types/api/login.ts";
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
 import {useToastMessage} from "./useToastMessage.tsx";
 
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+import init, {hash_from_str} from "wasm-tools";
 
 export const useAuthentication = () => {
     const [isLoading, setIsLoading] = useState(false);
     
     const navigate = useNavigate();
     const {toastMessage} = useToastMessage();
-    
+
+    const password_hashed = useCallback(async (password: string): Promise<string> => {
+        return init().then(() => hash_from_str(password))
+    }, []);
+
     const loginCall = useCallback(async (mailAddress: string, password: string) => {
         setIsLoading(true);
-        const nowDate = new Date();
-        const currentData =
-            nowDate.getUTCFullYear() + "-" +
-            ("0" + (nowDate.getUTCMonth() + 1)).slice(-2) + "-" +
-            ("0" + (nowDate.getUTCDate())).slice(-2) + "T" +
-            ("0" + (nowDate.getUTCHours())).slice(-2) + ":" +
-            ("0" + (nowDate.getUTCMinutes())).slice(-2) + ":" +
-            ("0" + (nowDate.getUTCSeconds())).slice(-2);
-        
-        const tokenBase = currentData + "@" + mailAddress.split("@")[0];
-        const token = btoa(tokenBase);
-        
+
+        const hashedPassword = await password_hashed(password);
+        console.log(hashedPassword);
         const inputJson: LoginInput = {
-            mail: mailAddress,
-            password: password,
-            validation_token: token,
+            user_email: mailAddress,
+            password: hashedPassword,
         };
-        await sleep(5000);
         axios.post<LoginResponse>("http://localhost:8888/login", inputJson)
             .then((res) => {
                 if (res.data) {
-                    if (res.data.is_authed) {
+                    const response = res.data;
+                    const loginData: LoginData = JSON.parse(response.data);
+                    if (loginData.authenticated) {
                         toastMessage({
                             title: "Login Success!",
                             status: "success"
                         });
+
+                        const accessToken = loginData.access_token;
+                        const refreshToken = loginData.refresh_token;
+
+                        sessionStorage.setItem("accessToken", accessToken);
+                        sessionStorage.setItem("refreshToken", refreshToken);
+
                         navigate("/home");
                     }
                     else {
@@ -58,7 +60,7 @@ export const useAuthentication = () => {
             })
             .catch((err) => console.error(err))
             .finally(() => setIsLoading(false));
-    }, [navigate, toastMessage]);
+    }, [navigate, password_hashed, toastMessage]);
     
     return { loginCall, isLoading }
 }
