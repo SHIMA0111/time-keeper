@@ -1,0 +1,177 @@
+use actix_web::HttpRequest;
+use chrono::NaiveDateTime;
+use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct HttpResponseBody<'a> {
+    request_success: bool,
+    data: Option<String>,
+    failed_reason: Option<&'a str>,
+    endpoint: &'a str,
+}
+
+impl <'a> HttpResponseBody<'a> {
+    pub fn failed_new(reason: &'a str, endpoint: &'a str) -> Self {
+        Self {
+            request_success: false,
+            data: None,
+            failed_reason: Some(reason),
+            endpoint,
+        }
+    }
+
+    pub fn success_new<T: Serialize + Deserialize<'a>>(data: T, endpoint: &'a str) -> Self {
+        Self {
+            request_success: true,
+            data: Some(serde_json::to_string(&data).unwrap()),
+            failed_reason: None,
+            endpoint,
+        }
+    }
+
+    pub fn success(&self) -> bool {
+        self.request_success
+    }
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct Category {
+    id: i32,
+    category: String,
+    created_timestamp: NaiveDateTime,
+    is_deleted: bool,
+}
+
+impl Category {
+    pub fn new(id: i32,
+               category: String,
+               created_timestamp: NaiveDateTime,
+               is_deleted: bool) -> Self {
+        Self {
+            id,
+            category,
+            created_timestamp,
+            is_deleted,
+        }
+    }
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct Subcategory {
+    id: i32,
+    subcategory: String,
+    category_id: Option<i32>,
+    created_timestamp: NaiveDateTime,
+    is_deleted: bool,
+}
+
+impl Subcategory {
+    pub fn new(id: i32,
+               subcategory: String,
+               category_id: Option<i32>,
+               created_timestamp: NaiveDateTime,
+               is_deleted: bool) -> Self {
+        Self {
+            id,
+            subcategory,
+            category_id,
+            created_timestamp,
+            is_deleted,
+        }
+    }
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct Option1 {
+    id: i32,
+    option1: String,
+    subcategory_id: Option<i32>,
+    created_timestamp: NaiveDateTime,
+    is_deleted: bool,
+}
+
+impl Option1 {
+    pub fn new(id: i32,
+               option1: String,
+               subcategory_id: Option<i32>,
+               created_timestamp: NaiveDateTime,
+               is_deleted: bool) -> Self {
+        Self {
+            id,
+            option1,
+            subcategory_id,
+            created_timestamp,
+            is_deleted,
+        }
+    }
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct Option2 {
+    id: i32,
+    option2: String,
+    option1_id: Option<i32>,
+    created_timestamp: NaiveDateTime,
+    is_deleted: bool,
+}
+
+impl Option2 {
+    pub fn new(id: i32,
+               option2: String,
+               option1_id: Option<i32>,
+               created_timestamp: NaiveDateTime,
+               is_deleted: bool) -> Self {
+        Self {
+            id,
+            option2,
+            option1_id,
+            created_timestamp,
+            is_deleted,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct LoginInput {
+    user_email: String,
+    password: String
+}
+
+impl LoginInput {
+    pub(crate) fn email(&self) -> String {
+        self.user_email.to_string()
+    }
+
+    pub(crate) fn password(&self) -> String {
+        self.password.to_string()
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct LoginResponse {
+    authenticated: bool,
+    access_token: String,
+    refresh_token: String,
+}
+
+impl LoginResponse {
+    pub fn new(authenticated: bool, access_token: String, refresh_token: String) -> Self {
+        Self {
+            authenticated,
+            access_token,
+            refresh_token,
+        }
+    }
+}
+
+pub(crate) fn get_access_info(request: HttpRequest) -> String {
+    let ip_addr = match request.peer_addr() {
+        Some(ip) => ip.to_string(),
+        None => "Unknown Source".to_string()
+    };
+    let uri = request.uri().to_string();
+    let http_version = format!("{:?}",request.version());
+    let method = request.method().to_string();
+
+    format!("Access from {}(method: {}) to {} via {}", ip_addr, method, uri, http_version)
+}
