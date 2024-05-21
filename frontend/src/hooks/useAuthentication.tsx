@@ -25,7 +25,7 @@ export const useAuthentication = () => {
             user_email: mailAddress,
             password: hashedPassword,
         };
-        axios.post<LoginResponse>("http://localhost:8888/login", inputJson)
+        axios.post<LoginResponse>("http://localhost:8888/v1/general/login", inputJson)
             .then((res) => {
                 if (res.data) {
                     const response = res.data;

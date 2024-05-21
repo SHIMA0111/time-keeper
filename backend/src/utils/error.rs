@@ -18,10 +18,16 @@ impl Display for TokenGenerateError {
 
 impl Error for TokenGenerateError {}
 
+
 #[derive(Debug, PartialEq)]
 pub enum AuthenticateError {
     DBConnectionException(String),
     RegisterAuthenticationException(String),
+    AccessTokenExpiredException(String),
+    AccessTokenInvalidException(String),
+    RefreshTokenExpiredException(String),
+    RefreshTokenInvalidException(String),
+    InvalidSettingException(String),
 }
 
 impl Display for AuthenticateError {
@@ -29,6 +35,11 @@ impl Display for AuthenticateError {
         match self {
             Self::DBConnectionException(e) => write!(f, "DB connection failed due to: {}", e),
             Self::RegisterAuthenticationException(e) => write!(f, "Register failed by : {}", e),
+            Self::AccessTokenExpiredException(e) => write!(f, "Access Token was expired ({})", e),
+            Self::AccessTokenInvalidException(e) => write!(f, "Access Token is invalid due to: {}", e),
+            Self::RefreshTokenExpiredException(e) => write!(f, "Refresh Token was expired ({})", e),
+            Self::RefreshTokenInvalidException(e) => write!(f, "Refresh Token is invalid due to: {}", e),
+            Self::InvalidSettingException(e) => write!(f, "Detect invalid system setting because from: {}", e),
         }
     }
 }
