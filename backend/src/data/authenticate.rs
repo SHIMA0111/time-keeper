@@ -40,7 +40,7 @@ pub(crate) async fn authentication(email: &str,
     }
 }
 
-pub async fn register(email: &str, password: &str, username: &str, connection: &DBConnection) -> AuthenticateResult<()> {
+pub async fn register(email: &str, password: &str, username: &str, connection: &DBConnection) -> AuthenticateResult<String> {
     let hashed_password = hash_password(password);
 
     let statement_str = "INSERT INTO time_schema.users (id, username, email, password) VALUES ($1, $2, $3, $4)";
@@ -59,5 +59,5 @@ pub async fn register(email: &str, password: &str, username: &str, connection: &
         ))
     };
 
-    Ok(())
+    Ok(user_id)
 }

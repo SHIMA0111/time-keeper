@@ -1,4 +1,4 @@
-import {ChangeEvent, FC, memo, useState} from "react";
+import {ChangeEvent, FC, memo, useCallback, useState} from "react";
 import {Box, Button, Divider, Flex, Heading, Stack} from "@chakra-ui/react";
 import {EmailIcon, LockIcon, ViewIcon, ViewOffIcon} from "@chakra-ui/icons";
 import {BeatLoader} from "react-spinners";
@@ -21,8 +21,11 @@ export const Login: FC = memo(() => {
         setIsValidEmail(!!current_mail.match(EmailPattern));
         setMailValue(current_mail);
     }
-    const onChangePassword = (e: ChangeEvent<HTMLInputElement>) => setPasswordValue(e.target.value);
-    
+    const onChangePassword = useCallback(
+        (e: ChangeEvent<HTMLInputElement>) => setPasswordValue(e.target.value), []);
+    const onClickLogin = useCallback(async () => {
+        await loginCall(mailValue, passwordValue);
+    }, [loginCall, mailValue, passwordValue])
     
     return (
         <Flex align="flex-start" justify="center" marginTop="30vh">
@@ -56,7 +59,7 @@ export const Login: FC = memo(() => {
                     <Button
                         isDisabled={!isValidEmail || mailValue.length === 0 || passwordValue.length === 0}
                         isLoading={isLoading}
-                        onClick={() => loginCall(mailValue, passwordValue)}
+                        onClick={onClickLogin}
                         spinner={<BeatLoader size={8} color="#333" />}
                     >ログイン</Button>
                 </Stack>

@@ -5,8 +5,9 @@ use crate::utils::api::{Category, Option1, Option2, Subcategory};
 use crate::utils::types::PGResult;
 
 async fn get_categories(connector: &DBConnection) -> PGResult<Vec<Category>> {
-    let category_rows = connector.client()
-        .query("SELECT * FROM time_schema.categories", &[]).await?;
+    let category_rows = connector.client().query(
+        "SELECT * FROM time_schema.categories",
+        &[]).await?;
 
     let categories = category_rows.iter().map(|category_row| {
         let id = category_row.get("id");

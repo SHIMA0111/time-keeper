@@ -4,8 +4,8 @@ use actix_web::{App, HttpResponse, HttpServer, Responder, web};
 use actix_web::http::header::WWW_AUTHENTICATE;
 use actix_web::web::resource;
 use crate::api::{get_all};
-use crate::api::login::login_auth;
-use crate::api::register::register_new;
+use crate::api::general::login::login_auth;
+use crate::api::general::register::register_new;
 use crate::utils::middleware::AccessTokenVerification;
 
 mod data;

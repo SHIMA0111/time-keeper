@@ -23,8 +23,8 @@ pub async fn register_new(register_input: web::Json<RegisterInput>, req: HttpReq
     let password = register_input.password();
 
     match register(&email, &password, &username, &conn).await {
-        Ok(_) => {
-            info!("Register complete.");
+        Ok(user_id) => {
+            info!("Register complete for user_id='{}'.", user_id);
             let register_info = RegisterResponse::new(true);
             let response = HttpResponseBody::success_new(
                 register_info,

@@ -8,19 +8,19 @@ import init, {hash_from_str} from "wasm-tools";
 
 export const useAuthentication = () => {
     const [isLoading, setIsLoading] = useState(false);
-    
+
     const navigate = useNavigate();
     const {toastMessage} = useToastMessage();
 
-    const password_hashed = useCallback(async (password: string): Promise<string> => {
-        return init().then(() => hash_from_str(password))
+    const password_hashed = useCallback(async (password: string) => {
+        await init();
+        return hash_from_str(password);
     }, []);
 
     const loginCall = useCallback(async (mailAddress: string, password: string) => {
         setIsLoading(true);
 
         const hashedPassword = await password_hashed(password);
-        console.log(hashedPassword);
         const inputJson: LoginInput = {
             user_email: mailAddress,
             password: hashedPassword,
@@ -30,35 +30,45 @@ export const useAuthentication = () => {
                 if (res.data) {
                     const response = res.data;
                     const loginData: LoginData = JSON.parse(response.data);
-                    if (loginData.authenticated) {
-                        toastMessage({
-                            title: "Login Success!",
-                            status: "success"
-                        });
+                    toastMessage({
+                        title: "Complete Log in to app!",
+                        status: "success"
+                    });
+                    const accessToken = loginData.access_token;
+                    const refreshToken = loginData.refresh_token;
 
-                        const accessToken = loginData.access_token;
-                        const refreshToken = loginData.refresh_token;
+                    sessionStorage.setItem("accessToken", accessToken);
+                    sessionStorage.setItem("refreshToken", refreshToken);
 
-                        sessionStorage.setItem("accessToken", accessToken);
-                        sessionStorage.setItem("refreshToken", refreshToken);
-
-                        navigate("/home");
-                    }
-                    else {
-                        toastMessage({
-                            title: "Login Failed...",
-                            status: "error",
-                        });
-                    }
+                    navigate("/home");
                 }
                 else {
                     toastMessage({
                         title: "Something went wrong",
+                        description:
+                            "Authentication failed due to server not response correctly. Please try again. \n" +
+                            "If you face this error in many times, please contact the developer.",
                         status: "error",
                     });
                 }
             })
-            .catch((err) => console.error(err))
+            .catch((err) => {
+                const statusCode = err.response?.status;
+                if (statusCode === 401) {
+                    toastMessage({
+                        title: "Failed to Login",
+                        description: "Input email address or password is incorrect.",
+                        status: "error",
+                    });
+                }
+                else {
+                    toastMessage({
+                        title: "Temporal server error",
+                        description: "Authenticate server return error. Please try again.",
+                        status: "error",
+                    })
+                }
+            })
             .finally(() => setIsLoading(false));
     }, [navigate, password_hashed, toastMessage]);
     

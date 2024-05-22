@@ -14,7 +14,8 @@ export const NavigationBar: FC = memo(() => {
                     </IconButtonWithName>
                 ))}
             </Flex>
-            <IconButtonWithName icon={<BiLogOut />}>ログアウト</IconButtonWithName>
+            <IconButtonWithName
+                icon={<BiLogOut />}>ログアウト</IconButtonWithName>
         </Flex>
     )
 });

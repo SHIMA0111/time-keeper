@@ -22,6 +22,7 @@ CREATE TABLE categories
     id                serial PRIMARY KEY,
     category          varchar not null,
     created_timestamp timestamp,
+    create_user_id    varchar not null,
     is_deleted        bool      not null DEFAULT FALSE
 );
 
@@ -31,6 +32,7 @@ CREATE TABLE subcategories
     subcategory       varchar not null,
     category_id       integer,
     created_timestamp timestamp,
+    created_user_id   varchar not null,
     is_deleted        bool      not null DEFAULT FALSE,
     FOREIGN KEY (category_id) REFERENCES categories (id)
 );
@@ -41,6 +43,7 @@ CREATE TABLE option1
     option1           varchar not null,
     subcategory_id    integer,
     created_timestamp timestamp,
+    created_user_id   varchar not null,
     is_deleted        bool      not null DEFAULT FALSE,
     FOREIGN KEY (subcategory_id) REFERENCES subcategories (id)
 );
@@ -51,6 +54,7 @@ CREATE TABLE option2
     option2           varchar not null,
     option1_id        integer,
     created_timestamp timestamp,
+    created_user_id   varchar not null,
     is_deleted        bool      not null DEFAULT FALSE,
     FOREIGN KEY (option1_id) REFERENCES option1 (id)
 );
@@ -159,35 +163,35 @@ VALUES
     ('debcc72a-789b-4046-b954-0825d3331861', 'user1', 'taro@example.com', '$argon2id$v=19$m=19456,t=2,p=1$AOeGaO91HfTgGSNHcxPbqA$3J/8xAuRdnp9qUM4XoLFXAAbIQzBMU3nw+8gFTy4yp8');
 
 INSERT INTO
-    categories (category)
+    categories (category, create_user_id)
 VALUES
-    ('general'),
-    ('specific1'),
-    ('specific2');
+    ('general', 'debcc72a-789b-4046-b954-0825d3331861'),
+    ('specific1', 'debcc72a-789b-4046-b954-0825d3331861'),
+    ('specific2', 'debcc72a-789b-4046-b954-0825d3331861');
 
 INSERT INTO
-    subcategories (subcategory, category_id)
+    subcategories (subcategory, category_id, created_user_id)
 VALUES
-    ('sub_general', 1),
-    ('sub_specific1', 2),
-    ('sub_specific2', 3),
-    ('sub_all', NULL);
+    ('sub_general', 1, 'debcc72a-789b-4046-b954-0825d3331861'),
+    ('sub_specific1', 2, 'debcc72a-789b-4046-b954-0825d3331861'),
+    ('sub_specific2', 3, 'debcc72a-789b-4046-b954-0825d3331861'),
+    ('sub_all', NULL, 'debcc72a-789b-4046-b954-0825d3331861');
 
 INSERT INTO
-    option1 (option1, subcategory_id)
+    option1 (option1, subcategory_id, created_user_id)
 VALUES
-    ('opt1_general', 1),
-    ('opt1_specific1', 2),
-    ('opt1_specific2', 3),
-    ('opt1_all', NULL);
+    ('opt1_general', 1, 'debcc72a-789b-4046-b954-0825d3331861'),
+    ('opt1_specific1', 2, 'debcc72a-789b-4046-b954-0825d3331861'),
+    ('opt1_specific2', 3, 'debcc72a-789b-4046-b954-0825d3331861'),
+    ('opt1_all', NULL, 'debcc72a-789b-4046-b954-0825d3331861');
 
 INSERT INTO
-    option2 (option2, option1_id)
+    option2 (option2, option1_id, created_user_id)
 VALUES
-    ('opt2_general', 1),
-    ('opt2_specific1', 2),
-    ('opt2_specific2', 3),
-    ('opt2_all', NULL);
+    ('opt2_general', 1, 'debcc72a-789b-4046-b954-0825d3331861'),
+    ('opt2_specific1', 2, 'debcc72a-789b-4046-b954-0825d3331861'),
+    ('opt2_specific2', 3, 'debcc72a-789b-4046-b954-0825d3331861'),
+    ('opt2_all', NULL, 'debcc72a-789b-4046-b954-0825d3331861');
 
 INSERT INTO
     refresh_token (uid, token, exp, iat)

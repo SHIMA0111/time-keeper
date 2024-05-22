@@ -1,7 +1,5 @@
-pub mod login;
-pub mod register;
-mod logout;
-mod categories;
+pub mod authed;
+pub mod general;
 
 use actix_web::{Either, HttpRequest, Responder};
 use actix_web::http::header::HeaderValue;
