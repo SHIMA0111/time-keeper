@@ -1,8 +1,10 @@
 use std::env;
+use actix_web::Either;
 use chrono::{Duration, Utc};
 use jsonwebtoken::{decode, DecodingKey, encode, EncodingKey, Header, Validation};
 use log::{error, warn};
 use crate::data::connector::DBConnection;
+use crate::utils::api::get_db_connection;
 use crate::utils::error::{AuthenticateError, TokenGenerateError};
 use crate::utils::types::{AuthenticateResult, TokenInfo, TokenResult};
 
@@ -103,7 +105,7 @@ fn token_decode_and_verify(access_token: &str) -> AuthenticateResult<TokenInfo> 
     Ok(token_info)
 }
 
-pub fn access_token_verify(access_token: &str) -> AuthenticateResult<()> {
+pub fn access_token_verify(access_token: &str) -> AuthenticateResult<String> {
     let token_info = token_decode_and_verify(access_token)?;
 
     if token_info.is_refresh() {
@@ -113,10 +115,10 @@ pub fn access_token_verify(access_token: &str) -> AuthenticateResult<()> {
         ))
     }
 
-    Ok(())
+    Ok(token_info.user_id())
 }
 
-pub fn refresh_token_verify(refresh_token: &str) -> AuthenticateResult<()> {
+pub fn refresh_token_verify(refresh_token: &str) -> AuthenticateResult<String> {
     let token_info = token_decode_and_verify(refresh_token)?;
 
     if !token_info.is_refresh() {
@@ -126,7 +128,7 @@ pub fn refresh_token_verify(refresh_token: &str) -> AuthenticateResult<()> {
         ))
     }
 
-    Ok(())
+    Ok(token_info.user_id())
 }
 
 

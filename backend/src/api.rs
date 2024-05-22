@@ -1,8 +1,10 @@
 pub mod login;
 pub mod register;
 mod logout;
+mod categories;
 
 use actix_web::{Either, HttpRequest, Responder};
+use actix_web::http::header::HeaderValue;
 use log::{error, info};
 use crate::data::category::get_all_categories;
 use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody};

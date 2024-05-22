@@ -20,6 +20,10 @@ impl TokenInfo {
         TokenInfo { uid, exp, iat, refresh }
     }
 
+    pub(crate) fn user_id(&self) -> String {
+        self.uid.clone()
+    }
+
     pub(crate) fn is_refresh(&self) -> bool {
         self.refresh
     }

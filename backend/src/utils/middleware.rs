@@ -1,8 +1,9 @@
 use std::future::{Ready, ready};
+use std::str::FromStr;
 use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready};
 use actix_web::{Error, HttpResponse};
 use actix_web::body::EitherBody;
-use actix_web::http::header::WWW_AUTHENTICATE;
+use actix_web::http::header::{HeaderName, HeaderValue, WWW_AUTHENTICATE, X_FRAME_OPTIONS};
 use actix_web::http::StatusCode;
 use futures_util::future::LocalBoxFuture;
 use log::{error, info};
@@ -47,7 +48,7 @@ where
 
     forward_ready!(service);
 
-    fn call(&self, req: ServiceRequest) -> Self::Future {
+    fn call(&self, mut req: ServiceRequest) -> Self::Future {
         let authorization_info = match req.headers().get("Authorization") {
             Some(authorize_value) => authorize_value.to_str().unwrap_or(""),
             None => "",
@@ -56,12 +57,23 @@ where
 
         let result = bearer_verify(authorization_info);
 
-        if let Authorized = result {
+        if let Authorized(user_id) = result {
+            let header = req.headers_mut();
+            let header_name = HeaderName::from_static("x-user-id");
+            let header_value = match HeaderValue::from_str(&user_id) {
+                Ok(value) => value,
+                Err(e) => {
+                    error!("user_id({}) cannot convert to header value due to {}", user_id, e.to_string());
+                    HeaderValue::from_static("")
+                }
+            };
+            header.insert(header_name, header_value);
             let fut = self.service.call(req);
             Box::pin(async move {
-                let res = fut.await?;
-
-                println!("Hi from response");
+                let mut res: ServiceResponse<B> = fut.await?;
+                let header = res.headers_mut();
+                header.append(WWW_AUTHENTICATE, HeaderValue::from_static("Bearer realm=\"\""));
+                info!("Finish request to {} by user_id = '{}'", uri, user_id);
                 Ok(res.map_into_left_body())
             })
         }
@@ -80,12 +92,12 @@ enum TokenVerificationResult {
     NoTokenProvided,
     InvalidToken,
     ExpiredToken,
-    Authorized,
+    Authorized(String),
 }
 
 fn bearer_verify(bearer_token: &str) -> TokenVerificationResult {
     if !bearer_token.starts_with(TOKEN_SCHEMA) {
-        error!("Authorization header format is wrong. Require 'Bearer'");
+        error!("Authorization header format is wrong. Require 'Bearer [access_token] as Authorization header'");
         return NoTokenProvided;
     }
     let mut bearer_token = bearer_token.to_string();
@@ -98,9 +110,9 @@ fn bearer_verify(bearer_token: &str) -> TokenVerificationResult {
     }
 
     match access_token_verify(token) {
-        Ok(_) => {
-            info!("Access token verification success.");
-            Authorized
+        Ok(user_id) => {
+            info!("Access token for user_id = '{}' verification success.", user_id);
+            Authorized(user_id)
         },
         Err(e) => {
             error!("Access token verification failed due to [{}]", e.to_string());
