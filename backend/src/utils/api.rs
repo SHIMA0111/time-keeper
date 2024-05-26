@@ -5,7 +5,7 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 use crate::api::MAIL_PATTERN;
 use crate::data::connector::DBConnection;
-use crate::utils::json::json_response_builder;
+use crate::utils::json::ResponseStatus::{BadRequest, InternalServerError};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct HttpResponseBody<'a> {
@@ -239,7 +239,7 @@ pub(crate) fn regex_email(email: &str, endpoint: &str) -> Either<(), HttpRespons
                     endpoint
                 );
 
-                return Either::Right(json_response_builder(response, false));
+                return Either::Right(BadRequest.json_response_builder(response));
             }
             Either::Left(())
         },
@@ -250,7 +250,7 @@ pub(crate) fn regex_email(email: &str, endpoint: &str) -> Either<(), HttpRespons
                 "validation process went wrong. please contact the developer",
                 endpoint
             );
-            Either::Right(json_response_builder(response, false))
+            Either::Right(InternalServerError.json_response_builder(response))
         }
     }
 }
@@ -264,7 +264,7 @@ pub(crate) async  fn get_db_connection(endpoint: &str) -> Either<DBConnection, H
                 "connection failure in backend side",
                 endpoint
             );
-            Either::Right(json_response_builder(response, false))
+            Either::Right(InternalServerError.json_response_builder(response))
         }
     }
 }

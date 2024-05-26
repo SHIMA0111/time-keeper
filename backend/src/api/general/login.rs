@@ -3,7 +3,7 @@ use actix_web::web::Json;
 use log::{error, info};
 use crate::data::authenticate::authentication;
 use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody, LoginInput, LoginResponse, regex_email};
-use crate::utils::json::json_response_builder;
+use crate::utils::json::ResponseStatus::{InternalServerError, RequestOk, Unauthorized};
 use crate::utils::token::token_generate;
 
 pub async fn login_auth(auth_info: Json<LoginInput>, req: HttpRequest) -> impl Responder {
@@ -32,7 +32,7 @@ pub async fn login_auth(auth_info: Json<LoginInput>, req: HttpRequest) -> impl R
                 "User authentication failed. Please try later.",
                 &endpoint_uri
             );
-            return json_response_builder(response, false);
+            return InternalServerError.json_response_builder(response);
         }
     };
 
@@ -40,7 +40,7 @@ pub async fn login_auth(auth_info: Json<LoginInput>, req: HttpRequest) -> impl R
         info!("Login failed by invalid password or email address");
         let login_info = LoginResponse::new(false, "".to_string(), "".to_string());
         let response = HttpResponseBody::success_new(login_info, &endpoint_uri);
-        return json_response_builder(response, true);
+        return Unauthorized.json_response_builder(response);
     }
 
     let access_token = match token_generate(&user_id, false, None).await {
@@ -54,7 +54,7 @@ pub async fn login_auth(auth_info: Json<LoginInput>, req: HttpRequest) -> impl R
                 "Authenticate token process failed. Please try later.",
                 &endpoint_uri
             );
-            return json_response_builder(response, false);
+            return InternalServerError.json_response_builder(response);
         }
     };
     let refresh_token = match token_generate(&user_id, true, Some(&conn)).await {
@@ -68,7 +68,7 @@ pub async fn login_auth(auth_info: Json<LoginInput>, req: HttpRequest) -> impl R
                 "Authenticate token process failed. Please try later.",
                 &endpoint_uri
             );
-            return json_response_builder(response, false);
+            return InternalServerError.json_response_builder(response);
         }
     };
 
@@ -76,5 +76,5 @@ pub async fn login_auth(auth_info: Json<LoginInput>, req: HttpRequest) -> impl R
     let login_info = LoginResponse::new(true, access_token, refresh_token);
 
     let response = HttpResponseBody::success_new(login_info, &endpoint_uri);
-    json_response_builder(response, false)
+    RequestOk.json_response_builder(response)
 }

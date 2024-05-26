@@ -35,7 +35,7 @@ pub async fn token_generate(user_id: &str, refresh: bool, connection: Option<&DB
     };
 
     let claims = TokenInfo::new(
-        user_id.to_string(), exp_time, now.timestamp() as u64, refresh);
+        user_id.to_string(), exp_time, now.timestamp() as u64, false, refresh);
 
     let token = match encode(
         &Header::default(), &claims, &EncodingKey::from_secret(secret_key.as_ref())) {
@@ -87,7 +87,8 @@ fn token_decode_and_verify(access_token: &str) -> AuthenticateResult<TokenInfo> 
         &Validation::default()) {
         Ok(info) => info.claims,
         Err(e) => {
-            return Err(AuthenticateError::AccessTokenInvalidException(e.to_string()))
+            error!("Token cannot decoded due to {}", e.to_string());
+            return Err(AuthenticateError::AccessTokenInvalidException("Token cannot decoded because of invalid token.".to_string()));
         }
     };
 
@@ -105,8 +106,15 @@ fn token_decode_and_verify(access_token: &str) -> AuthenticateResult<TokenInfo> 
     Ok(token_info)
 }
 
-pub fn access_token_verify(access_token: &str) -> AuthenticateResult<String> {
+pub fn access_token_verify(access_token: &str, is_api: bool) -> AuthenticateResult<String> {
     let token_info = token_decode_and_verify(access_token)?;
+
+    if is_api && !token_info.valid_for_api() {
+        error!("This token is invalid for api call not via GUI.");
+        return Err(AuthenticateError::AccessTokenInvalidException(
+            "This token isn't allowed to use api not via GUI".to_string()
+        ))
+    }
 
     if token_info.is_refresh() {
         error!("This is refresh token. Cannot authorize access by this token.");

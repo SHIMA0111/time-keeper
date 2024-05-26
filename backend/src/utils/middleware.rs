@@ -55,7 +55,7 @@ where
         };
         let uri = req.uri().to_string();
 
-        let result = bearer_verify(authorization_info);
+        let result = bearer_verify(authorization_info, false);
 
         if let Authorized(user_id) = result {
             let header = req.headers_mut();
@@ -90,12 +90,12 @@ where
 #[derive(Debug)]
 enum TokenVerificationResult {
     NoTokenProvided,
-    InvalidToken,
+    InvalidToken(String),
     ExpiredToken,
     Authorized(String),
 }
 
-fn bearer_verify(bearer_token: &str) -> TokenVerificationResult {
+fn bearer_verify(bearer_token: &str, is_api: bool) -> TokenVerificationResult {
     if !bearer_token.starts_with(TOKEN_SCHEMA) {
         error!("Authorization header format is wrong. Require 'Bearer [access_token] as Authorization header'");
         return NoTokenProvided;
@@ -109,19 +109,19 @@ fn bearer_verify(bearer_token: &str) -> TokenVerificationResult {
         return NoTokenProvided;
     }
 
-    match access_token_verify(token) {
+    match access_token_verify(token, is_api) {
         Ok(user_id) => {
             info!("Access token for user_id = '{}' verification success.", user_id);
             Authorized(user_id)
         },
         Err(e) => {
-            error!("Access token verification failed due to [{}]", e.to_string());
+            error!("Access token verification failed by [{}]", e.to_string());
             match e {
-                AuthenticateError::AccessTokenInvalidException(_) => InvalidToken,
+                AuthenticateError::AccessTokenInvalidException(e) => InvalidToken(e),
                 AuthenticateError::AccessTokenExpiredException(_) => ExpiredToken,
                 _ => {
                     error!("Token verification process failed due to something wrong.({})", e.to_string());
-                    InvalidToken
+                    InvalidToken("This error is internal server error. If you face this, please let the developer know.".to_string())
                 }
             }
         }
@@ -129,16 +129,17 @@ fn bearer_verify(bearer_token: &str) -> TokenVerificationResult {
 }
 
 fn build_response_token_failed(token_verification_result: TokenVerificationResult, endpoint: &str) -> HttpResponse {
-    let (realm, status_code) = match token_verification_result {
-        ExpiredToken => ("expired_token", StatusCode::UNAUTHORIZED),
-        InvalidToken => ("invalid_token", StatusCode::UNAUTHORIZED),
-        NoTokenProvided => ("require_token", StatusCode::UNAUTHORIZED),
-        _ => ("", StatusCode::INTERNAL_SERVER_ERROR)
+    let (realm, reason, status_code) = match token_verification_result {
+        ExpiredToken => ("expired_token", "Token expired".to_string(), StatusCode::UNAUTHORIZED),
+        InvalidToken(e) => ("invalid_token", e, StatusCode::UNAUTHORIZED),
+        NoTokenProvided => ("require_token", "authed api needs token authorization".to_string(), StatusCode::UNAUTHORIZED),
+        _ => ("", "This error is internal server error. Please contact developer".to_string(), StatusCode::INTERNAL_SERVER_ERROR)
     };
 
+    let failed_reason = format!("Access Token authentication failed by {}.", reason);
     let response_header_value = format!("Bearer realm=\"{}\"", realm);
     let http_response_body = HttpResponseBody::new(
-        false, None, Some("Access Token authentication failed."), endpoint
+        false, None, Some(failed_reason.as_str()), endpoint
     );
 
     let body = serde_json::to_string(&http_response_body).unwrap_or_else(|e| {

@@ -1,5 +1,5 @@
 import {Route, Routes} from "react-router-dom";
-import {Login} from "../components/pages/Login.tsx";
+import {Entrance} from "../components/pages/Entrance.tsx";
 import {Page404} from "../components/pages/Page404.tsx";
 import {FC, memo} from "react";
 import {HomeRoutes} from "./HomeRoutes.tsx";
@@ -7,7 +7,7 @@ import {HomeRoutes} from "./HomeRoutes.tsx";
 export const RootRouter: FC = memo(() => {
     return (
         <Routes>
-            <Route path="/" element={<Login />} />
+            <Route path="/" element={<Entrance />} />
             <Route path="/home/*" element={
                 <Routes>
                     {HomeRoutes.map(route => (

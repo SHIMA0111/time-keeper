@@ -56,7 +56,7 @@ export const useAuthentication = () => {
                 const statusCode = err.response?.status;
                 if (statusCode === 401) {
                     toastMessage({
-                        title: "Failed to Login",
+                        title: "Failed to Entrance",
                         description: "Input email address or password is incorrect.",
                         status: "error",
                     });

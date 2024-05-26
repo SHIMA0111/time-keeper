@@ -2,7 +2,7 @@ use actix_web::{Either, HttpRequest, Responder, web};
 use log::{error, info};
 use crate::data::authenticate::register;
 use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody, regex_email, RegisterInput, RegisterResponse};
-use crate::utils::json::json_response_builder;
+use crate::utils::json::ResponseStatus::{Created, InternalServerError};
 
 pub async fn register_new(register_input: web::Json<RegisterInput>, req: HttpRequest) -> impl Responder {
     info!("{}", get_access_info(&req));
@@ -30,7 +30,7 @@ pub async fn register_new(register_input: web::Json<RegisterInput>, req: HttpReq
                 register_info,
                 &endpoint_uri
             );
-            json_response_builder(response, false)
+            Created.json_response_builder(response)
         },
         Err(e) => {
             error!("Information register failed due to {}", e.to_string());
@@ -38,7 +38,7 @@ pub async fn register_new(register_input: web::Json<RegisterInput>, req: HttpReq
                 "Register process failed please try again later",
                 &endpoint_uri,
             );
-            json_response_builder(response, false)
+            InternalServerError.json_response_builder(response)
         }
     }
 }

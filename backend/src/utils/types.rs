@@ -12,12 +12,13 @@ pub struct TokenInfo {
     uid: String,
     exp: u64,
     iat: u64,
+    api: bool,
     refresh: bool,
 }
 
 impl TokenInfo {
-    pub fn new(uid: String, exp: u64, iat: u64, refresh: bool) -> Self {
-        TokenInfo { uid, exp, iat, refresh }
+    pub fn new(uid: String, exp: u64, iat: u64, api: bool, refresh: bool) -> Self {
+        TokenInfo { uid, exp, iat, api, refresh }
     }
 
     pub(crate) fn user_id(&self) -> String {
@@ -26,6 +27,10 @@ impl TokenInfo {
 
     pub(crate) fn is_refresh(&self) -> bool {
         self.refresh
+    }
+
+    pub(crate) fn valid_for_api(&self) -> bool {
+        self.api
     }
 
     pub(crate) fn is_valid_token(&self, base_time: u64) -> AuthenticateResult<()> {
