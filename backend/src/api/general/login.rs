@@ -38,8 +38,9 @@ pub async fn login_auth(auth_info: Json<LoginInput>, req: HttpRequest) -> impl R
 
     if user_id == "" {
         info!("Login failed by invalid password or email address");
-        let login_info = LoginResponse::new(false, "".to_string(), "".to_string());
-        let response = HttpResponseBody::success_new(login_info, &endpoint_uri);
+        let response = HttpResponseBody::failed_new(
+            "Login failed by invalid password or email address",
+            &endpoint_uri);
         return Unauthorized.json_response_builder(response);
     }
 

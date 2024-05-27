@@ -138,8 +138,8 @@ fn build_response_token_failed(token_verification_result: TokenVerificationResul
 
     let failed_reason = format!("Access Token authentication failed by {}.", reason);
     let response_header_value = format!("Bearer realm=\"{}\"", realm);
-    let http_response_body = HttpResponseBody::new(
-        false, None, Some(failed_reason.as_str()), endpoint
+    let http_response_body = HttpResponseBody::failed_new(
+        failed_reason.as_str(), endpoint
     );
 
     let body = serde_json::to_string(&http_response_body).unwrap_or_else(|e| {

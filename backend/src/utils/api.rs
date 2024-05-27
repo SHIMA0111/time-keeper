@@ -16,18 +16,6 @@ pub struct HttpResponseBody<'a> {
 }
 
 impl <'a> HttpResponseBody<'a> {
-    pub fn new(request_success: bool,
-               data: Option<String>,
-               failed_reason: Option<&'a str>,
-               endpoint: &'a str) -> Self {
-        Self {
-            request_success,
-            data,
-            failed_reason,
-            endpoint
-        }
-    }
-
     pub fn failed_new(reason: &'a str, endpoint: &'a str) -> Self {
         Self {
             request_success: false,
@@ -234,7 +222,7 @@ pub(crate) fn regex_email(email: &str, endpoint: &str) -> Either<(), HttpRespons
                 error!(
                     "Email format is ignored due to the format should be '{}' but the input '{}'",
                     MAIL_PATTERN, email);
-                let response = HttpResponseBody::success_new(
+                let response = HttpResponseBody::failed_new(
                     "Email address format is wrong. Please check your input",
                     endpoint
                 );
@@ -261,7 +249,7 @@ pub(crate) async  fn get_db_connection(endpoint: &str) -> Either<DBConnection, H
         Err(e) => {
             error!("DB Connection failed due to: {}", e.to_string());
             let response = HttpResponseBody::failed_new(
-                "connection failure in backend side",
+                "connection failure DB issue in backend side",
                 endpoint
             );
             Either::Right(InternalServerError.json_response_builder(response))

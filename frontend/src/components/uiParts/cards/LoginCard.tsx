@@ -8,6 +8,7 @@ import {useInputChange} from "../../../hooks/useInputChange.tsx";
 import init, {hash_from_str} from "wasm-tools";
 import {useToastMessage} from "../../../hooks/useToastMessage.tsx";
 import axios from "axios";
+import {useNavigate} from "react-router-dom";
 
 type Props = {
     toRegister: () => void,
@@ -42,6 +43,8 @@ export const LoginCard: FC<Props> = memo((props) => {
     const onClickShowPassword = useCallback(
         () => setIsShowPassword(!isShowPassword), [isShowPassword]);
     
+    const navigate = useNavigate();
+    
     const onClickLogin = useCallback(() => {
         const loginInput: LoginInput = {
             user_email: emailAddress,
@@ -63,6 +66,11 @@ export const LoginCard: FC<Props> = memo((props) => {
                         });
                     }
                     const processResult: LoginData = JSON.parse(resData.data);
+                    if (processResult.authenticated) {
+                        console.log(processResult.access_token);
+                        console.log(processResult.refresh_token);
+                        navigate("/home");
+                    }
                 }
                 else {
                     toastMessage({
@@ -92,7 +100,7 @@ export const LoginCard: FC<Props> = memo((props) => {
                 }
             })
         
-    }, [emailAddress, hashedPassword, toastMessage]);
+    }, [emailAddress, hashedPassword, navigate, toastMessage]);
     
     return (
         <Box borderWidth="1px" w={{ base: "sm", md: "md" }} p={4} borderRadius="lg" bgColor="#fff">
