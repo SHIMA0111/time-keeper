@@ -67,8 +67,12 @@ export const LoginCard: FC<Props> = memo((props) => {
                     }
                     const processResult: LoginData = JSON.parse(resData.data);
                     if (processResult.authenticated) {
-                        console.log(processResult.access_token);
-                        console.log(processResult.refresh_token);
+                        localStorage.setItem("refreshToken", processResult.refresh_token);
+                        sessionStorage.setItem("actionKey", processResult.access_token)
+                        
+                        cleanUpEmail();
+                        cleanUpPassword();
+                        
                         navigate("/home");
                     }
                 }
