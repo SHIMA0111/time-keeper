@@ -1,8 +1,11 @@
-import {FC, memo} from "react";
+import {FC, memo, useCallback, useEffect, useState} from "react";
 import {Box, Button, Divider, Flex, Heading, Stack, Text} from "@chakra-ui/react";
 import {FormInput} from "../inputs/FormInput.tsx";
 import {EmailIcon, LockIcon, ViewIcon, ViewOffIcon} from "@chakra-ui/icons";
 import {BeatLoader} from "react-spinners";
+import {useInputChange} from "../../../hooks/useInputChange.tsx";
+import {useRegex} from "../../../hooks/useRegex.tsx";
+import {EmailPattern} from "../../../types/api/login.ts";
 
 type Props = {
     toLogin: () => void,
@@ -10,7 +13,30 @@ type Props = {
 
 export const RegisterCard: FC<Props> = memo((props) => {
     const { toLogin } = props;
-    
+
+    const [isShowPassword, setIsShowPassword] = useState<boolean>(false);
+
+    const [emailAddress, changeEmailAddress, cleanUpEmail] = useInputChange();
+    const [password, changePassword, cleanUpPassword] = useInputChange();
+
+    const [isValidEmail, checkEmailValidation] = useRegex(EmailPattern);
+
+    const onClickShowPassword = useCallback(
+        () => setIsShowPassword(!isShowPassword), [isShowPassword]);
+
+
+    useEffect(() => {
+        if (emailAddress.length !== 0) {
+            checkEmailValidation(emailAddress);
+        }
+    }, [checkEmailValidation, emailAddress]);
+
+    const onClickRegister = () => {
+        cleanUpEmail();
+        cleanUpPassword();
+        alert("登録!");
+    }
+
     return (
         <Box borderWidth="1px" w={{ base: "sm", md: "md" }} p={4} borderRadius="lg" bgColor="#fff">
             <Heading as="h1" size="lg" textAlign="center">時間管理アプリ</Heading>
@@ -42,7 +68,7 @@ export const RegisterCard: FC<Props> = memo((props) => {
                 <Button
                     isDisabled={!isValidEmail || emailAddress.length === 0 || password.length === 0}
                     isLoading={false}
-                    onClick={onClickLogin}
+                    onClick={onClickRegister}
                     spinner={<BeatLoader size={8} color="#333" />}
                 >ログイン</Button>
             </Stack>

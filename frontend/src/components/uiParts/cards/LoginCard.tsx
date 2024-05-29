@@ -9,6 +9,7 @@ import init, {hash_from_str} from "wasm-tools";
 import {useToastMessage} from "../../../hooks/useToastMessage.tsx";
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
+import {useRegex} from "../../../hooks/useRegex.tsx";
 
 type Props = {
     toRegister: () => void,
@@ -17,12 +18,13 @@ type Props = {
 export const LoginCard: FC<Props> = memo((props) => {
     const { toRegister } = props;
     
-    const [isValidEmail, setIsValidEmail] = useState<boolean>(true);
     const [isShowPassword, setIsShowPassword] = useState<boolean>(false);
     const [hashedPassword, setHashedPassword] = useState("");
     
     const [emailAddress, changeEmailAddress, cleanUpEmail] = useInputChange();
     const [password, changePassword, cleanUpPassword] = useInputChange();
+
+    const [isValidEmail, checkValidation] = useRegex(EmailPattern);
     
     const { toastMessage } = useToastMessage();
     
@@ -36,9 +38,9 @@ export const LoginCard: FC<Props> = memo((props) => {
     
     useEffect(() => {
         if (emailAddress.length !== 0) {
-            setIsValidEmail(!!emailAddress.match(EmailPattern));
+            checkValidation(emailAddress);
         }
-    }, [emailAddress]);
+    }, [checkValidation, emailAddress]);
     
     const onClickShowPassword = useCallback(
         () => setIsShowPassword(!isShowPassword), [isShowPassword]);
