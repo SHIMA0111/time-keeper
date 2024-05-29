@@ -3,13 +3,15 @@ import {Box, Button, Divider, Flex, Heading, Stack, Text} from "@chakra-ui/react
 import {FormInput} from "../inputs/FormInput.tsx";
 import {EmailIcon, LockIcon, ViewIcon, ViewOffIcon} from "@chakra-ui/icons";
 import {BeatLoader} from "react-spinners";
-import {EmailPattern, LoginData, LoginInput, LoginResponse} from "../../../types/api/login.ts";
+import {LoginData, LoginInput} from "../../../types/api/login.ts";
 import {useInputChange} from "../../../hooks/useInputChange.tsx";
 import init, {hash_from_str} from "wasm-tools";
 import {useToastMessage} from "../../../hooks/useToastMessage.tsx";
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
 import {useRegex} from "../../../hooks/useRegex.tsx";
+import {Response} from "../../../types/api/response.ts";
+import {EmailPattern} from "../../../types/regex.ts";
 
 type Props = {
     toRegister: () => void,
@@ -18,7 +20,8 @@ type Props = {
 export const LoginCard: FC<Props> = memo((props) => {
     const { toRegister } = props;
     
-    const [isShowPassword, setIsShowPassword] = useState<boolean>(false);
+    const [isShowPassword, setIsShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [hashedPassword, setHashedPassword] = useState("");
     
     const [emailAddress, changeEmailAddress, cleanUpEmail] = useInputChange();
@@ -48,12 +51,13 @@ export const LoginCard: FC<Props> = memo((props) => {
     const navigate = useNavigate();
     
     const onClickLogin = useCallback(() => {
+        setLoading(true);
         const loginInput: LoginInput = {
             user_email: emailAddress,
             password: hashedPassword,
         };
         
-        axios.post<LoginResponse>("http://localhost:8888/v1/general/login", loginInput)
+        axios.post<Response>("http://localhost:8888/v1/general/login", loginInput)
             .then(res => {
                 if (res.data) {
                     const resData = res.data;
@@ -105,12 +109,13 @@ export const LoginCard: FC<Props> = memo((props) => {
                     })
                 }
             })
+            .finally(() => setLoading(false))
         
-    }, [emailAddress, hashedPassword, navigate, toastMessage]);
+    }, [cleanUpEmail, cleanUpPassword, emailAddress, hashedPassword, navigate, toastMessage]);
     
     return (
         <Box borderWidth="1px" w={{ base: "sm", md: "md" }} p={4} borderRadius="lg" bgColor="#fff">
-            <Heading as="h1" size="lg" textAlign="center">時間管理アプリ</Heading>
+            <Heading as="h1" size="lg" textAlign="center">ログイン</Heading>
             <Divider mt={2} mb={4} />
             <Stack spacing="8px">
                 <FormInput
@@ -138,7 +143,7 @@ export const LoginCard: FC<Props> = memo((props) => {
                 />
                 <Button
                     isDisabled={!isValidEmail || emailAddress.length === 0 || password.length === 0}
-                    isLoading={false}
+                    isLoading={loading}
                     onClick={onClickLogin}
                     spinner={<BeatLoader size={8} color="#333" />}
                 >ログイン</Button>

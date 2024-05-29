@@ -14,7 +14,7 @@ import {NoShadowSelect} from "../../../uiParts/inputs/NoShadowSelect.tsx";
 import {DetailModal} from "./DetailModal.tsx";
 import {CurrentSettingDisplay} from "./CurrentSettingDisplay.tsx";
 import {useTimeCounter} from "../../../../hooks/useTimeCounter.tsx";
-import {Record} from "../../../../types/api/Record.ts";
+import {Record} from "../../../../types/api/record.ts";
 import {useToastMessage} from "../../../../hooks/useToastMessage.tsx";
 
 const classes = ["カテゴリ:", "サブカテゴリ: ", "補足1: ", "補足2:"];
