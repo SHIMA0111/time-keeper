@@ -1,4 +1,3 @@
-use std::env;
 use actix_cors::Cors;
 use actix_web::{App, HttpServer, web};
 use crate::api::authed::logout::logout_delete_token;
@@ -13,8 +12,7 @@ mod api;
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
-    env::set_var("RUST_LOG", "info");
-    env_logger::init();
+    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
     HttpServer::new(|| {
         let cors = Cors::default()
