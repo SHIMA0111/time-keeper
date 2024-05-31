@@ -2,9 +2,10 @@ use actix_web::{Either, HttpRequest, Responder};
 use actix_web::web::Json;
 use log::{error, info};
 use crate::data::authenticate::authentication;
-use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody, LoginInput, LoginResponse, regex_email};
+use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody, regex_email};
 use crate::utils::json::ResponseStatus::{InternalServerError, RequestOk, Unauthorized};
 use crate::utils::token::token_generate;
+use crate::utils::types::login::{LoginInput, LoginResponse};
 
 pub async fn login_auth(auth_info: Json<LoginInput>, req: HttpRequest) -> impl Responder {
     info!("{}", get_access_info(&req));

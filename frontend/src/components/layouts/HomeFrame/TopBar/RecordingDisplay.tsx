@@ -1,5 +1,5 @@
 import {FC, memo, useEffect, useState} from "react";
-import {Box, Flex, Skeleton} from "@chakra-ui/react";
+import {Box, Flex, Skeleton, Text} from "@chakra-ui/react";
 import {MdFiberManualRecord} from "react-icons/md";
 import {IoMdPause} from "react-icons/io";
 import init, {second_to_str} from "wasm-tools";
@@ -61,7 +61,18 @@ export const RecordingDisplay: FC<Props> = memo((props) => {
                     >{elapsedTime}</Box>
                 </Skeleton>
             </Flex>
-            <Box fontSize="sm">こんにちは、{username}さん</Box>
+            <Box fontSize="sm" cursor="default">
+                こんにちは、
+                <Text
+                    display="inline"
+                    color="blue"
+                    fontWeight="bold"
+                    cursor="pointer"
+                >
+                    {username}
+                </Text>
+                さん
+            </Box>
         </Flex>
     )
 });

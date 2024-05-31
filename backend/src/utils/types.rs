@@ -1,3 +1,9 @@
+pub mod login;
+pub mod register;
+pub mod refresh;
+mod main_category;
+mod sub_category;
+
 use log::error;
 use serde::{Deserialize, Serialize};
 use tokio_postgres::{Error as PGError};
@@ -76,4 +82,3 @@ impl TokenInfo {
         Ok(())
     }
 }
-

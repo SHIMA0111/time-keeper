@@ -8,6 +8,7 @@ type Props = {
     bgColor?: string;
     borderRadius?: string;
     border?: string;
+    onClick?: () => void;
 }
 
 export const IconButtonWithName: FC<Props> = memo((props) => {
@@ -17,7 +18,8 @@ export const IconButtonWithName: FC<Props> = memo((props) => {
         icon,
         bgColor="white",
         borderRadius,
-        border
+        border,
+        onClick
     } = props;
     
     return (
@@ -31,6 +33,7 @@ export const IconButtonWithName: FC<Props> = memo((props) => {
             justify="space-between"
             borderRadius={borderRadius}
             border={border}
+            onClick={onClick}
             _hover={{
                 cursor: "pointer",
                 opacity: bgColor === "white" || 0.8,

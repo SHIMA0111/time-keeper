@@ -3,7 +3,8 @@ use uuid::Uuid;
 use crate::data::connector::DBConnection;
 use crate::utils::error::AuthenticateError;
 use crate::utils::password::{hash_password, verify_password};
-use crate::utils::sql::{get_authentication_data, get_refresh_info, insert_register};
+use crate::utils::sql::get::{get_authentication_data, get_refresh_info};
+use crate::utils::sql::insert::insert_new_user;
 use crate::utils::types::AuthenticateResult;
 
 pub(crate) async fn authentication(email: &str,
@@ -38,7 +39,7 @@ pub(crate) async fn authentication(email: &str,
 pub async fn register(email: &str, password: &str, username: &str, connection: &DBConnection) -> AuthenticateResult<String> {
     let hashed_password = hash_password(password);
     let user_id = Uuid::new_v4().to_string();
-    insert_register(&user_id, username, email, &hashed_password, connection).await?;
+    insert_new_user(&user_id, username, email, &hashed_password, connection).await?;
 
     Ok(user_id)
 }
@@ -47,13 +48,20 @@ pub async fn refresh_token_exp(refresh_token: &str, connection: &DBConnection) -
     let row = get_refresh_info(refresh_token, connection).await?;
 
     if row.len() != 1 {
-        match row.len() {
-            0 => error!("This token doesn't registered so cannot authenticated"),
-            _ => error!("This token was registered multiply. Please check the process."),
+        return match row.len() {
+            0 => {
+                error!("This token doesn't registered so cannot authenticated.");
+                Err(AuthenticateError::RefreshTokenInvalidException(
+                    "This token is invalid so maybe it's log-outed old token or nonsense".to_string()
+                ))
+            },
+            _ => {
+                error!("This token was registered multiply. Please check the process.");
+                Err(AuthenticateError::RefreshTokenInvalidException(
+                    "This token is invalid by register error. Please contact the developer".to_string()
+                ))
+            },
         }
-        return Err(AuthenticateError::RefreshTokenInvalidException(
-            "This token is invalid by register error. Please contact the developer".to_string()
-        ));
     }
 
     let row = &row[0];
@@ -61,19 +69,12 @@ pub async fn refresh_token_exp(refresh_token: &str, connection: &DBConnection) -
     info!("Found the token owner who is user_id = '{}'", uid);
 
     let is_invalid = row.get("is_invalid");
-    let is_deleted = row.get("is_deleted");
 
     if is_invalid {
         warn!("This token is marked as 'Invalidate by user'.");
         return Err(AuthenticateError::RefreshTokenInvalidException(
             "This token was invalided by the token admin.".to_string()
         ));
-    }
-    else if is_deleted {
-        warn!("This token is marked as 'Deleted by user'.");
-        return Err(AuthenticateError::RefreshTokenInvalidException(
-            "Not found this token.".to_string()
-        ))
     }
 
     Ok((row.get::<_, i64>("exp"), row.get::<_, &str>("username").to_string()))

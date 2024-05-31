@@ -1,10 +1,11 @@
 use actix_web::{Either, HttpRequest, Responder};
 use actix_web::web::Json;
 use log::{error, info};
-use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody, RefreshInput, RefreshResponse};
+use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody};
 use crate::utils::error::{AuthenticateError};
 use crate::utils::json::ResponseStatus::{InternalServerError, RequestOk, ServiceUnavailable, Unauthorized};
 use crate::utils::token::{refresh_token_verify, token_generate};
+use crate::utils::types::refresh::{RefreshInput, RefreshResponse};
 
 pub async fn refresh(refresh_info: Json<RefreshInput>, req: HttpRequest) -> impl Responder {
     info!("{}", get_access_info(&req));

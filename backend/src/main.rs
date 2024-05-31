@@ -1,8 +1,7 @@
 use std::env;
 use actix_cors::Cors;
 use actix_web::{App, HttpServer, web};
-use actix_web::web::resource;
-use crate::api::{get_all};
+use crate::api::authed::logout::logout_delete_token;
 use crate::api::general::login::login_auth;
 use crate::api::general::refresh::refresh;
 use crate::api::general::register::register_new;
@@ -28,7 +27,7 @@ async fn main() -> std::io::Result<()> {
             .service(
                 web::scope("/v1/authed")
                     .wrap(AccessTokenVerification)
-                    .service(resource("/categories").get(get_all).head(get_all))
+                    .route("/logout", web::delete().to(logout_delete_token))
             )
             .service(
                 web::scope("/v1/general")

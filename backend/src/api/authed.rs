@@ -1,2 +1,2 @@
 mod categories;
-mod logout;
+pub mod logout;

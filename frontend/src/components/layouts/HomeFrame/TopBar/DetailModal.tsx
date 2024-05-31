@@ -1,12 +1,13 @@
 import {FC, memo} from "react";
 import {
+    Center,
     FormControl,
     FormLabel, Modal,
     ModalBody,
     ModalCloseButton,
     ModalContent, ModalFooter,
     ModalHeader,
-    ModalOverlay
+    ModalOverlay, Stack
 } from "@chakra-ui/react";
 import {NoShadowSelect} from "../../../uiParts/inputs/NoShadowSelect.tsx";
 import {IconButtonWithName} from "../../../uiParts/buttons/IconButtonWithName.tsx";
@@ -25,21 +26,26 @@ export const DetailModal: FC<Props> = memo((props) => {
         <Modal isOpen={isOpen} onClose={onClose} autoFocus={false}>
             <ModalOverlay />
             <ModalContent>
-                <ModalHeader>詳細設定</ModalHeader>
+                <ModalHeader>
+                    <Center>カテゴリ設定</Center>
+                </ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
-                    {
-                        formContentNames.map(name => (
-                            <FormControl key={name}>
-                                <FormLabel>{name}:</FormLabel>
-                                <NoShadowSelect placeholder={`${name}を選択`}></NoShadowSelect>
-                            </FormControl>
-                        ))
-                    }
+                    <Stack spacing={4}>
+                        {
+                            formContentNames.map(name => (
+                                <FormControl key={name}>
+                                    <FormLabel>{name}:</FormLabel>
+                                    <NoShadowSelect placeholder={`${name}を選択`}></NoShadowSelect>
+                                </FormControl>
+                            ))
+                        }
+                    </Stack>
                     <ModalFooter px={0}>
                         <IconButtonWithName
                             borderRadius="4px"
                             border="1px solid #eee"
+                            onClick={() => alert("保存")}
                             icon={<MdSaveAlt />}>保存</IconButtonWithName>
                     </ModalFooter>
                 </ModalBody>

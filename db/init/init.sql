@@ -87,8 +87,7 @@ CREATE TABLE refresh_token
     token varchar not null,
     exp bigint not null,
     iat bigint not null,
-    is_invalid boolean DEFAULT FALSE,
-    is_deleted boolean DEFAULT FALSE
+    is_invalid boolean DEFAULT FALSE
 );
 
 -- CREATE USER and GRANT AUTHORITY --
@@ -111,7 +110,7 @@ GRANT SELECT, INSERT, UPDATE ON subcategories TO app;
 GRANT SELECT, INSERT, UPDATE ON option1 TO app;
 GRANT SELECT, INSERT, UPDATE ON option2 TO app;
 GRANT SELECT, INSERT, UPDATE ON records TO app;
-GRANT SELECT, INSERT, UPDATE ON refresh_token TO app;
+GRANT SELECT, INSERT, UPDATE, DELETE ON refresh_token TO app;
 
 -- CREATE FUNCTIONS --
 CREATE OR REPLACE FUNCTION update_auto_process()

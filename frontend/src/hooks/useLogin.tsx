@@ -71,7 +71,7 @@ export const useLogin = () => {
             })
             .finally(() => setLoading(false))
         
-    }, [navigate, toastMessage]);
+    }, [navigate, setAuthenticate, setUsername, toastMessage]);
     
     return {loading, loginAction};
 }

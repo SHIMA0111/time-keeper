@@ -19,6 +19,7 @@ export const NoShadowSelect: FC<Props> = memo((props) => {
             whiteSpace="nowrap"
             overflow="hidden"
             textOverflow="ellipsis"
+            cursor="pointer"
             _focusVisible={{
                 boxShadow: "none"
             }}
