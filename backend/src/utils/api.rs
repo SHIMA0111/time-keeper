@@ -33,10 +33,6 @@ impl <'a> HttpResponseBody<'a> {
             endpoint,
         }
     }
-
-    pub fn success(&self) -> bool {
-        self.request_success
-    }
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -157,14 +153,16 @@ pub struct LoginResponse {
     authenticated: bool,
     access_token: String,
     refresh_token: String,
+    username: String,
 }
 
 impl LoginResponse {
-    pub fn new(authenticated: bool, access_token: String, refresh_token: String) -> Self {
+    pub fn new(authenticated: bool, access_token: String, refresh_token: String, username: String) -> Self {
         Self {
             authenticated,
             access_token,
             refresh_token,
+            username,
         }
     }
 }
@@ -199,6 +197,34 @@ impl RegisterResponse {
     pub fn new(register: bool) -> Self {
         Self {
             register,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct RefreshInput {
+    refresh_token: String,
+}
+
+impl RefreshInput {
+    pub fn refresh_token(&self) -> String {
+        self.refresh_token.to_string()
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct RefreshResponse {
+    authenticated: bool,
+    access_token: String,
+    username: String,
+}
+
+impl RefreshResponse {
+    pub(crate) fn new(authenticated: bool, access_token: String, username: String) -> Self {
+        Self {
+            authenticated,
+            access_token,
+            username,
         }
     }
 }

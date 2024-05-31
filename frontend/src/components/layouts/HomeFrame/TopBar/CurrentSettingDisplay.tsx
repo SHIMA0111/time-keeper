@@ -23,7 +23,7 @@ export const CurrentSettingDisplay: FC<Props> = memo((props) => {
                                     textOverflow="ellipsis"
                                     cursor="default"
                                 >
-                                    {info}
+                                    {info}:
                                 </Text>
                             </Tooltip>
                         ))

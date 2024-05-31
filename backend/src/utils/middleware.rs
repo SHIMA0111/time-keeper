@@ -1,9 +1,8 @@
 use std::future::{Ready, ready};
-use std::str::FromStr;
 use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready};
 use actix_web::{Error, HttpResponse};
 use actix_web::body::EitherBody;
-use actix_web::http::header::{HeaderName, HeaderValue, WWW_AUTHENTICATE, X_FRAME_OPTIONS};
+use actix_web::http::header::{HeaderName, HeaderValue, WWW_AUTHENTICATE};
 use actix_web::http::StatusCode;
 use futures_util::future::LocalBoxFuture;
 use log::{error, info};

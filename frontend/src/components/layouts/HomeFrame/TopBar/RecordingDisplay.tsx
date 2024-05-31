@@ -3,6 +3,8 @@ import {Box, Flex, Skeleton} from "@chakra-ui/react";
 import {MdFiberManualRecord} from "react-icons/md";
 import {IoMdPause} from "react-icons/io";
 import init, {second_to_str} from "wasm-tools";
+import {useRecoilValue} from "recoil";
+import {userState} from "../../../../recoil/user/userState.ts";
 
 type Props = {
     isRecording: boolean;
@@ -12,6 +14,8 @@ type Props = {
 }
 
 export const RecordingDisplay: FC<Props> = memo((props) => {
+    const username = useRecoilValue(userState);
+    
     const [elapsedTime, setElapsedTime] = useState("00:00:00");
     const [displayTime, setDisplayTime] = useState<boolean>(true);
     const { isRecording, seconds, isPaused, isCalculating } = props;
@@ -41,20 +45,23 @@ export const RecordingDisplay: FC<Props> = memo((props) => {
     }, [isPaused]);
     
     return (
-        <Flex align="center" h="40%" px="16px" boxShadow="0 0 1px 0">
-            <Box
-                color={isRecording ? "#f00" : "#000"}
-                opacity={baseOpacity}
-            >
-                { isPaused ? <IoMdPause color="green" /> : <MdFiberManualRecord /> }
-            </Box>
-            <Skeleton isLoaded={!isCalculating}>
+        <Flex align="center" justify="space-between" h="40%" px="16px" boxShadow="0 0 1px 0">
+            <Flex align="center">
                 <Box
-                    ml="8px"
-                    fontSize="sm"
-                    opacity={ displayTime ? baseOpacity : 0 }
-                >{elapsedTime}</Box>
-            </Skeleton>
+                    color={isRecording ? "#f00" : "#000"}
+                    opacity={baseOpacity}
+                >
+                    { isPaused ? <IoMdPause color="green" /> : <MdFiberManualRecord /> }
+                </Box>
+                <Skeleton isLoaded={!isCalculating}>
+                    <Box
+                        ml="8px"
+                        fontSize="sm"
+                        opacity={ displayTime ? baseOpacity : 0 }
+                    >{elapsedTime}</Box>
+                </Skeleton>
+            </Flex>
+            <Box fontSize="sm">こんにちは、{username}さん</Box>
         </Flex>
     )
 });

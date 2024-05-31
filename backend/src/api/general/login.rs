@@ -7,7 +7,7 @@ use crate::utils::json::ResponseStatus::{InternalServerError, RequestOk, Unautho
 use crate::utils::token::token_generate;
 
 pub async fn login_auth(auth_info: Json<LoginInput>, req: HttpRequest) -> impl Responder {
-    info!("{}" ,get_access_info(&req));
+    info!("{}", get_access_info(&req));
 
     let endpoint_uri = req.uri().to_string();
     let email = auth_info.email();
@@ -24,8 +24,8 @@ pub async fn login_auth(auth_info: Json<LoginInput>, req: HttpRequest) -> impl R
     let email = auth_info.email();
     let password = auth_info.password();
 
-    let user_id = match authentication(&email, &password, &conn).await {
-        Ok(id) => id,
+    let (user_id, username) = match authentication(&email, &password, &conn).await {
+        Ok(user_id_and_name) => user_id_and_name,
         Err(e) => {
             error!("Failed to authenticate user ({})", e.to_string());
             let response = HttpResponseBody::failed_new(
@@ -74,7 +74,7 @@ pub async fn login_auth(auth_info: Json<LoginInput>, req: HttpRequest) -> impl R
     };
 
     info!("Login process success for {}", user_id);
-    let login_info = LoginResponse::new(true, access_token, refresh_token);
+    let login_info = LoginResponse::new(true, access_token, refresh_token, username);
 
     let response = HttpResponseBody::success_new(login_info, &endpoint_uri);
     RequestOk.json_response_builder(response)

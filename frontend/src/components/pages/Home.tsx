@@ -3,6 +3,7 @@ import {HomeFlame} from "../layouts/HomeFrame/HomeFlame.tsx";
 import {FC, memo} from "react";
 
 export const Home: FC = memo(() => {
+    
     return (
         <HomeFlame>
             <Box h={{base: "85%", md: "92%"}} bgColor="green">

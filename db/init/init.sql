@@ -26,6 +26,7 @@ CREATE TABLE categories
     is_deleted        bool      not null DEFAULT FALSE
 );
 
+
 CREATE TABLE subcategories
 (
     id                serial PRIMARY KEY,

@@ -1,19 +1,24 @@
 import {Route, Routes} from "react-router-dom";
-import {Entrance} from "../components/pages/Entrance.tsx";
+import {Login} from "../components/pages/Login.tsx";
 import {Page404} from "../components/pages/Page404.tsx";
 import {FC, memo} from "react";
 import {HomeRoutes} from "./HomeRoutes.tsx";
+import {Register} from "../components/pages/Register.tsx";
+import {RouteGuardUnAuthorize} from "./RouteGuardUnAuthorize.tsx";
 
 export const RootRouter: FC = memo(() => {
     return (
         <Routes>
-            <Route path="/" element={<Entrance />} />
+            <Route path="/" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/home/*" element={
-                <Routes>
-                    {HomeRoutes.map(route => (
-                        <Route key={route.path} path={route.path} element={route.element} />
-                    ))}
-                </Routes>
+                <RouteGuardUnAuthorize>
+                    <Routes>
+                        {HomeRoutes.map(route => (
+                            <Route key={route.path} path={route.path} element={route.element} />
+                        ))}
+                    </Routes>
+                </RouteGuardUnAuthorize>
             } />
             <Route path="*" element={<Page404 />} />
         </Routes>

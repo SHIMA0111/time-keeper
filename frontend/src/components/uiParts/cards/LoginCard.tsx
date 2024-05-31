@@ -1,35 +1,26 @@
 import {FC, memo, useCallback, useEffect, useState} from "react";
-import {Box, Button, Divider, Flex, Heading, Stack, Text} from "@chakra-ui/react";
+import {Box, Divider, Flex, Heading, Stack, Text} from "@chakra-ui/react";
 import {FormInput} from "../inputs/FormInput.tsx";
 import {EmailIcon, LockIcon, ViewIcon, ViewOffIcon} from "@chakra-ui/icons";
 import {BeatLoader} from "react-spinners";
-import {LoginData, LoginInput} from "../../../types/api/login.ts";
 import {useInputChange} from "../../../hooks/useInputChange.tsx";
 import init, {hash_from_str} from "wasm-tools";
-import {useToastMessage} from "../../../hooks/useToastMessage.tsx";
-import axios from "axios";
-import {useNavigate} from "react-router-dom";
 import {useRegex} from "../../../hooks/useRegex.tsx";
-import {Response} from "../../../types/api/response.ts";
 import {EmailPattern} from "../../../types/regex.ts";
+import {useLogin} from "../../../hooks/useLogin.tsx";
+import {LoginInput} from "../../../types/api/login.ts";
+import {useNavigate} from "react-router-dom";
+import {MainButton} from "../buttons/MainButton.tsx";
 
-type Props = {
-    toRegister: () => void,
-}
-
-export const LoginCard: FC<Props> = memo((props) => {
-    const { toRegister } = props;
-    
+export const LoginCard: FC = memo(() => {
     const [isShowPassword, setIsShowPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
     const [hashedPassword, setHashedPassword] = useState("");
+    const navigate = useNavigate();
     
-    const [emailAddress, changeEmailAddress, cleanUpEmail] = useInputChange();
-    const [password, changePassword, cleanUpPassword] = useInputChange();
-
+    const [emailAddress, changeEmailAddress] = useInputChange();
+    const [password, changePassword] = useInputChange();
     const [isValidEmail, checkValidation] = useRegex(EmailPattern);
-    
-    const { toastMessage } = useToastMessage();
+    const { loading, loginAction } = useLogin();
     
     useEffect(() => {
         init()
@@ -48,70 +39,19 @@ export const LoginCard: FC<Props> = memo((props) => {
     const onClickShowPassword = useCallback(
         () => setIsShowPassword(!isShowPassword), [isShowPassword]);
     
-    const navigate = useNavigate();
-    
     const onClickLogin = useCallback(() => {
-        setLoading(true);
         const loginInput: LoginInput = {
             user_email: emailAddress,
             password: hashedPassword,
         };
         
-        axios.post<Response>("http://localhost:8888/v1/general/login", loginInput)
-            .then(res => {
-                if (res.data) {
-                    const resData = res.data;
-                    if (!resData.request_success) {
-                        const reason = resData.failed_reason || "any reason";
-                        toastMessage({
-                            title: "Login process failed",
-                            description: `Login process failed by ${reason}. ` +
-                                "\nPlease try later. " +
-                                "\n If you face this error continuously, please contact the developer.",
-                            status: "error"
-                        });
-                    }
-                    const processResult: LoginData = JSON.parse(resData.data);
-                    if (processResult.authenticated) {
-                        localStorage.setItem("refreshToken", processResult.refresh_token);
-                        sessionStorage.setItem("actionKey", processResult.access_token)
-                        
-                        cleanUpEmail();
-                        cleanUpPassword();
-                        
-                        navigate("/home");
-                    }
-                }
-                else {
-                    toastMessage({
-                        title: "Login request failed",
-                        description: "Request response doesn't have any response. \nPlease try later.",
-                        status: "error",
-                    })
-                }
-            })
-            .catch(err => {
-                const statusCode = err.response?.status;
-                if (statusCode === 401) {
-                    toastMessage({
-                        title: "Login failed",
-                        description: "Invalid email or password",
-                        status: "error",
-                    })
-                }
-                else {
-                    toastMessage({
-                        title: "Login request failed",
-                        description: "An error occurred while processing your request. " +
-                            "\nPlease try again later. " +
-                            "\nIf you face this error continuously, please contact the developer.",
-                        status: "error",
-                    })
-                }
-            })
-            .finally(() => setLoading(false))
+        loginAction(loginInput);
         
-    }, [cleanUpEmail, cleanUpPassword, emailAddress, hashedPassword, navigate, toastMessage]);
+    }, [emailAddress, hashedPassword, loginAction]);
+   
+    const toRegister = useCallback(() => {
+        navigate("/register");
+    }, [navigate]);
     
     return (
         <Box borderWidth="1px" w={{ base: "sm", md: "md" }} p={4} borderRadius="lg" bgColor="#fff">
@@ -141,12 +81,14 @@ export const LoginCard: FC<Props> = memo((props) => {
                         onClick: onClickShowPassword
                     }}
                 />
-                <Button
+                <MainButton
+                    tooltipLabel={isValidEmail && password.length !== 0 ?
+                        "" : (isValidEmail && emailAddress.length !== 0 ? "パスワードを入力してください" : "正しいメールアドレスを入力してください")}
                     isDisabled={!isValidEmail || emailAddress.length === 0 || password.length === 0}
                     isLoading={loading}
                     onClick={onClickLogin}
                     spinner={<BeatLoader size={8} color="#333" />}
-                >ログイン</Button>
+                >ログイン</MainButton>
             </Stack>
             <Flex mt="16px" justify="right">
                 <Text

@@ -31,7 +31,7 @@ export const DetailModal: FC<Props> = memo((props) => {
                     {
                         formContentNames.map(name => (
                             <FormControl key={name}>
-                                <FormLabel>{name}</FormLabel>
+                                <FormLabel>{name}:</FormLabel>
                                 <NoShadowSelect placeholder={`${name}を選択`}></NoShadowSelect>
                             </FormControl>
                         ))

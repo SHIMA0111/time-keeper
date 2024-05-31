@@ -1,10 +1,9 @@
 use std::env;
-use actix_web::Either;
 use chrono::{Duration, Utc};
 use jsonwebtoken::{decode, DecodingKey, encode, EncodingKey, Header, Validation};
-use log::{error, warn};
+use log::{error, info, warn};
+use crate::data::authenticate::refresh_token_exp;
 use crate::data::connector::DBConnection;
-use crate::utils::api::get_db_connection;
 use crate::utils::error::{AuthenticateError, TokenGenerateError};
 use crate::utils::types::{AuthenticateResult, TokenInfo, TokenResult};
 
@@ -28,7 +27,7 @@ pub async fn token_generate(user_id: &str, refresh: bool, connection: Option<&DB
     }
 
     let exp_time = if refresh {
-        (now + Duration::hours(24)).timestamp() as u64
+        (now + Duration::hours(1)).timestamp() as u64
     }
     else {
         (now + Duration::minutes(15)).timestamp() as u64
@@ -74,15 +73,15 @@ pub async fn token_generate(user_id: &str, refresh: bool, connection: Option<&DB
     Ok(token)
 }
 
-fn token_decode_and_verify(access_token: &str) -> AuthenticateResult<TokenInfo> {
+fn token_decode_and_verify(token: &str, custom_exp: Option<u64>) -> AuthenticateResult<TokenInfo> {
     let secret_key = env::var("JWT_SECRET_KEY").unwrap_or_else(|_| {
         warn!("JWT_SECRET_KEY hasn't been set as env var so if the JWT token is different than \"\", \
         it can't be verified");
         "".to_string()
     });
 
-    let token_info = match decode::<TokenInfo>(
-        &access_token,
+    let mut token_info = match decode::<TokenInfo>(
+        &token,
         &DecodingKey::from_secret(secret_key.as_ref()),
         &Validation::default()) {
         Ok(info) => info.claims,
@@ -100,6 +99,10 @@ fn token_decode_and_verify(access_token: &str) -> AuthenticateResult<TokenInfo> 
         ))
     };
 
+    if let Some(custom_exp_raw) = custom_exp {
+        token_info.update_exp(custom_exp_raw);
+    }
+
     let current_time = current_time as u64;
     token_info.is_valid_token(current_time)?;
 
@@ -107,7 +110,7 @@ fn token_decode_and_verify(access_token: &str) -> AuthenticateResult<TokenInfo> 
 }
 
 pub fn access_token_verify(access_token: &str, is_api: bool) -> AuthenticateResult<String> {
-    let token_info = token_decode_and_verify(access_token)?;
+    let token_info = token_decode_and_verify(access_token, None)?;
 
     if is_api && !token_info.valid_for_api() {
         error!("This token is invalid for api call not via GUI.");
@@ -126,8 +129,10 @@ pub fn access_token_verify(access_token: &str, is_api: bool) -> AuthenticateResu
     Ok(token_info.user_id())
 }
 
-pub fn refresh_token_verify(refresh_token: &str) -> AuthenticateResult<String> {
-    let token_info = token_decode_and_verify(refresh_token)?;
+pub async fn refresh_token_verify(refresh_token: &str, conn: &DBConnection) -> AuthenticateResult<(String, String)> {
+    let (exp, username) = refresh_token_exp(refresh_token, conn).await?;
+
+    let token_info = token_decode_and_verify(refresh_token, Some(exp as u64))?;
 
     if !token_info.is_refresh() {
         error!("This is access token. Cannot authorize this token for re-generate access token.");
@@ -135,8 +140,9 @@ pub fn refresh_token_verify(refresh_token: &str) -> AuthenticateResult<String> {
             "input token is access token, not refresh token".to_string()
         ))
     }
+    info!("Refresh token authorized for '{}'.", token_info.user_id());
 
-    Ok(token_info.user_id())
+    Ok((token_info.user_id(), username))
 }
 
 

@@ -17,7 +17,7 @@ import {useTimeCounter} from "../../../../hooks/useTimeCounter.tsx";
 import {Record} from "../../../../types/api/record.ts";
 import {useToastMessage} from "../../../../hooks/useToastMessage.tsx";
 
-const classes = ["カテゴリ:", "サブカテゴリ: ", "補足1: ", "補足2:"];
+const classes = ["カテゴリ", "サブカテゴリ ", "補足1", "補足2"];
 
 export const TopBar: FC = memo(() => {
     const {

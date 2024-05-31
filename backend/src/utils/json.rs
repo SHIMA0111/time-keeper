@@ -1,4 +1,3 @@
-use actix_web::http::header::WWW_AUTHENTICATE;
 use log::error;
 use crate::utils::api::HttpResponseBody;
 

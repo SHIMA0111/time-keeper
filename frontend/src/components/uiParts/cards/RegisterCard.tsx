@@ -1,50 +1,34 @@
 import {ChangeEvent, FC, memo, useCallback, useEffect, useState} from "react";
 import {
     Box,
-    Button,
     Divider,
     Flex,
     Heading,
-    Modal, ModalBody, ModalCloseButton,
-    ModalContent, ModalHeader,
-    ModalOverlay,
     Stack,
     Text,
     useDisclosure
 } from "@chakra-ui/react";
 import {FormInput} from "../inputs/FormInput.tsx";
 import {EmailIcon, LockIcon, ViewIcon, ViewOffIcon} from "@chakra-ui/icons";
-import {BeatLoader} from "react-spinners";
 import {useInputChange} from "../../../hooks/useInputChange.tsx";
 import {useRegex} from "../../../hooks/useRegex.tsx";
-import {FaKey, FaUser} from "react-icons/fa";
-import {RegisterData, RegisterInput} from "../../../types/api/register.ts";
-import axios from "axios";
-import {Response} from "../../../types/api/response.ts";
-import {useToastMessage} from "../../../hooks/useToastMessage.tsx";
+import {FaUser} from "react-icons/fa";
 import {EmailPattern} from "../../../types/regex.ts";
+import {MainButton} from "../buttons/MainButton.tsx";
+import {RegisterModal} from "../modals/RegisterModal.tsx";
+import {useNavigate} from "react-router-dom";
 
-type Props = {
-    toLogin: () => void,
-}
-
-export const RegisterCard: FC<Props> = memo((props) => {
-    const { toLogin } = props;
-
+export const RegisterCard: FC = memo(() => {
     const [isShowPassword, setIsShowPassword] = useState(false);
     const [isAllInput, setIsAllInput] = useState(false);
-    const [isMatchPassword, setIsMatchPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
     const [username, setUsername] = useState("");
+    const navigate = useNavigate();
 
-    const [emailAddress, changeEmailAddress, cleanUpEmail] = useInputChange();
-    const [password, changePassword, cleanUpPassword] = useInputChange();
-    const [verifyPassword, changeVerifyPassword, cleanUpVerifyPassword] = useInputChange();
-
+    const [emailAddress, changeEmailAddress] = useInputChange();
+    const [password, changePassword] = useInputChange();
     const [isValidEmail, checkEmailValidation] = useRegex(EmailPattern);
     
     const {isOpen, onOpen, onClose} = useDisclosure();
-    const {toastMessage} = useToastMessage();
 
     const onClickShowPassword = useCallback(
         () => setIsShowPassword(!isShowPassword), [isShowPassword]);
@@ -71,86 +55,14 @@ export const RegisterCard: FC<Props> = memo((props) => {
         }
     }, [isValidEmail, password, username]);
     
-    useEffect(() => {
-        if (password === verifyPassword && verifyPassword.trim().length !== 0) {
-            setIsMatchPassword(true);
-        }
-        else {
-            setIsMatchPassword(false);
-        }
-    }, [password, verifyPassword]);
-
-    const onClickRegister = useCallback(() => {
-        setLoading(true);
-        const registerInput: RegisterInput = {
-            username,
-            user_email: emailAddress,
-            password,
-        };
-        
-        axios.post<Response>("http://localhost:8888/v1/general/register", registerInput)
-            .then(res => {
-                if (res.data) {
-                    const resData = res.data;
-                    if (!resData.request_success) {
-                        const reason = resData.failed_reason || "any reason";
-                        toastMessage({
-                            title: "Register process failed",
-                            description: `Register process failed by ${reason}. ` +
-                                "\nPlease try later. " +
-                                "\n If you face this error continuously, please contact the developer.",
-                            status: "error"
-                        });
-                    }
-                    const processResult: RegisterData = JSON.parse(resData.data);
-                    if (processResult.register) {
-                        toastMessage({
-                            title: "Register completed",
-                            description: "Register process completed." +
-                                "\nPlease login the new account",
-                            status: "success",
-                        })
-                        
-                        cleanUpEmail();
-                        cleanUpPassword();
-                        cleanUpVerifyPassword();
-                        setUsername("");
-                        
-                        toLogin();
-                    }
-                }
-                else {
-                    toastMessage({
-                        title: "Register request failed",
-                        description: "Request response doesn't have any response. \nPlease try later.",
-                        status: "error",
-                    })
-                }
-            })
-            .catch(err => {
-                const statusCode = err.response?.status;
-                if (statusCode === 401) {
-                    toastMessage({
-                        title: "Register failed",
-                        description: "Invalid email or password",
-                        status: "error",
-                    })
-                }
-                else {
-                    toastMessage({
-                        title: "Register request failed",
-                        description: "An error occurred while processing your request. " +
-                            "\nPlease try again later. " +
-                            "\nIf you face this error continuously, please contact the developer.",
-                        status: "error",
-                    })
-                }
-            })
-            .finally(() => setLoading(false));
-    }, [cleanUpEmail, cleanUpPassword, cleanUpVerifyPassword, emailAddress, password, toLogin, toastMessage, username]);
     const onChangeUsername = useCallback((e: ChangeEvent<HTMLInputElement>) => {
         setUsername(e.target.value);
     }, []);
+    
+    const toLogin = useCallback(() => {
+        navigate("/");
+    }, [navigate]);
+    
 
     return (
         <>
@@ -190,9 +102,12 @@ export const RegisterCard: FC<Props> = memo((props) => {
                             icon: <FaUser />
                         }}
                     />
-                    <Button
+                    <MainButton
                         isDisabled={!isAllInput}
-                        onClick={onOpen}>確認</Button>
+                        tooltipLabel={isAllInput ?
+                            undefined :
+                            (isValidEmail ? "全ての項目を入力してください" : "Emailアドレスが正しくありません")}
+                        onClick={onOpen}>確認</MainButton>
                 </Stack>
                 <Flex mt="16px" justify="right">
                     <Text
@@ -205,33 +120,12 @@ export const RegisterCard: FC<Props> = memo((props) => {
                         }}>登録済みの方はこちら</Text>
                 </Flex>
             </Box>
-            <Modal isOpen={isOpen} onClose={onClose} closeOnOverlayClick={false} isCentered>
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader textAlign="center">パスワード確認</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody mb="16px">
-                        <Stack>
-                            <FormInput
-                                value={verifyPassword}
-                                onChange={changeVerifyPassword}
-                                type="password"
-                                placeholder="パスワード確認"
-                                isValid={isMatchPassword}
-                                errorMessage="パスワードが一致しません。"
-                                leftIcon={{
-                                    icon: <FaKey />
-                                }}
-                            />
-                            <Button
-                                onClick={onClickRegister}
-                                isDisabled={!isMatchPassword}
-                                isLoading={loading}
-                                spinner={<BeatLoader size={8} color="#333" />}>登録</Button>
-                        </Stack>
-                    </ModalBody>
-                </ModalContent>
-            </Modal>
+            <RegisterModal
+                isOpen={isOpen}
+                onClose={onClose}
+                password={password}
+                username={username}
+                email={emailAddress} />
         </>
     );
 });
