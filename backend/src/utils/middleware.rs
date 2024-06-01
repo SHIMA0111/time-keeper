@@ -1,8 +1,9 @@
 use std::future::{Ready, ready};
+use std::ops::Deref;
 use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready};
 use actix_web::{Error, HttpResponse};
 use actix_web::body::EitherBody;
-use actix_web::http::header::{HeaderName, HeaderValue, WWW_AUTHENTICATE};
+use actix_web::http::header::{AUTHORIZATION, HeaderName, HeaderValue, WWW_AUTHENTICATE};
 use actix_web::http::StatusCode;
 use futures_util::future::LocalBoxFuture;
 use log::{error, info};
@@ -48,7 +49,7 @@ where
     forward_ready!(service);
 
     fn call(&self, mut req: ServiceRequest) -> Self::Future {
-        let authorization_info = match req.headers().get("Authorization") {
+        let authorization_info = match req.headers().get(AUTHORIZATION) {
             Some(authorize_value) => authorize_value.to_str().unwrap_or(""),
             None => "",
         };

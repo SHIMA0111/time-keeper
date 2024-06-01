@@ -47,7 +47,6 @@ export const RouteGuardUnAuthorize: FC<Props> = memo((props) => {
                     }
                     const refreshData: RefreshData = JSON.parse(resData.data);
                     if (refreshData.authenticated) {
-                        console.log(refreshData.access_token);
                         setAuthenticate(refreshData.access_token);
                         setUsername(refreshData.username);
                     }
