@@ -1,5 +1,4 @@
 use std::future::{Ready, ready};
-use std::ops::Deref;
 use actix_web::dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready};
 use actix_web::{Error, HttpResponse};
 use actix_web::body::EitherBody;

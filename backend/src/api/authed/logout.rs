@@ -1,4 +1,4 @@
-use actix_web::{Either, HttpRequest, HttpResponse, Responder};
+use actix_web::{Either, HttpRequest, Responder};
 use actix_web::http::header::AUTHORIZATION;
 use log::{error, info, warn};
 use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody};

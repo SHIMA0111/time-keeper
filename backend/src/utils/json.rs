@@ -1,6 +1,7 @@
 use log::error;
 use crate::utils::api::HttpResponseBody;
 
+#[allow(dead_code)]
 pub enum ResponseStatus {
     RequestOk,
     Created,

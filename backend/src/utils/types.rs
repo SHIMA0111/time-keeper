@@ -6,10 +6,8 @@ mod sub_category;
 
 use log::error;
 use serde::{Deserialize, Serialize};
-use tokio_postgres::{Error as PGError};
 use crate::utils::error::{AuthenticateError, TokenGenerateError};
 
-pub(crate) type PGResult<T> = Result<T, PGError>;
 pub(crate) type TokenResult<T> = Result<T, TokenGenerateError>;
 pub(crate) type AuthenticateResult<T> = Result<T, AuthenticateError>;
 
