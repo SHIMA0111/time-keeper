@@ -28,6 +28,7 @@ pub enum AuthenticateError {
     RefreshTokenExpiredException(String),
     RefreshTokenInvalidException(String),
     InvalidSettingException(String),
+    HashProcessException,
 }
 
 impl Display for AuthenticateError {
@@ -40,6 +41,7 @@ impl Display for AuthenticateError {
             Self::RefreshTokenExpiredException(e) => write!(f, "Refresh Token was expired ({})", e),
             Self::RefreshTokenInvalidException(e) => write!(f, "Refresh Token is invalid due to: {}", e),
             Self::InvalidSettingException(e) => write!(f, "Detect invalid system setting because from: {}", e),
+            Self::HashProcessException => write!(f, "Password Hasher return exception. Please see the log"),
         }
     }
 }

@@ -38,6 +38,9 @@ pub(crate) async fn authentication(email: &str,
 
 pub async fn register(email: &str, password: &str, username: &str, connection: &DBConnection) -> AuthenticateResult<String> {
     let hashed_password = hash_password(password);
+    if hashed_password.is_empty() {
+        return Err(AuthenticateError::HashProcessException);
+    }
     let user_id = Uuid::new_v4().to_string();
     insert_new_user(&user_id, username, email, &hashed_password, connection).await?;
 
