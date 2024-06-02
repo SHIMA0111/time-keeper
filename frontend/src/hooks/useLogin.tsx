@@ -1,25 +1,26 @@
 import {useCallback, useState} from "react";
 import {LoginData, LoginInput} from "../types/api/login.ts";
-import axios from "axios";
 import {Response} from "../types/api/response.ts";
 import {useToastMessage} from "./useToastMessage.tsx";
 import {useNavigate} from "react-router-dom";
 import {useSetRecoilState} from "recoil";
 import {authenticateState} from "../recoil/authentication/authenticateState.ts";
 import {userState} from "../recoil/user/userState.ts";
+import {useGeneralEndpoint} from "./useGeneralEndpoint.tsx";
 
 export const useLogin = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const setAuthenticate = useSetRecoilState(authenticateState);
     const setUsername = useSetRecoilState(userState);
+    const axiosGeneralEndpoint = useGeneralEndpoint("http://localhost:8888");
     
     const {toastMessage} = useToastMessage();
     
     const loginAction = useCallback((loginInput: LoginInput) => {
         setLoading(true);
         
-        axios.post<Response>("http://localhost:8888/v1/general/login", loginInput)
+        axiosGeneralEndpoint.post<Response>("/login", loginInput)
             .then(res => {
                 if (res.data) {
                     const resData = res.data;
@@ -71,7 +72,7 @@ export const useLogin = () => {
             })
             .finally(() => setLoading(false))
         
-    }, [navigate, setAuthenticate, setUsername, toastMessage]);
+    }, [axiosGeneralEndpoint, navigate, setAuthenticate, setUsername, toastMessage]);
     
     return {loading, loginAction};
 }

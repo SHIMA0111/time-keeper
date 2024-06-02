@@ -1,5 +1,7 @@
+use std::env;
 use actix_cors::Cors;
 use actix_web::{App, HttpServer, web};
+use log::warn;
 use crate::api::authed::logout::logout_delete_token;
 use crate::api::general::login::login_auth;
 use crate::api::general::refresh::refresh;
@@ -13,6 +15,9 @@ mod api;
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+    if env::var("JWT_SECRET_KEY").is_err() {
+        warn!("JWT_SECRET_KEY hasn't been set as env var so jwt will be generated using \"\" as secret key");
+    }
 
     HttpServer::new(|| {
         let cors = Cors::default()

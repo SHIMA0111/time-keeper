@@ -2,7 +2,6 @@ use actix_web::{Either, HttpRequest, Responder};
 use actix_web::http::header::AUTHORIZATION;
 use log::{error, info, warn};
 use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody};
-use crate::utils::error::AuthenticateError;
 use crate::utils::response::ResponseStatus::{BadRequest, InternalServerError, RequestOk, Unauthorized};
 use crate::utils::sql::delete::delete_refresh_token;
 use crate::utils::token::access_token_verify;
@@ -53,19 +52,10 @@ pub async fn logout_delete_token(req: HttpRequest) -> impl Responder {
                 info!("Get user_id success. Please note the middleware doesn't set this to header.");
                 user_id = uid;
             },
-            Err(e) => {
-                return match e {
-                    AuthenticateError::AccessTokenExpiredException(e) => {
-                        info!("{}", e);
-                        let response = HttpResponseBody::failed_new("Access token expired", &endpoint_uri);
-                        Unauthorized.json_response_builder(response)
-                    },
-                    _ => {
-                        error!("Access token invalid by [{}]", e.to_string());
-                        let response = HttpResponseBody::failed_new("Access token invalid", &endpoint_uri);
-                        BadRequest.json_response_builder(response)
-                    }
-                };
+            Err(_) => {
+                error!("Access token invalid");
+                let response = HttpResponseBody::failed_new("Access token invalid", &endpoint_uri);
+                return Unauthorized.json_response_builder(response);
             }
         }
     }
@@ -77,7 +67,6 @@ pub async fn logout_delete_token(req: HttpRequest) -> impl Responder {
             return response
         },
     };
-    info!("Success DB connection");
 
     let result = delete_refresh_token(&user_id, &conn).await;
 
@@ -89,9 +78,9 @@ pub async fn logout_delete_token(req: HttpRequest) -> impl Responder {
         );
         return InternalServerError.json_response_builder(response);
     };
-    info!("Delete refresh token success.");
-    info!("Complete logout process");
+    info!("Delete refresh token completed.");
 
     let response = HttpResponseBody::success_new("", &endpoint_uri);
+    info!("Complete logout process");
     RequestOk.json_response_builder(response)
 }

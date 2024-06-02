@@ -1,11 +1,12 @@
+use log::error;
 use tokio_postgres::{Client, Row};
 use tokio_postgres::types::ToSql;
 use crate::data::connector::DBConnection;
-use crate::utils::error::AuthenticateError::DBConnectionException;
-use crate::utils::sql::SCHEMA_NAME;
-use crate::utils::types::AuthenticateResult;
+use crate::utils::error::TimeKeeperError::DBConnectionException;
+use crate::utils::sql::{SCHEMA_NAME, uuid_from_string};
+use crate::utils::types::TimeKeeperResult;
 
-async fn execute_query(stmt_str: &str, params: &[&(dyn ToSql + Sync)], client: &Client) -> AuthenticateResult<Vec<Row>> {
+async fn execute_query(stmt_str: &str, params: &[&(dyn ToSql + Sync)], client: &Client) -> TimeKeeperResult<Vec<Row>> {
     let stmt = match client.prepare(&stmt_str).await {
         Ok(statement) => statement,
         Err(e) => {
@@ -19,14 +20,14 @@ async fn execute_query(stmt_str: &str, params: &[&(dyn ToSql + Sync)], client: &
     }
 }
 
-pub(crate) async fn get_authentication_data(email: &str, conn: &DBConnection) -> AuthenticateResult<Vec<Row>> {
+pub(crate) async fn get_authentication_data(email: &str, conn: &DBConnection) -> TimeKeeperResult<Vec<Row>> {
     let statement_str =
         format!("SELECT id, password, username FROM {}.users WHERE email=$1", SCHEMA_NAME);
 
     execute_query(&statement_str, &[&email], conn.client()).await
 }
 
-pub(crate) async fn get_refresh_info(refresh_token: &str, conn: &DBConnection) -> AuthenticateResult<Vec<Row>> {
+pub(crate) async fn get_refresh_info(refresh_token: &str, conn: &DBConnection) -> TimeKeeperResult<Vec<Row>> {
     let statement_str = format!(
         "SELECT \
             refresh_info.uid, \
@@ -45,3 +46,28 @@ pub(crate) async fn get_refresh_info(refresh_token: &str, conn: &DBConnection) -
     execute_query(&statement_str, &[&refresh_token], conn.client()).await
 }
 
+pub(crate) async fn get_is_existing_refresh_token(user_id: &str, conn: &DBConnection) -> bool {
+    let statement_str =
+        format!("SELECT uid FROM {}.refresh_token WHERE uid=$1", SCHEMA_NAME);
+
+    let uid = uuid_from_string(user_id);
+    if let Err(e) = uid {
+        error!("user_id cannot convert to UUID because {}", e.to_string());
+        return true;
+    }
+
+    match execute_query(&statement_str, &[&(uid.unwrap())], conn.client()).await {
+        Ok(count) => {
+            if count.is_empty() {
+                false
+            }
+            else {
+                true
+            }
+        },
+        Err(e) => {
+            error!("Failed to request by {}.", e.to_string());
+            true
+        }
+    }
+}

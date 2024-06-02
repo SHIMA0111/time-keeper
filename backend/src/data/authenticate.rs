@@ -1,15 +1,16 @@
 use log::{error, info, warn};
 use uuid::Uuid;
 use crate::data::connector::DBConnection;
-use crate::utils::error::AuthenticateError;
+use crate::utils::error::TimeKeeperError::{HashProcessException, RefreshTokenInvalidException};
 use crate::utils::hash::{hash_password, verify_password};
 use crate::utils::sql::get::{get_authentication_data, get_refresh_info};
 use crate::utils::sql::insert::insert_new_user;
-use crate::utils::types::AuthenticateResult;
+use crate::utils::sql::update::login_footprint;
+use crate::utils::types::TimeKeeperResult;
 
 pub(crate) async fn authentication(email: &str,
                                    password: &str,
-                                   connection: &DBConnection) -> AuthenticateResult<(String, String)> {
+                                   connection: &DBConnection) -> TimeKeeperResult<(String, String)> {
     let user_row = get_authentication_data(email, connection).await?;
 
     if user_row.len() != 1 {
@@ -28,7 +29,9 @@ pub(crate) async fn authentication(email: &str,
     let user_password = user_data_row.get("password");
 
     if verify_password(password, user_password) {
-        Ok((user_data_row.get("id"), user_data_row.get("username")))
+        let user_id = user_data_row.get::<_, Uuid>("id");
+        login_footprint(&user_id, connection).await?;
+        Ok((user_id.to_string(), user_data_row.get("username")))
     }
     else {
         info!("Invalid authentication. Input doesn't match the registered data.");
@@ -36,10 +39,10 @@ pub(crate) async fn authentication(email: &str,
     }
 }
 
-pub async fn register(email: &str, password: &str, username: &str, connection: &DBConnection) -> AuthenticateResult<String> {
+pub async fn register(email: &str, password: &str, username: &str, connection: &DBConnection) -> TimeKeeperResult<String> {
     let hashed_password = hash_password(password);
     if hashed_password.is_empty() {
-        return Err(AuthenticateError::HashProcessException);
+        return Err(HashProcessException);
     }
     let user_id = Uuid::new_v4().to_string();
     insert_new_user(&user_id, username, email, &hashed_password, connection).await?;
@@ -47,20 +50,20 @@ pub async fn register(email: &str, password: &str, username: &str, connection: &
     Ok(user_id)
 }
 
-pub async fn refresh_token_exp(refresh_token: &str, connection: &DBConnection) -> AuthenticateResult<(i64, String)> {
+pub async fn refresh_token_exp(refresh_token: &str, connection: &DBConnection) -> TimeKeeperResult<(i64, String)> {
     let row = get_refresh_info(refresh_token, connection).await?;
 
     if row.len() != 1 {
         return match row.len() {
             0 => {
                 error!("This token doesn't registered so cannot authenticated.");
-                Err(AuthenticateError::RefreshTokenInvalidException(
+                Err(RefreshTokenInvalidException(
                     "This token is invalid so maybe it's log-outed old token or nonsense".to_string()
                 ))
             },
             _ => {
                 error!("This token was registered multiply. Please check the process.");
-                Err(AuthenticateError::RefreshTokenInvalidException(
+                Err(RefreshTokenInvalidException(
                     "This token is invalid by register error. Please contact the developer".to_string()
                 ))
             },
@@ -68,14 +71,14 @@ pub async fn refresh_token_exp(refresh_token: &str, connection: &DBConnection) -
     }
 
     let row = &row[0];
-    let uid = row.get::<_, String>("uid");
+    let uid = row.get::<_, Uuid>("uid");
     info!("Found the token owner who is user_id = '{}'", uid);
 
     let is_invalid = row.get("is_invalid");
 
     if is_invalid {
         warn!("This token is marked as 'Invalidate by user'.");
-        return Err(AuthenticateError::RefreshTokenInvalidException(
+        return Err(RefreshTokenInvalidException(
             "This token was invalided by the token admin.".to_string()
         ));
     }

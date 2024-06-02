@@ -1,20 +1,21 @@
 import {useCallback, useState} from "react";
 import {RegisterData, RegisterInput} from "../types/api/register.ts";
-import axios from "axios";
 import {Response} from "../types/api/response.ts";
 import {useToastMessage} from "./useToastMessage.tsx";
 import {useNavigate} from "react-router-dom";
+import {useGeneralEndpoint} from "./useGeneralEndpoint.tsx";
 
 export const useRegister = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     
     const {toastMessage} = useToastMessage();
+    const axiosGeneralEndpoint = useGeneralEndpoint("http://localhost:8888");
     
     const registerAction = useCallback((registerInput: RegisterInput) => {
         setLoading(true);
         
-        axios.post<Response>("http://localhost:8888/v1/general/register", registerInput)
+        axiosGeneralEndpoint.post<Response>("/register", registerInput)
             .then(res => {
                 if (res.data) {
                     const resData = res.data;
@@ -68,7 +69,7 @@ export const useRegister = () => {
                 }
             })
             .finally(() => setLoading(false));
-    }, [toastMessage]);
+    }, [axiosGeneralEndpoint, navigate, toastMessage]);
     
     return {loading, registerAction};
 }

@@ -7,9 +7,9 @@ use actix_web::http::StatusCode;
 use futures_util::future::LocalBoxFuture;
 use log::{error, info};
 use crate::utils::api::HttpResponseBody;
-use crate::utils::middleware::TokenVerificationResult::{Authorized, ExpiredToken, InvalidToken, NoTokenProvided};
+use crate::utils::middleware::TokenVerificationResult::{Authorized, InvalidToken, NoTokenProvided};
 use crate::utils::token::access_token_verify;
-use crate::utils::error::AuthenticateError;
+use crate::utils::error::TimeKeeperError::AccessTokenInvalidException;
 
 const TOKEN_SCHEMA: &str = "Bearer";
 pub struct AccessTokenVerification;
@@ -90,7 +90,6 @@ where
 enum TokenVerificationResult {
     NoTokenProvided,
     InvalidToken(String),
-    ExpiredToken,
     Authorized(String),
 }
 
@@ -116,8 +115,7 @@ fn bearer_verify(bearer_token: &str, is_api: bool) -> TokenVerificationResult {
         Err(e) => {
             error!("Access token verification failed by [{}]", e.to_string());
             match e {
-                AuthenticateError::AccessTokenInvalidException(e) => InvalidToken(e),
-                AuthenticateError::AccessTokenExpiredException(_) => ExpiredToken,
+                AccessTokenInvalidException(e) => InvalidToken(e),
                 _ => {
                     error!("Token verification process failed due to something wrong.({})", e.to_string());
                     InvalidToken("This error is internal server error. If you face this, please let the developer know.".to_string())
@@ -129,7 +127,6 @@ fn bearer_verify(bearer_token: &str, is_api: bool) -> TokenVerificationResult {
 
 fn build_response_token_failed(token_verification_result: TokenVerificationResult, endpoint: &str) -> HttpResponse {
     let (realm, reason, status_code) = match token_verification_result {
-        ExpiredToken => ("expired_token", "Token expired".to_string(), StatusCode::UNAUTHORIZED),
         InvalidToken(e) => ("invalid_token", e, StatusCode::UNAUTHORIZED),
         NoTokenProvided => ("require_token", "authed api needs token authorization".to_string(), StatusCode::UNAUTHORIZED),
         _ => ("", "This error is internal server error. Please contact developer".to_string(), StatusCode::INTERNAL_SERVER_ERROR)
