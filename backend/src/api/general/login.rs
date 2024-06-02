@@ -3,7 +3,7 @@ use actix_web::web::Json;
 use log::{error, info};
 use crate::data::authenticate::authentication;
 use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody, regex_email};
-use crate::utils::json::ResponseStatus::{InternalServerError, RequestOk, Unauthorized};
+use crate::utils::response::ResponseStatus::{InternalServerError, RequestOk, Unauthorized};
 use crate::utils::token::token_generate;
 use crate::utils::types::login::{LoginInput, LoginResponse};
 

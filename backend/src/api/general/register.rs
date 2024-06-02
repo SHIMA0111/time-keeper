@@ -2,7 +2,7 @@ use actix_web::{Either, HttpRequest, Responder, web};
 use log::{error, info};
 use crate::data::authenticate::register;
 use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody, regex_email};
-use crate::utils::json::ResponseStatus::{Created, InternalServerError};
+use crate::utils::response::ResponseStatus::{Created, InternalServerError};
 use crate::utils::types::register::{RegisterInput, RegisterResponse};
 
 pub async fn register_new(register_input: web::Json<RegisterInput>, req: HttpRequest) -> impl Responder {

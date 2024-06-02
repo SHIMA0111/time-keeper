@@ -2,7 +2,7 @@ use log::{error, info, warn};
 use uuid::Uuid;
 use crate::data::connector::DBConnection;
 use crate::utils::error::AuthenticateError;
-use crate::utils::password::{hash_password, verify_password};
+use crate::utils::hash::{hash_password, verify_password};
 use crate::utils::sql::get::{get_authentication_data, get_refresh_info};
 use crate::utils::sql::insert::insert_new_user;
 use crate::utils::types::AuthenticateResult;

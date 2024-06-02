@@ -3,7 +3,7 @@ use log::error;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use crate::data::connector::DBConnection;
-use crate::utils::json::ResponseStatus::{BadRequest, InternalServerError};
+use crate::utils::response::ResponseStatus::{BadRequest, InternalServerError};
 
 pub const MAIL_PATTERN: &str = r"[A-Za-z0-9.+_-]+@[A-Za-z0-9.-]+\.[a-z0-9.]+";
 

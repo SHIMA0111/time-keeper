@@ -3,7 +3,7 @@ use actix_web::http::header::AUTHORIZATION;
 use log::{error, info, warn};
 use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody};
 use crate::utils::error::AuthenticateError;
-use crate::utils::json::ResponseStatus::{BadRequest, InternalServerError, RequestOk, Unauthorized};
+use crate::utils::response::ResponseStatus::{BadRequest, InternalServerError, RequestOk, Unauthorized};
 use crate::utils::sql::delete::delete_refresh_token;
 use crate::utils::token::access_token_verify;
 
@@ -84,7 +84,7 @@ pub async fn logout_delete_token(req: HttpRequest) -> impl Responder {
     if let Err(e) = result {
         error!("Delete refresh token by user logout failed. Because of [{}]", e.to_string());
         let response = HttpResponseBody::failed_new(
-            "Failed to delete refresh token. However it will invalidate after 1 hour.",
+            "Failed to delete refresh token. However it will be invalidated after 1 hour.",
             &endpoint_uri,
         );
         return InternalServerError.json_response_builder(response);
