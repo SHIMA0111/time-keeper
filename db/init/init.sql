@@ -4,6 +4,7 @@ SET search_path TO time_schema;
 SET TIME ZONE 'Asia/Tokyo';
 
 -- CREATE TABLES --
+-- USER --
 CREATE TABLE users
 (
     id                uuid   PRIMARY KEY,
@@ -18,14 +19,30 @@ CREATE TABLE users
     is_deleted        bool      not null DEFAULT FALSE
 );
 
+-- CATEGORY --
+CREATE TABLE display_setting
+(
+    table_name varchar PRIMARY KEY,
+    display_name_en varchar not null,
+    display_name_ja varchar not null,
+    is_valid bool DEFAULT FALSE
+);
+
+CREATE TABLE main_category
+(
+    id serial PRIMARY KEY,
+    name varchar not null,
+    created_timestamp timestamp,
+    created_user_id uuid not null,
+    is_deleted bool DEFAULT FALSE,
+    FOREIGN KEY (created_user_id) REFERENCES users (id)
+);
+
+-- RECORD --
 CREATE TABLE records
 (
     id serial PRIMARY KEY,
     user_id uuid not null,
-    category_id integer not null,
-    subcategory_id integer not null,
-    option1_id integer not null,
-    option2_id integer not null,
     total_time float,
     date date,
     start bigint,
@@ -34,6 +51,7 @@ CREATE TABLE records
     pause_ends bigint[] not null
 );
 
+-- REFRESH TOKEN --
 CREATE TABLE refresh_token
 (
     uid uuid PRIMARY KEY,
@@ -85,8 +103,14 @@ BEGIN
     RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
+
 CREATE TRIGGER auto_created_timestamp_users
 BEFORE INSERT ON users
+FOR EACH ROW
+EXECUTE FUNCTION insert_auto_timestamp();
+
+CREATE TRIGGER auto_created_timestamp_main
+BEFORE INSERT ON main_category
 FOR EACH ROW
 EXECUTE FUNCTION insert_auto_timestamp();
 
@@ -99,4 +123,14 @@ VALUES
 INSERT INTO
     refresh_token (uid, token, exp, iat)
 VALUES
-    ('debcc72a-789b-4046-b954-0825d3331861', 'dummy_token', 1717102316, 1716102316)
+    ('debcc72a-789b-4046-b954-0825d3331861', 'dummy_token', 1717102316, 1716102316);
+
+INSERT INTO
+    display_setting (setting_name, display_name_en, display_name_ja)
+VALUES
+    ('main_category', 'Main Category', 'メインカテゴリ');
+
+INSERT INTO
+    main_category (name, created_user_id)
+VALUES
+    ('category1', 'debcc72a-789b-4046-b954-0825d3331861')

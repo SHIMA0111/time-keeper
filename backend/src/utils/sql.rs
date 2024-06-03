@@ -7,6 +7,7 @@ pub mod insert;
 pub mod delete;
 pub mod get;
 pub mod update;
+mod create_table;
 
 const SCHEMA_NAME: &str = "time_schema";
 fn uuid_from_string(user_id: &str) -> TimeKeeperResult<Uuid> {
