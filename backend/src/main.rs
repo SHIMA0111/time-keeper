@@ -23,7 +23,7 @@ async fn main() -> std::io::Result<()> {
         let cors = Cors::default()
             .allow_any_header()
             .allow_any_method()
-            .allow_any_origin();
+            .allowed_origin("http://localhost:5173");
 
         App::new()
             .wrap(cors)
