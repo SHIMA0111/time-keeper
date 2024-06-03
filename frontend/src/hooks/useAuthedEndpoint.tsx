@@ -8,15 +8,12 @@ import {Response} from "../types/api/response.ts";
 export const useAuthedEndpoint = (backend_url: string) => {
     const [accessToken, setAccessToken] = useRecoilState(authenticateState);
     const axiosGeneralEndpoint = useGeneralEndpoint("http://localhost:8888");
-    
+
     const axiosAuthedEndpoint = axios.create({
         baseURL: `${backend_url}/v1/authed`,
-        headers: {
-            Authorization: `Bearer ${accessToken}`
-        },
         timeout: 10000,
     });
-    
+
     axiosAuthedEndpoint.interceptors.request.use(
         (requestValue) => {
             if (!requestValue.headers.Authorization) {
@@ -25,7 +22,7 @@ export const useAuthedEndpoint = (backend_url: string) => {
             return requestValue;
         }
     )
-    
+
     axiosAuthedEndpoint.interceptors.response.use(
         response => response,
         err => {
@@ -57,9 +54,9 @@ export const useAuthedEndpoint = (backend_url: string) => {
             else {
                 return Promise.reject(err);
             }
-            
+
         }
     );
-    
+
     return axiosAuthedEndpoint;
 }
