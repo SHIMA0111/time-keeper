@@ -1,18 +1,32 @@
 use std::env;
 use actix_cors::Cors;
-use actix_web::{App, HttpServer, web};
+use actix_web::{App, Either, HttpResponse, HttpServer, Responder, web};
 use log::warn;
 use crate::api::authed::logout::logout_delete_token;
 use crate::api::general::login::login_auth;
 use crate::api::general::refresh::refresh;
 use crate::api::general::register::register_new;
+use crate::utils::api::get_db_connection;
 use crate::utils::middleware::AccessTokenVerification;
+use crate::utils::sql::create_table::create_sub_category_table;
 
 mod data;
 mod utils;
 mod api;
 
-#[tokio::main]
+async fn hello_world() -> impl Responder {
+    let mut conn = match get_db_connection("/test").await {
+        Either::Left(conn) => conn,
+        Either::Right(res) => return res
+    };
+    match create_sub_category_table("sub_category1", "テスト2", "Test2", &mut conn).await {
+        Ok(_) => println!("Success!!"),
+        Err(e) => println!("{}", e.to_string())
+    };
+    HttpResponse::Ok().body("Hello World")
+}
+
+#[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
     if env::var("JWT_SECRET_KEY").is_err() {
@@ -37,6 +51,7 @@ async fn main() -> std::io::Result<()> {
                     .route("/login", web::post().to(login_auth))
                     .route("/register", web::post().to(register_new))
                     .route("/refresh", web::post().to(refresh))
+                    .route("/test", web::get().to(hello_world))
             )
     })
         .bind(("127.0.0.1", 8888))?

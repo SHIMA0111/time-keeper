@@ -2,7 +2,7 @@ use log::error;
 use tokio_postgres::{Client, Row};
 use tokio_postgres::types::ToSql;
 use crate::data::connector::DBConnection;
-use crate::utils::error::TimeKeeperError::DBConnectionException;
+use crate::utils::error::TimeKeeperError::{DBConnectionException, InvalidSettingException};
 use crate::utils::sql::{SCHEMA_NAME, uuid_from_string};
 use crate::utils::types::TimeKeeperResult;
 

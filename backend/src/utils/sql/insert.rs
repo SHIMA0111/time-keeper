@@ -72,27 +72,3 @@ pub(crate) async fn insert_refresh_token(user_id: &str,
         }
     }
 }
-
-pub(crate) async fn insert_new_category(table_name: &str,
-                                        name_en: &str,
-                                        name_ja: &str,
-                                        conn: &DBConnection) -> TimeKeeperResult<()> {
-    let statement_str = format!(
-        "INSERT INTO {}.display_setting (table_name, display_name_en, display_name_ja) VALUES ($1, $2, $3)",
-        SCHEMA_NAME);
-
-    return match insert(&statement_str, &[&table_name, &name_en, &name_ja], conn.client()).await {
-        Ok(res) => {
-            if res == 1 {
-                Ok(())
-            }
-            else {
-                warn!("Insert process of display_setting success but the update number is not expected.");
-                Ok(())
-            }
-        },
-        Err(e) => {
-            Err(e)
-        }
-    }
-}

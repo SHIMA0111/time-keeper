@@ -4,7 +4,7 @@ use tokio_postgres::Client;
 use tokio_postgres::types::ToSql;
 use uuid::Uuid;
 use crate::data::connector::DBConnection;
-use crate::utils::error::TimeKeeperError::{DBConnectionException, RegisterAuthenticationException};
+use crate::utils::error::TimeKeeperError::{DBConnectionException, InvalidSettingException, RegisterAuthenticationException};
 use crate::utils::sql::SCHEMA_NAME;
 use crate::utils::types::TimeKeeperResult;
 
@@ -53,7 +53,7 @@ pub(crate) async fn update_category_name(table_name: &str,
                                          name_ja: &str,
                                          conn: &DBConnection) -> TimeKeeperResult<()> {
     let statement_str = format!(
-        "UPDATE {}.display_setting SET display_name_en=$1, display_name_ja=$2 WHERE table_name=$3",
+        "UPDATE {}.category_setting SET display_name_en=$1, display_name_ja=$2 WHERE table_name=$3",
         SCHEMA_NAME);
 
     match update(&statement_str, &[&name_en, &name_ja, &table_name], conn.client()).await {
@@ -69,6 +69,33 @@ pub(crate) async fn update_category_name(table_name: &str,
         Err(e) => {
             error!("Failed to update category alias name due to {}", e.to_string());
             Err(DBConnectionException("Failed to update category table name.".to_string()))
+        }
+    }
+}
+
+pub(crate) async fn toggle_category_setting_for_table(table_name: &str,
+                                                      to_disabled: bool,
+                                                      conn: &DBConnection) -> TimeKeeperResult<()> {
+    let statement_str = format!(
+        "UPDATE {}.category_setting SET is_invalid=$1 WHERE table_name=$2", SCHEMA_NAME);
+
+    match update(&statement_str, &[&to_disabled, &table_name], conn.client()).await {
+        Ok(res) => {
+            if res == 1 {
+                Ok(())
+            }
+            else if res > 1 {
+                warn!("Update {} records. Please note it isn't expected behavior", res);
+                Ok(())
+            }
+            else {
+                error!("Update process failed. Please check the setting is correct.");
+                Err(InvalidSettingException("Failed to update the table visibility".to_string()))
+            }
+        },
+        Err(e) => {
+            error!("Update failed due to {}", e.to_string());
+            Err(e)
         }
     }
 }
