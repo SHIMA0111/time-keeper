@@ -3,7 +3,6 @@ use crate::data::connector::DBConnection;
 use crate::utils::error::TimeKeeperError::{
     CreateTableException,
     ExceedCategoryTableException,
-    GenerationFailedException,
     InvalidSettingException,
     QueryDataException};
 use crate::utils::sql::{get_constraint_name, SCHEMA_NAME};

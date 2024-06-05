@@ -1,4 +1,4 @@
-use log::{error, info, warn};
+use log::{error, info};
 use tokio_postgres::Client;
 use tokio_postgres::types::ToSql;
 use crate::data::connector::DBConnection;
