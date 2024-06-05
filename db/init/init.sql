@@ -20,12 +20,13 @@ CREATE TABLE users
 );
 
 -- CATEGORY --
-CREATE TABLE display_setting
+CREATE TABLE category_setting
 (
     table_name varchar PRIMARY KEY,
     display_name_en varchar not null,
     display_name_ja varchar not null,
-    is_valid bool DEFAULT FALSE
+    superior_table varchar,
+    is_invalid bool DEFAULT FALSE
 );
 
 CREATE TABLE main_category
@@ -67,14 +68,22 @@ CREATE ROLE app WITH LOGIN PASSWORD 'password';
 SET search_path TO time_schema;
 SET TIME ZONE 'Asia/Tokyo';
 
-GRANT USAGE ON SCHEMA time_schema TO app;
+GRANT USAGE, CREATE ON SCHEMA time_schema TO app;
+
 GRANT USAGE, SELECT ON SEQUENCE records_id_seq TO app;
+GRANT USAGE, SELECT ON SEQUENCE main_category_id_seq TO app;
 
 GRANT SELECT, INSERT, UPDATE ON users TO app;
+GRANT SELECT, INSERT, UPDATE ON category_setting TO app;
+GRANT SELECT, INSERT, UPDATE ON main_category TO app;
 GRANT SELECT, INSERT, UPDATE ON records TO app;
 GRANT SELECT, INSERT, UPDATE, DELETE ON refresh_token TO app;
 
+GRANT REFERENCES ON TABLE users TO app;
+GRANT REFERENCES ON TABLE main_category TO app;
+
 -- CREATE FUNCTIONS --
+-- auto increment in users --
 CREATE OR REPLACE FUNCTION update_auto_process()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -95,6 +104,7 @@ BEFORE UPDATE ON users
 FOR EACH ROW
 EXECUTE FUNCTION update_auto_process();
 
+-- auto timestamp --
 CREATE OR REPLACE FUNCTION insert_auto_timestamp()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -114,6 +124,23 @@ BEFORE INSERT ON main_category
 FOR EACH ROW
 EXECUTE FUNCTION insert_auto_timestamp();
 
+-- Max category limit for category_table --
+CREATE OR REPLACE FUNCTION check_max_row_count()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (SELECT COUNT(*) FROM time_schema.category_setting WHERE is_invalid = FALSE) >= 5
+        THEN
+            RAISE EXCEPTION 'EXCEED_MAX_CATEGORY: category_setting is allowed up to 5 tables.';
+    END IF;
+    RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER category_max_check
+BEFORE INSERT ON category_setting
+FOR EACH ROW
+EXECUTE FUNCTION check_max_row_count();
+
 -- CREATE DATA --
 INSERT INTO
     users (id, username, email, password)
@@ -126,9 +153,9 @@ VALUES
     ('debcc72a-789b-4046-b954-0825d3331861', 'dummy_token', 1717102316, 1716102316);
 
 INSERT INTO
-    display_setting (setting_name, display_name_en, display_name_ja)
+    category_setting (table_name, display_name_en, display_name_ja, superior_table)
 VALUES
-    ('main_category', 'Main Category', 'メインカテゴリ');
+    ('main_category', 'Main Category', 'メインカテゴリ', null);
 
 INSERT INTO
     main_category (name, created_user_id)
