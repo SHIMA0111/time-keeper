@@ -1,6 +1,8 @@
 import {useCallback, useEffect, useState} from "react";
 import {TmpTimeData} from "../types/tmpData/TmpTimeData.ts";
 import init, {calc_time} from "wasm-tools";
+import {Record} from "../types/api/record.ts";
+import {useToastMessage} from "./useToastMessage.tsx";
 
 export const useTimeCounter = () => {
     const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -8,6 +10,8 @@ export const useTimeCounter = () => {
     const [isSaving, setIsSaving] = useState<boolean>(false);
     const [isPaused, setIsPaused] = useState<boolean>(false);
     const [time, setTime] = useState<number>(0);
+    
+    const { toastMessage } = useToastMessage();
     
     const storedValueGet = useCallback((): TmpTimeData | undefined => {
         const storedValue = localStorage.getItem("recordData");
@@ -111,5 +115,33 @@ export const useTimeCounter = () => {
         setIsSaving(false);
     }, []);
     
-    return { onStart, onPause, onStop, storedValueGet, isRecording, isCalculating, isSaving, isPaused, time }
+    const onClickStop = useCallback(() => {
+        const tmpRecordOnBrowser = storedValueGet();
+        if (tmpRecordOnBrowser) {
+            const record: Record = {
+                uid: "dummy",
+                category: "dummyCategory",
+                subcategory: "dummySubCategory",
+                option1: undefined,
+                option2: undefined,
+                start: tmpRecordOnBrowser.startTime,
+                end: new Date().getTime(),
+                pauseStarts: tmpRecordOnBrowser.pauseStartTime,
+                pauseEnds: tmpRecordOnBrowser.pauseEndTime,
+            };
+            console.log(record);
+        }
+        else {
+            toastMessage({
+                status: "error",
+                title: "Failed save the time record...",
+                description: 'Your time record can\'t load from your browser.\n' +
+                    'If you face this error in many times, please contact the developer.'
+            })
+        }
+        
+        onStop();
+    }, [onStop, storedValueGet, toastMessage]);
+    
+    return { onStart, onPause, isRecording, isCalculating, isSaving, isPaused, time, onClickStop }
 }

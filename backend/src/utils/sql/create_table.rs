@@ -9,8 +9,7 @@ use crate::utils::sql::{get_constraint_name, SCHEMA_NAME};
 use crate::utils::types::TimeKeeperResult;
 
 pub(crate) async fn create_sub_category_table(superior_table: &str,
-                                              name_ja: &str,
-                                              name_en: &str,
+                                              display_name: &str,
                                               conn: &mut DBConnection) -> TimeKeeperResult<()> {
     let transaction = conn.transaction().await?;
 
@@ -73,11 +72,11 @@ pub(crate) async fn create_sub_category_table(superior_table: &str,
     debug!("Create table on transaction complete.");
 
     let insert_setting_name_stmt = format!(
-        "INSERT INTO {}.category_setting (table_name, display_name_en, display_name_ja, superior_table) VALUES ($1, $2, $3, $4)",
+        "INSERT INTO {}.category_setting (table_name, display_name, superior_table) VALUES ($1, $2, $3)",
         SCHEMA_NAME);
     if let Err(e) = transaction.execute(
         &insert_setting_name_stmt,
-        &[&new_category_table, &name_ja, &name_en, &superior_table]).await {
+        &[&new_category_table, &display_name, &superior_table]).await {
         error!("table setting insertion failed due to [{:?}]", e);
         return Err(CreateTableException("Failed to insert setting data".to_string()));
     };
@@ -101,7 +100,7 @@ pub(crate) async fn create_sub_category_table(superior_table: &str,
     match transaction.commit().await {
         Ok(_) => {
             info!("Success to commit creating table named '{}'", new_category_table);
-            info!("Success to commit inserting setting data. English name: '{}' and Japanese name: '{}'", name_en, name_ja);
+            info!("Success to commit inserting setting data. Display Name: '{}'", display_name);
             info!("Success to commit setting trigger named '{}'", trigger_name);
 
             info!("Complete the additional category table named '{}'", new_category_table);

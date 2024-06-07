@@ -1,70 +1,24 @@
 use actix_web::{Either, HttpRequest, Responder};
-use actix_web::http::header::AUTHORIZATION;
-use log::{error, info, warn};
+use log::{error, info};
 use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody};
-use crate::utils::response::ResponseStatus::{BadRequest, InternalServerError, RequestOk, Unauthorized};
+use crate::utils::header::get_user_id;
+use crate::utils::response::ResponseStatus::{InternalServerError, RequestOk};
 use crate::utils::sql::delete::delete_refresh_token;
-use crate::utils::token::access_token_verify;
 
 pub async fn logout_delete_token(req: HttpRequest) -> impl Responder {
     info!("{}", get_access_info(&req));
 
     let endpoint_uri = req.uri().to_string();
-
-    let mut user_id = req.headers()
-        // 'x-user-id' is always added by middleware so this cannot be None if reachable this method.
-        .get("x-user-id").unwrap().to_str().unwrap_or("").to_string();
-    info!("Logout process for '{}' started", user_id);
-
-    if user_id.is_empty() {
-        warn!("Not found user id from header");
-        let authorization_token = match req.headers().get(AUTHORIZATION) {
-            Some(authorization) => {
-                let authorization_str = authorization.to_str();
-                match authorization_str {
-                    Ok(token) => token,
-                    Err(e) => {
-                        error!(
-                            "Token data structured by out of UTF-8 so failed to parse by [{}]",
-                            e.to_string()
-                        );
-
-                        let response =
-                            HttpResponseBody::failed_new(
-                                "Given invalid token",
-                                &endpoint_uri);
-
-                        return BadRequest.json_response_builder(response);
-                    }
-                }
-            },
-            None => {
-                let response =
-                    HttpResponseBody::failed_new("Invalid request", &endpoint_uri);
-                return BadRequest.json_response_builder(response);
-            }
-        };
-
-        let res = access_token_verify(authorization_token, false);
-
-        match res {
-            Ok(uid) => {
-                info!("Get user_id success. Please note the middleware doesn't set this to header.");
-                user_id = uid;
-            },
-            Err(_) => {
-                error!("Access token invalid");
-                let response = HttpResponseBody::failed_new("Access token invalid", &endpoint_uri);
-                return Unauthorized.json_response_builder(response);
-            }
-        }
-    }
+    let user_id = match get_user_id(&req) {
+        Either::Left(uid) => uid,
+        Either::Right(response) => return response,
+    };
 
     let conn = match get_db_connection(&endpoint_uri).await {
         Either::Left(conn) => conn,
         Either::Right(response) => {
             error!("Access DB failed.");
-            return response
+            return response;
         },
     };
 

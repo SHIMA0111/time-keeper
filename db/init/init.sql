@@ -19,16 +19,16 @@ CREATE TABLE users
     is_deleted        bool      not null DEFAULT FALSE
 );
 
--- CATEGORY --
+-- CATEGORY SETTING --
 CREATE TABLE category_setting
 (
     table_name varchar PRIMARY KEY,
-    display_name_en varchar not null,
-    display_name_ja varchar not null,
+    display_name varchar not null,
     superior_table varchar,
     is_invalid bool DEFAULT FALSE
 );
 
+-- MAIN CATEGORY --
 CREATE TABLE main_category
 (
     id serial PRIMARY KEY,
@@ -36,6 +36,22 @@ CREATE TABLE main_category
     created_timestamp timestamp,
     created_user_id uuid not null,
     is_deleted bool DEFAULT FALSE,
+    FOREIGN KEY (created_user_id) REFERENCES users (id)
+);
+
+-- CATEGORY ALIAS --
+CREATE TABLE category_alias
+(
+    id serial PRIMARY KEY,
+    alias_name varchar not null,
+    main_category_id integer not null,
+    sub_category1_id integer,
+    sub_category2_id integer,
+    sub_category3_id integer,
+    sub_category4_id integer,
+    created_user_id uuid not null,
+    is_deleted boolean DEFAULT FALSE,
+    FOREIGN KEY (main_category_id) REFERENCES main_category(id),
     FOREIGN KEY (created_user_id) REFERENCES users (id)
 );
 
@@ -71,11 +87,13 @@ SET TIME ZONE 'Asia/Tokyo';
 GRANT USAGE, CREATE ON SCHEMA time_schema TO app;
 
 GRANT USAGE, SELECT ON SEQUENCE records_id_seq TO app;
+GRANT USAGE, SELECT ON SEQUENCE category_alias_id_seq TO app;
 GRANT USAGE, SELECT ON SEQUENCE main_category_id_seq TO app;
 
 GRANT SELECT, INSERT, UPDATE ON users TO app;
 GRANT SELECT, INSERT, UPDATE ON category_setting TO app;
 GRANT SELECT, INSERT, UPDATE ON main_category TO app;
+GRANT SELECT, INSERT, UPDATE ON category_alias TO app;
 GRANT SELECT, INSERT, UPDATE ON records TO app;
 GRANT SELECT, INSERT, UPDATE, DELETE ON refresh_token TO app;
 
@@ -153,9 +171,9 @@ VALUES
     ('debcc72a-789b-4046-b954-0825d3331861', 'dummy_token', 1717102316, 1716102316);
 
 INSERT INTO
-    category_setting (table_name, display_name_en, display_name_ja, superior_table)
+    category_setting (table_name, display_name, superior_table)
 VALUES
-    ('main_category', 'Main Category', 'メインカテゴリ', null);
+    ('main_category', 'メインカテゴリ', null);
 
 INSERT INTO
     main_category (name, created_user_id)

@@ -1,9 +1,10 @@
 use actix_web::{Either, HttpRequest, Responder};
 use actix_web::web::Json;
-use log::{error, info};
+use log::{error, info, warn};
 use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody};
 use crate::utils::error::TimeKeeperError::{DBConnectionException, RefreshTokenExpiredException, RefreshTokenInvalidException};
 use crate::utils::response::ResponseStatus::{InternalServerError, RequestOk, ServiceUnavailable, Unauthorized};
+use crate::utils::sql::update::update_refresh_token_exp;
 use crate::utils::token::{refresh_token_verify, token_generate};
 use crate::utils::types::refresh::{RefreshInput, RefreshResponse};
 
@@ -20,7 +21,16 @@ pub async fn refresh(refresh_info: Json<RefreshInput>, req: HttpRequest) -> impl
     let refresh_token = refresh_info.refresh_token();
 
     let (user_id, username) = match refresh_token_verify(&refresh_token, &conn).await {
-        Ok(user_id_and_name) => user_id_and_name,
+        Ok(user_id_and_name) => {
+            if let Err(e) = update_refresh_token_exp(&refresh_token, &conn).await {
+                warn!("Update refresh token process report failed ({:?})", e);
+                info!("The refresh token is still valid.");
+            }
+            else {
+                info!("Update refresh token exp is success in 1 hour from now");
+            }
+            user_id_and_name
+        },
         Err(e) => {
             let error_message = e.to_string();
             let response = HttpResponseBody::failed_new(

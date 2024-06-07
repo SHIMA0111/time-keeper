@@ -9,6 +9,7 @@ type Props = {
     borderRadius?: string;
     border?: string;
     onClick?: () => void;
+    disabled?: boolean;
 }
 
 export const IconButtonWithName: FC<Props> = memo((props) => {
@@ -19,8 +20,20 @@ export const IconButtonWithName: FC<Props> = memo((props) => {
         bgColor="white",
         borderRadius,
         border,
-        onClick
+        onClick,
+        disabled
     } = props;
+    
+    const hoverStyle = {
+        cursor: disabled ? "not-allowed" : "pointer",
+        opacity: disabled ? undefined : (bgColor === "white" || 0.8),
+        bgColor: disabled ? undefined : (bgColor === "white" && "#ddd"),
+    };
+    
+    const activeStyle = {
+        opacity: disabled ? undefined : (bgColor === "white" || 1.0),
+        bgColor: disabled ? undefined : bgColor,
+    }
     
     return (
         <Flex
@@ -28,21 +41,14 @@ export const IconButtonWithName: FC<Props> = memo((props) => {
             w={w}
             py="16px"
             px="16px"
-            bgColor={bgColor}
+            bgColor={disabled ? "gray.500" : bgColor}
             align="center"
             justify="space-between"
             borderRadius={borderRadius}
             border={border}
-            onClick={onClick}
-            _hover={{
-                cursor: "pointer",
-                opacity: bgColor === "white" || 0.8,
-                bgColor: bgColor === "white" && "#ddd",
-            }}
-            _active={{
-                opacity: bgColor === "white" || 1.0,
-                bgColor: bgColor,
-            }}
+            onClick={disabled ? undefined : onClick}
+            _hover={hoverStyle}
+            _active={activeStyle}
         >
             { icon && (
                 <Box className="side-icon" flexGrow={2} textAlign="center">

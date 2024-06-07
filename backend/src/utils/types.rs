@@ -1,8 +1,9 @@
 pub mod login;
 pub mod register;
 pub mod refresh;
-mod main_category;
-mod sub_category;
+pub mod get_category;
+pub mod category_setting;
+pub mod category_alias;
 
 use log::error;
 use serde::{Deserialize, Serialize};

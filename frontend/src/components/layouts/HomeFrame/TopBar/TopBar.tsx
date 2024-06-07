@@ -1,9 +1,5 @@
-import {FC, memo, useCallback} from "react";
-import {
-    Box,
-    Flex,
-    useDisclosure
-} from "@chakra-ui/react";
+import {FC, memo} from "react";
+import {Box, Flex, useDisclosure} from "@chakra-ui/react";
 import {MdFiberManualRecord} from "react-icons/md";
 import {IoStopSharp} from "react-icons/io5";
 import {IoMdPause} from "react-icons/io";
@@ -14,46 +10,20 @@ import {NoShadowSelect} from "../../../uiParts/inputs/NoShadowSelect.tsx";
 import {DetailModal} from "./DetailModal.tsx";
 import {CurrentSettingDisplay} from "./CurrentSettingDisplay.tsx";
 import {useTimeCounter} from "../../../../hooks/useTimeCounter.tsx";
-import {Record} from "../../../../types/api/record.ts";
-import {useToastMessage} from "../../../../hooks/useToastMessage.tsx";
-
-const classes = ["カテゴリ", "サブカテゴリ ", "補足1", "補足2"];
+import {useCategoryTableSetting} from "../../../../hooks/useCategoryTableSetting.tsx";
 
 export const TopBar: FC = memo(() => {
     const {
-        isPaused, isRecording, isSaving, isCalculating,
-        time, onStart, onPause, onStop, storedValueGet} = useTimeCounter();
-    const { toastMessage } = useToastMessage();
-    
+        isPaused,
+        isRecording,
+        isSaving,
+        isCalculating,
+        time,
+        onStart,
+        onPause,
+        onClickStop} = useTimeCounter();
+    const {categoryInfo, categoryNames} = useCategoryTableSetting();
     const { isOpen, onOpen, onClose } = useDisclosure();
-    
-    const onClickStop = useCallback(() => {
-        const tmpRecordOnBrowser = storedValueGet();
-        if (tmpRecordOnBrowser) {
-            const record: Record = {
-                uid: "dummy",
-                category: "dummyCategory",
-                subcategory: "dummySubCategory",
-                option1: undefined,
-                option2: undefined,
-                start: tmpRecordOnBrowser.startTime,
-                end: new Date().getTime(),
-                pauseStarts: tmpRecordOnBrowser.pauseStartTime,
-                pauseEnds: tmpRecordOnBrowser.pauseEndTime,
-            };
-            console.log(record);
-        }
-        else {
-            toastMessage({
-                status: "error",
-                title: "Failed save the time record...",
-                description: 'Your time record can\'t load from your browser.\n' +
-                    'If you face this error in many times, please contact the developer.'
-            })
-        }
-        
-        onStop();
-    }, [onStop, storedValueGet, toastMessage]);
     
     return (
         <>
@@ -74,7 +44,7 @@ export const TopBar: FC = memo(() => {
                             icon={<IoStopSharp color={ isRecording ? "blue" : "gray" } />}
                             disabled={!isRecording}
                             isLoading={isSaving} />
-                        <CurrentSettingDisplay information={classes} />
+                        <CurrentSettingDisplay information={categoryNames} contents_num={categoryInfo.contents_num} />
                     </Flex>
                     <Flex align="center" w={{base: "70%", sm: "50%", md: "30%"}}>
                         <NoShadowSelect placeholder="カテゴリエイリアスを選択" size="sm"></NoShadowSelect>
@@ -82,7 +52,7 @@ export const TopBar: FC = memo(() => {
                     </Flex>
                 </Flex>
             </Box>
-            <DetailModal isOpen={isOpen} onClose={onClose} formContentNames={classes} />
+            <DetailModal isOpen={isOpen} onClose={onClose} formContentNames={categoryNames} />
         </>
     )
 });

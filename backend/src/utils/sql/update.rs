@@ -1,4 +1,4 @@
-use chrono::Utc;
+use chrono::{Duration, Utc};
 use log::{error, warn};
 use tokio_postgres::Client;
 use tokio_postgres::types::ToSql;
@@ -49,14 +49,13 @@ pub async fn login_footprint(user_id: &Uuid, conn: &DBConnection) -> TimeKeeperR
 }
 
 pub(crate) async fn update_category_name(table_name: &str,
-                                         name_en: &str,
-                                         name_ja: &str,
+                                         display_name: &str,
                                          conn: &DBConnection) -> TimeKeeperResult<()> {
     let statement_str = format!(
-        "UPDATE {}.category_setting SET display_name_en=$1, display_name_ja=$2 WHERE table_name=$3",
+        "UPDATE {}.category_setting SET display_name=$1 WHERE table_name=$3",
         SCHEMA_NAME);
 
-    match update(&statement_str, &[&name_en, &name_ja, &table_name], conn.client()).await {
+    match update(&statement_str, &[&display_name, &table_name], conn.client()).await {
         Ok(res) => {
             if res == 1 {
                 Ok(())
@@ -98,4 +97,22 @@ pub(crate) async fn toggle_category_setting_for_table(table_name: &str,
             Err(e)
         }
     }
+}
+
+pub(crate) async fn update_refresh_token_exp(refresh_token: &str, conn: &DBConnection) -> TimeKeeperResult<()> {
+    let statement_str = format!("UPDATE {}.refresh_token SET exp=$1 WHERE token=$2", SCHEMA_NAME);
+
+    let now = Utc::now();
+    if now.timestamp() <= 0 {
+        error!("timestamp result is invalid. system detect '{}' but epoch time should be positive.", now.timestamp());
+        return Err(InvalidSettingException("Timestamp is negative. This is invalid setting.".to_string()));
+    }
+
+    let after_1_hour = (now + Duration::hours(1)).timestamp();
+
+    if let Err(e) = update(&statement_str, &[&after_1_hour, &refresh_token], conn.client()).await {
+        error!("Update refresh_token's exp failed due to [{:?}]", e);
+        return Err(DBConnectionException("Update refresh_token failed".to_string()));
+    }
+    Ok(())
 }

@@ -2,10 +2,7 @@ use log::{error, info};
 use tokio_postgres::Client;
 use tokio_postgres::types::ToSql;
 use crate::data::connector::DBConnection;
-use crate::utils::error::TimeKeeperError::{
-    DBConnectionException,
-    GenerationFailedException,
-    RegisterAuthenticationException};
+use crate::utils::error::TimeKeeperError::{DBConnectionException, GenerationFailedException, InvalidSettingException, RegisterAuthenticationException};
 use crate::utils::sql::delete::delete_refresh_token;
 use crate::utils::sql::get::get_is_existing_refresh_token;
 use crate::utils::sql::{get_uuid, SCHEMA_NAME};
@@ -69,6 +66,49 @@ pub(crate) async fn insert_refresh_token(user_id: &str,
                     "token generation failed due to failed to resister the token: ({})", e.to_string()
                 )
             ))
+        }
+    }
+}
+
+pub(crate) async fn insert_alias(alias_name: &str,
+                                 main_category: i32,
+                                 sub_category1: Option<i32>,
+                                 sub_category2: Option<i32>,
+                                 sub_category3: Option<i32>,
+                                 sub_category4: Option<i32>,
+                                 user_id: &str,
+                                 conn: &DBConnection) -> TimeKeeperResult<()> {
+    let statement_str = format!(
+        "INSERT INTO \
+            {}.category_alias (alias_name, main_category_id, sub_category1_id, sub_category2_id, sub_category3_id, sub_category4_id, created_user_id)\
+        VALUES \
+            ($1, $2, $3, $4, $5, $6, $7)",
+        SCHEMA_NAME
+    );
+    let uid = get_uuid(user_id)?;
+
+    return match insert(&statement_str,
+                        &[
+                            &alias_name,
+                            &main_category,
+                            &sub_category1,
+                            &sub_category2,
+                            &sub_category3,
+                            &sub_category4,
+                            &uid],
+                        conn.client()).await {
+        Ok(res) => {
+            if res == 0 {
+                error!("Insert data number is '0'. Something wrong.");
+                Err(InvalidSettingException("Insertion response indicates 0 records inserted".to_string()))
+            }
+            else{
+                Ok(())
+            }
+        },
+        Err(e) => {
+            error!("Alias insertion failed due to {:?}", e);
+            Err(e)
         }
     }
 }
