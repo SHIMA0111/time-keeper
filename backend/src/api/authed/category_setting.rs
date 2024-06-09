@@ -28,12 +28,14 @@ pub async fn category_setting(req: HttpRequest) -> impl Responder {
         return InternalServerError.json_response_builder(response);
     }
 
-    let rows = result.unwrap();
+    let mut rows = result.unwrap();
 
     let mut name_vec = Vec::new();
+
     for row in &rows {
         let table_name: String = row.get("table_name");
         let display_name: String = row.get("display_name");
+        let superior_table: String = row.get("superior_table");
         let names = CategoryName::new(table_name, display_name);
         name_vec.push(names);
     }

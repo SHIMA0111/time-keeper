@@ -24,16 +24,17 @@ type Props = {
 export const DetailModal: FC<Props> = memo((props) => {
     const { isOpen, onClose, formContentNames } = props;
     const {
-        categoryKeyName,
         onChangeAliasName,
         onClickSaveAlias,
         onClickSave,
         saveAlias,
         aliasName,
+        selectedCategoryKeyName,
+        onClickAbort,
         isSaveValid } = useManageCategorySetting(onClose);
     
     return(
-        <Modal isOpen={isOpen} onClose={onClose} autoFocus={false}>
+        <Modal isOpen={isOpen} onClose={onClickAbort} autoFocus={false}>
             <ModalOverlay />
             <ModalContent>
                 <ModalHeader>
@@ -47,9 +48,9 @@ export const DetailModal: FC<Props> = memo((props) => {
                                 <CategorySelectForm
                                     key={name.table_name}
                                     name={name}
-                                    keyName={categoryKeyName[i]}
-                                    superiorKeyName={ i ? categoryKeyName[i - 1] : undefined}
-                                    childrenKeys={categoryKeyName.slice(i + 1)}/>
+                                    keyName={selectedCategoryKeyName[i]}
+                                    superiorKeyName={ i ? selectedCategoryKeyName[i - 1] : undefined}
+                                    childrenKeys={selectedCategoryKeyName.slice(i + 1)}/>
                             ))
                         }
                         <Spacer />

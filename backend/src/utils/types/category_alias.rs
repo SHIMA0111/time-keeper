@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use crate::utils::types::get_category::CategoryData;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CategoryAliasInput {
@@ -35,3 +36,14 @@ impl CategoryAliasInput {
         self.sub4_id
     }
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CategoryAliasResponse {
+    alias_name: String,
+    top: CategoryData,
+    sub1: CategoryData,
+    sub2: CategoryData,
+    sub3: CategoryData,
+    sub4: CategoryData,
+}
+

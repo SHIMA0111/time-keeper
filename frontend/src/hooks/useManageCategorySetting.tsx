@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useState} from "react";
-import {useRecoilState, useRecoilValue} from "recoil";
+import {useRecoilState} from "recoil";
 import {selectedCategoryState} from "../recoil/category/selectedCategoryState.ts";
 import {useInputChangeCleanUp} from "./useInputChange.tsx";
 import {tempSelectedCategoryState} from "../recoil/category/tempSelectedCategoryState.ts";
@@ -11,12 +11,13 @@ export const useManageCategorySetting = (onClose: () => void) => {
     const [saveAlias, setSaveAlias] = useState(false);
     const [isSaveValid, setIsSaveValid] = useState(false);
     const [selectedCategory, setSelectedCategory] = useRecoilState(selectedCategoryState);
-    const tempSelectedCategory = useRecoilValue(tempSelectedCategoryState);
+    const [tempSelectedCategory, setTempSelectedCategory] = useRecoilState(tempSelectedCategoryState);
     const [selectedCategoryKeyName, setSelectedCategoryKeyName] = useState<string[]>([]);
     const [aliasName, onChangeAliasName, aliasNameCleanup] = useInputChangeCleanUp();
    
     const axiosAuthedEndpoint = useAuthedEndpoint("http://localhost:8888/");
     const {toastMessage} = useToastMessage();
+    
     
     useEffect(() => {
         const keys = Object.keys(selectedCategory);
@@ -37,6 +38,11 @@ export const useManageCategorySetting = (onClose: () => void) => {
     const onClickSaveAlias = useCallback(() => {
         setSaveAlias(prevState => !prevState);
     }, []);
+    
+    const onClickAbort = useCallback(() => {
+        setTempSelectedCategory(selectedCategory);
+        onClose();
+    }, [onClose, selectedCategory, setTempSelectedCategory]);
     
     const onClickSave = useCallback(() => {
         setSelectedCategory(tempSelectedCategory);
@@ -87,5 +93,5 @@ export const useManageCategorySetting = (onClose: () => void) => {
         }
     }, [setSelectedCategory, tempSelectedCategory, saveAlias, onClose, aliasName, selectedCategory, axiosAuthedEndpoint, toastMessage, aliasNameCleanup]);
     
-    return {isSaveValid, categoryKeyName: selectedCategoryKeyName, onChangeAliasName, onClickSaveAlias, onClickSave, saveAlias, aliasName};
+    return {isSaveValid, selectedCategoryKeyName, onChangeAliasName, onClickSaveAlias, onClickSave, saveAlias, aliasName, onClickAbort};
 }
