@@ -68,8 +68,4 @@ pub async fn get_aliases(req: HttpRequest) -> impl Responder {
         return InternalServerError.json_response_builder(response);
     };
     let aliases = aliases.unwrap();
-
-    for
-
-
 }

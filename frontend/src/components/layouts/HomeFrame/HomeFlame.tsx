@@ -19,7 +19,7 @@ export const HomeFlame: FC<Props> = memo((props) => {
                 flexDirection="column"
                 display={{ base: "none", md: "flex" }}
             >
-                <Logo src="https://source.unsplash.com/bmmcfZqSjBU" />
+                <Logo src="/timekeeper_logo.webp" />
                 <NavigationBar />
             </Flex>
             <Flex w={{base: "100%", md: "75%", lg: "80%", xl: "85%"}} flexDirection="column" h="100%">

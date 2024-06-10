@@ -39,11 +39,32 @@ pub struct CategoryName {
     display_name: String,
 }
 
-impl CategoryName {
-    pub fn new(table_name: String, display_name: String) -> Self {
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct CategoryInformation {
+    category: CategoryName,
+    superior_table: Option<String>,
+}
+
+impl CategoryInformation {
+    pub fn new(table_name: String, display_name: String, superior_table: Option<String>) -> Self {
         Self {
-            table_name,
-            display_name,
+            category: CategoryName {
+                table_name,
+                display_name,
+            },
+            superior_table,
         }
+    }
+
+    pub fn get_category_name(&self) -> CategoryName {
+        self.category.clone()
+    }
+
+    pub fn get_table_name(&self) -> String {
+        self.category.table_name.clone()
+    }
+
+    pub fn superior_table(&self) -> Option<String> {
+        self.superior_table.clone()
     }
 }
