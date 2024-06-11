@@ -1,11 +1,11 @@
-export type Record = {
-    uid: string;
-    category: string;
-    subcategory: string;
-    option1: string | undefined;
-    option2: string | undefined;
+export type RecordInput = {
+    top_id: number;
+    sub1_id: number | undefined;
+    sub2_id: number | undefined;
+    sub3_id: number | undefined;
+    sub4_id: number | undefined;
     start: number;
     end: number;
-    pauseStarts: number[];
-    pauseEnds: number[];
+    pause_starts: number[];
+    pause_ends: number[];
 }

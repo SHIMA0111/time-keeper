@@ -2,7 +2,6 @@ use std::collections::{HashMap, VecDeque};
 use actix_web::{Either, HttpRequest, Responder};
 use log::{error, info};
 use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody};
-use crate::utils::error::TimeKeeperError::InvalidSettingException;
 use crate::utils::response::ResponseStatus::{InternalServerError, RequestOk};
 use crate::utils::sql::get::get_category_setting;
 use crate::utils::types::category_setting::{CategoryInformation, CategoryName, CategoryResponse};
@@ -46,7 +45,7 @@ pub async fn category_setting(req: HttpRequest) -> impl Responder {
     let ordered_table_names = topological_sort(&graph);
     info_vec.sort_by(|a, b| {
         let get_index = |data: &CategoryInformation| {
-            ordered_table_names.iter().position(|x| *x == a.get_table_name())
+            ordered_table_names.iter().position(|x| *x == data.get_table_name())
         };
 
         let index_a = get_index(a);

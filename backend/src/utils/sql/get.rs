@@ -3,7 +3,7 @@ use tokio_postgres::{Client, Row};
 use tokio_postgres::types::ToSql;
 use crate::data::connector::DBConnection;
 use crate::utils::error::TimeKeeperError::{DBConnectionException, InvalidSettingException};
-use crate::utils::sql::{get_uuid, SCHEMA_NAME, uuid_from_string};
+use crate::utils::sql::{SCHEMA_NAME, uuid_from_string};
 use crate::utils::types::TimeKeeperResult;
 
 async fn execute_query(stmt_str: &str, params: &[&(dyn ToSql + Sync)], client: &Client) -> TimeKeeperResult<Vec<Row>> {
@@ -118,17 +118,12 @@ pub(crate) async fn get_categories(table_name: &str,
     }
 }
 
-pub(crate) async fn get_category_alias(user_id: &str, conn: &DBConnection) -> TimeKeeperResult<Vec<Row>> {
-    let statement_str = format!("\
-    SELECT \
-        alias_name \
-    FROM \
-        {}.category_alias \
-    INNER JOIN
-        {}.
-    WHERE \
-        created_user_id=$1", SCHEMA_NAME);
-    let uid = get_uuid(user_id)?;
-
-    execute_query(&statement_str, &[&uid], conn.client()).await
+pub async fn get_simple_records_current(number: i32, conn: &DBConnection) -> TimeKeeperResult<Vec<Row>> {
+    let statement_str = format!(
+        "SELECT * \
+        FROM \
+            {}.records\
+        INNER JOIN",
+        SCHEMA_NAME
+    );
 }

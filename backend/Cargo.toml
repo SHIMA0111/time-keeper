@@ -1,5 +1,7 @@
 [package]
-name = "worktime-backend"
+name = "worktime_backend"
+authors = ["SHIMA0111"]
+description = "worktime keeper backend server"
 version = "0.1.0"
 edition = "2021"
 

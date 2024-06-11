@@ -60,10 +60,15 @@ CREATE TABLE records
 (
     id serial PRIMARY KEY,
     user_id uuid not null,
+    top_id integer not null,
+    sub1_id integer,
+    sub2_id integer,
+    sub3_id integer,
+    sub4_id integer,
     total_time float,
     date date,
-    start bigint,
-    "end" bigint,
+    start_time bigint,
+    end_time bigint,
     pause_starts bigint[] not null,
     pause_ends bigint[] not null
 );

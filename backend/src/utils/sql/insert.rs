@@ -1,3 +1,4 @@
+use chrono::NaiveDate;
 use log::{error, info};
 use tokio_postgres::Client;
 use tokio_postgres::types::ToSql;
@@ -109,6 +110,47 @@ pub(crate) async fn insert_alias(alias_name: &str,
         Err(e) => {
             error!("Alias insertion failed due to {:?}", e);
             Err(e)
+        }
+    }
+}
+
+pub(crate) async fn insert_record(user_id: &str,
+                                  top_id: i32,
+                                  sub1_id: Option<i32>,
+                                  sub2_id: Option<i32>,
+                                  sub3_id: Option<i32>,
+                                  sub4_id: Option<i32>,
+                                  total_time: f64,
+                                  date: NaiveDate,
+                                  start: i64,
+                                  end: i64,
+                                  pause_starts: &[i64],
+                                  pause_ends: &[i64],
+                                  conn: &DBConnection) -> TimeKeeperResult<()> {
+    let statement_str = format!(
+        "INSERT INTO \
+            {}.records (user_id, top_id, sub1_id, sub2_id, sub3_id, sub4_id, total_time, date, start_time, end_time, pause_starts, pause_ends)\
+        VALUES\
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)", SCHEMA_NAME
+    );
+    let uid = get_uuid(user_id)?;
+
+    return match insert(
+        &statement_str,
+        &[&uid, &top_id, &sub1_id, &sub2_id, &sub3_id, &sub4_id,
+            &total_time, &date, &start, &end, &pause_starts, &pause_ends], conn.client()).await {
+        Ok(res) => {
+            if res == 0 {
+                error!("Failed to insert record.");
+                Err(InvalidSettingException("Failed to insert record".to_string()))
+            }
+            else {
+                Ok(())
+            }
+        },
+        Err(e) => {
+            error!("Failed to insert time record due to {:?}", e);
+            Err(InvalidSettingException("Failed to insert time record".to_string()))
         }
     }
 }

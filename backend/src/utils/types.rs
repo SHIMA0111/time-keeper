@@ -4,6 +4,7 @@ pub mod refresh;
 pub mod get_category;
 pub mod category_setting;
 pub mod category_alias;
+pub mod record;
 
 use log::error;
 use serde::{Deserialize, Serialize};

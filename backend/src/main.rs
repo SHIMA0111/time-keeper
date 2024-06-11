@@ -7,6 +7,7 @@ use crate::api::authed::categories::get_category_data;
 use crate::api::authed::category_alias::add_category_alias;
 use crate::api::authed::category_setting::category_setting;
 use crate::api::authed::logout::logout_delete_token;
+use crate::api::authed::record::add_record;
 use crate::api::general::login::login_auth;
 use crate::api::general::refresh::refresh;
 use crate::api::general::register::register_new;
@@ -75,6 +76,7 @@ async fn main() -> std::io::Result<()> {
                     .route("/category_setting", web::get().to(category_setting))
                     .route("/category_name", web::get().to(get_category_data))
                     .route("/create_alias", web::post().to(add_category_alias))
+                    .route("/register_record", web::post().to(add_record))
             )
             .service(
                 web::scope("/v1/general")

@@ -10,9 +10,15 @@ import {NoShadowSelect} from "../../../uiParts/inputs/NoShadowSelect.tsx";
 import {DetailModal} from "./DetailModal.tsx";
 import {CurrentSettingDisplay} from "./CurrentSettingDisplay.tsx";
 import {useTimeCounter} from "../../../../hooks/useTimeCounter.tsx";
-import {useCategoryTableSetting} from "../../../../hooks/useCategoryTableSetting.tsx";
+import {Names} from "../../../../types/api/categorySetting.ts";
 
-export const TopBar: FC = memo(() => {
+type Props = {
+    contentNums: number;
+    categoryNames: Names[];
+}
+
+export const TopBar: FC<Props> = memo((props) => {
+    const { categoryNames, contentNums } = props;
     const {
         isPaused,
         isRecording,
@@ -21,10 +27,9 @@ export const TopBar: FC = memo(() => {
         time,
         onStart,
         onPause,
-        onClickStop} = useTimeCounter();
-    const {categoryInfo, categoryNames} = useCategoryTableSetting();
+        onClickStop,
+        validCategory} = useTimeCounter();
     const { isOpen, onOpen, onClose } = useDisclosure();
-    
     return (
         <>
             <Box h={{base: "15%", md: "8%"}}>
@@ -32,19 +37,20 @@ export const TopBar: FC = memo(() => {
                 <Flex h="60%" px="8px" align="center" justify="space-between">
                     <Flex align="center" w={{base: "30%", sm: "50%", md: "70%"}}>
                         <IconButton
+                            tooltipMessage={!validCategory ? "保存処理中です" : "カテゴリを設定してください"}
                             onClick={isRecording && !isPaused ? onPause : onStart}
                             icon={
                                 isRecording && !isPaused ?
                                     <IoMdPause color={ isSaving ? "gray" : "green"} /> :
-                                    <MdFiberManualRecord color="red" />
+                                    <MdFiberManualRecord color={ !validCategory || isSaving ? "gray" : "red"} />
                             }
-                            disabled={isSaving} />
+                            disabled={!validCategory || isSaving} />
                         <IconButton
                             onClick={onClickStop}
                             icon={<IoStopSharp color={ isRecording ? "blue" : "gray" } />}
                             disabled={!isRecording}
                             isLoading={isSaving} />
-                        <CurrentSettingDisplay information={categoryNames} contents_num={categoryInfo.contents_num} />
+                        <CurrentSettingDisplay information={categoryNames} contents_num={contentNums} />
                     </Flex>
                     <Flex align="center" w={{base: "70%", sm: "50%", md: "30%"}}>
                         <NoShadowSelect placeholder="カテゴリエイリアスを選択" size="sm"></NoShadowSelect>

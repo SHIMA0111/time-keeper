@@ -4,7 +4,6 @@ use log::{error, info};
 use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody};
 use crate::utils::header::get_user_id;
 use crate::utils::response::ResponseStatus::{InternalServerError, RequestOk};
-use crate::utils::sql::get::get_category_alias;
 use crate::utils::sql::insert::insert_alias;
 use crate::utils::types::category_alias::CategoryAliasInput;
 
@@ -41,31 +40,4 @@ pub async fn add_category_alias(alias_data: Json<CategoryAliasInput>, req: HttpR
 
     let response = HttpResponseBody::success_new("", &endpoint_uri);
     RequestOk.json_response_builder(response)
-}
-
-pub async fn get_aliases(req: HttpRequest) -> impl Responder {
-    info!("{}", get_access_info(&req));
-
-    let endpoint_uri = req.uri().to_string();
-
-    let user_id = match get_user_id(&req) {
-        Either::Left(uid) => uid,
-        Either::Right(res) => return res,
-    };
-
-    let conn = match get_db_connection(&endpoint_uri).await {
-        Either::Left(conn) => conn,
-        Either::Right(res) => return res,
-    };
-
-    let aliases = get_category_alias(&user_id, &conn).await;
-    if let Err(e) = aliases {
-        error!("Getting category alias failed due to {:?}", e);
-        let response = HttpResponseBody::failed_new(
-            "Failed to get alias belong to you",
-            &endpoint_uri,
-        );
-        return InternalServerError.json_response_builder(response);
-    };
-    let aliases = aliases.unwrap();
 }
