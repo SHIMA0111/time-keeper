@@ -1,5 +1,6 @@
 use std::str::FromStr;
 use uuid::Uuid;
+use crate::data::connector::DBConnection;
 use crate::utils::error::TimeKeeperError::{InvalidSettingException, UuidParseException};
 use crate::utils::types::TimeKeeperResult;
 
@@ -27,4 +28,8 @@ fn get_uuid(user_id: &str) -> TimeKeeperResult<Uuid> {
 
 fn get_constraint_name(on_table: &str, foreign_table: &str) -> String {
     format!("{}_{}_fk", on_table, foreign_table)
+}
+
+fn get_join_statement_by_table(conn: &DBConnection) -> TimeKeeperResult<String> {
+
 }
