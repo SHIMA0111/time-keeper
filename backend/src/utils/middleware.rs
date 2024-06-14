@@ -6,10 +6,10 @@ use actix_web::http::header::{AUTHORIZATION, HeaderName, HeaderValue, WWW_AUTHEN
 use actix_web::http::StatusCode;
 use futures_util::future::LocalBoxFuture;
 use log::{error, info};
+use crate::errors::TimeKeeperError::AccessTokenException;
 use crate::utils::api::HttpResponseBody;
 use crate::utils::middleware::TokenVerificationResult::{Authorized, InvalidToken, NoTokenProvided};
 use crate::utils::token::access_token_verify;
-use crate::utils::error::TimeKeeperError::AccessTokenInvalidException;
 
 const TOKEN_SCHEMA: &str = "Bearer";
 pub struct AccessTokenVerification;
@@ -54,7 +54,7 @@ where
         };
         let uri = req.uri().to_string();
 
-        let result = bearer_verify(authorization_info, false);
+        let result = bearer_verify(authorization_info);
 
         if let Authorized(user_id) = result {
             let header = req.headers_mut();
@@ -93,7 +93,7 @@ enum TokenVerificationResult {
     Authorized(String),
 }
 
-fn bearer_verify(bearer_token: &str, is_api: bool) -> TokenVerificationResult {
+fn bearer_verify(bearer_token: &str) -> TokenVerificationResult {
     if !bearer_token.starts_with(TOKEN_SCHEMA) {
         error!("Authorization header format is wrong. Require 'Bearer [access_token] as Authorization header'");
         return NoTokenProvided;
@@ -107,7 +107,7 @@ fn bearer_verify(bearer_token: &str, is_api: bool) -> TokenVerificationResult {
         return NoTokenProvided;
     }
 
-    match access_token_verify(token, is_api) {
+    match access_token_verify(token) {
         Ok(user_id) => {
             info!("Access token for user_id = '{}' verification success.", user_id);
             Authorized(user_id)
@@ -115,7 +115,7 @@ fn bearer_verify(bearer_token: &str, is_api: bool) -> TokenVerificationResult {
         Err(e) => {
             error!("Access token verification failed by [{}]", e.to_string());
             match e {
-                AccessTokenInvalidException(e) => InvalidToken(e),
+                AccessTokenException(e) => InvalidToken(e),
                 _ => {
                     error!("Token verification process failed due to something wrong.({})", e.to_string());
                     InvalidToken("This error is internal server error. If you face this, please let the developer know.".to_string())
@@ -139,7 +139,7 @@ fn build_response_token_failed(token_verification_result: TokenVerificationResul
     );
 
     let body = serde_json::to_string(&http_response_body).unwrap_or_else(|e| {
-        error!("Build response data failed in middleware by [{}]", e.to_string());
+        error!("Build response services failed in middleware by [{}]", e.to_string());
         "".to_string()
     });
 

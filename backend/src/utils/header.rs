@@ -21,7 +21,7 @@ pub fn get_user_id(req: &HttpRequest) -> Either<String, HttpResponse> {
                     Ok(token) => token,
                     Err(e) => {
                         error!(
-                            "Token data structured by out of UTF-8 so failed to parse by [{}]",
+                            "Token services structured by out of UTF-8 so failed to parse by [{}]",
                             e.to_string()
                         );
 
@@ -41,7 +41,7 @@ pub fn get_user_id(req: &HttpRequest) -> Either<String, HttpResponse> {
             }
         };
 
-        let res = access_token_verify(authorization_token, false);
+        let res = access_token_verify(authorization_token);
 
         match res {
             Ok(uid) => {

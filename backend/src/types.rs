@@ -1,30 +1,23 @@
-pub mod login;
-pub mod register;
-pub mod refresh;
-pub mod get_category;
-pub mod category_setting;
-pub mod category_alias;
-pub mod record;
+pub mod db;
+pub mod api;
+pub mod token;
 
 use log::error;
 use serde::{Deserialize, Serialize};
-use crate::utils::error::TimeKeeperError;
-use crate::utils::error::TimeKeeperError::{RefreshTokenExpiredException, RefreshTokenInvalidException};
-
-pub(crate) type TimeKeeperResult<T> = Result<T, TimeKeeperError>;
+use crate::errors::TimeKeeperError::RefreshTokenException;
+use crate::errors::TimeKeeperResult;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TokenInfo {
     uid: String,
-    exp: u64,
-    iat: u64,
-    api: bool,
+    exp: i64,
+    iat: i64,
     refresh: bool,
 }
 
 impl TokenInfo {
-    pub fn new(uid: String, exp: u64, iat: u64, api: bool, refresh: bool) -> Self {
-        TokenInfo { uid, exp, iat, api, refresh }
+    pub fn new(uid: String, exp: i64, iat: i64, refresh: bool) -> Self {
+        TokenInfo { uid, exp, iat, refresh }
     }
 
     pub(crate) fn user_id(&self) -> String {
@@ -35,37 +28,33 @@ impl TokenInfo {
         self.refresh
     }
 
-    pub(crate) fn valid_for_api(&self) -> bool {
-        self.api
-    }
-
-    pub(crate) fn update_exp(&mut self, custom_exp: u64) -> () {
+    pub(crate) fn update_exp(&mut self, custom_exp: i64) -> () {
         if self.refresh {
             self.exp = custom_exp;
         }
     }
 
-    pub(crate) fn is_valid_refresh_token(&self, base_time: u64) -> TimeKeeperResult<()> {
+    pub(crate) fn is_valid_refresh_token(&self, base_time: i64) -> TimeKeeperResult<()> {
         if self.exp < self.iat {
             error!("token is invalid due to exp time({}) lower than iat time({}).", self.exp, self.iat);
 
             let message = "token setting is wrong. create timestamp is higher than expired time.";
 
-            return Err(RefreshTokenInvalidException(message.to_string()))
+            return Err(RefreshTokenException(message.to_string()))
         }
         if base_time < self.iat {
             error!("input token will be generated in the future. (base: {}, token_iat: {})", base_time, self.iat);
 
             let message = "token setting is wrong. the create timestamp indicates the future.";
 
-            return Err(RefreshTokenInvalidException(message.to_string()))
+            return Err(RefreshTokenException(message.to_string()))
         }
         if self.exp < base_time {
             error!("token is expired. (base: {}, token_exp: {})", base_time, self.exp);
 
             let message = format!("The expired time is {}", self.exp);
 
-            return Err(RefreshTokenExpiredException(message))
+            return Err(RefreshTokenException(message))
         }
 
         Ok(())

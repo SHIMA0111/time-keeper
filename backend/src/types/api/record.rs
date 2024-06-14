@@ -62,7 +62,7 @@ impl RecordInput {
             }).collect::<Vec<i64>>().iter().sum::<i64>();
         let last_pause_time = if self.pause_starts.len() > self.pause_ends.len() {
             if self.pause_starts.len() - self.pause_ends.len() != 1 {
-                warn!("inconsistent input. start timestamp has more than 2 elements than end pause. Ignore the data except for the first one.");
+                warn!("inconsistent input. start timestamp has more than 2 elements than end pause. Ignore the services except for the first one.");
             }
 
             // From the fist condition, if this code is executed, the pause_starts num is larger than the pause_ends.

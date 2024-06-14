@@ -1,0 +1,21 @@
+pub mod create_user;
+pub mod create_refresh_token;
+
+use log::{debug};
+use tokio_postgres::Client;
+use tokio_postgres::types::ToSql;
+use crate::errors::TimeKeeperError::DBCURDException;
+use crate::errors::TimeKeeperResult;
+use crate::sql::{get_statement};
+
+async fn insert(stmt_str: &str, params: &[&(dyn ToSql + Sync)], client: &Client) -> TimeKeeperResult<u64> {
+    let stmt = get_statement(stmt_str, client).await?;
+
+    return match client.execute(&stmt, params).await {
+        Ok(insert_number) => {
+            debug!("Insert record number is {}", insert_number);
+            Ok(insert_number)
+        },
+        Err(e) => Err(DBCURDException(format!("{:?}", e))),
+    };
+}

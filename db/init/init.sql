@@ -22,16 +22,18 @@ CREATE TABLE users
 -- CATEGORY SETTING --
 CREATE TABLE category_setting
 (
-    table_name varchar PRIMARY KEY,
+    user_id uuid,
+    table_name varchar CHECK ( table_name in ('main_category', 'sub1_category', 'sub2_category', 'sub3_category', 'sub4_category') ),
     display_name varchar not null,
-    superior_table varchar,
-    is_invalid bool DEFAULT FALSE
+    is_invalid bool DEFAULT FALSE,
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    PRIMARY KEY (user_id, table_name)
 );
 
 -- MAIN CATEGORY --
 CREATE TABLE main_category
 (
-    id serial PRIMARY KEY,
+    id uuid PRIMARY KEY,
     name varchar not null,
     created_timestamp timestamp,
     created_user_id uuid not null,
@@ -39,48 +41,100 @@ CREATE TABLE main_category
     FOREIGN KEY (created_user_id) REFERENCES users (id)
 );
 
+CREATE TABLE sub1_category
+(
+    id uuid PRIMARY KEY,
+    name varchar not null,
+    superior_id uuid,
+    created_timestamp timestamp,
+    created_user_id uuid not null,
+    is_deleted bool DEFAULT FALSE,
+    FOREIGN KEY (superior_id) REFERENCES main_category (id),
+    FOREIGN KEY (created_user_id) REFERENCES users (id)
+);
+
+CREATE TABLE sub2_category
+(
+    id uuid PRIMARY KEY,
+    name varchar not null,
+    superior_id uuid,
+    created_timestamp timestamp,
+    created_user_id uuid not null,
+    is_deleted bool DEFAULT FALSE,
+    FOREIGN KEY (superior_id) REFERENCES sub1_category (id),
+    FOREIGN KEY (created_user_id) REFERENCES users (id)
+);
+
+CREATE TABLE sub3_category
+(
+    id uuid PRIMARY KEY,
+    name varchar not null,
+    superior_id uuid,
+    created_timestamp timestamp,
+    created_user_id uuid not null,
+    is_deleted bool DEFAULT FALSE,
+    FOREIGN KEY (superior_id) REFERENCES sub2_category (id),
+    FOREIGN KEY (created_user_id) REFERENCES users (id)
+);
+
+CREATE TABLE sub4_category
+(
+    id uuid PRIMARY KEY,
+    name varchar not null,
+    superior_id uuid,
+    created_timestamp timestamp,
+    created_user_id uuid not null,
+    is_deleted bool DEFAULT FALSE,
+    FOREIGN KEY (superior_id) REFERENCES sub4_category (id),
+    FOREIGN KEY (created_user_id) REFERENCES users (id)
+);
+
 -- CATEGORY ALIAS --
 CREATE TABLE category_alias
 (
-    id serial PRIMARY KEY,
+    id uuid PRIMARY KEY,
     alias_name varchar not null,
-    main_category_id integer not null,
-    sub_category1_id integer,
-    sub_category2_id integer,
-    sub_category3_id integer,
-    sub_category4_id integer,
+    main_id integer not null,
+    sub1_id integer,
+    sub2_id integer,
+    sub3_id integer,
+    sub4_id integer,
     created_user_id uuid not null,
+    is_auto_registered boolean,
     is_deleted boolean DEFAULT FALSE,
-    FOREIGN KEY (main_category_id) REFERENCES main_category(id),
+    FOREIGN KEY (main_id) REFERENCES main_category(id),
+    FOREIGN KEY (sub1_id) REFERENCES sub1_category(id),
+    FOREIGN KEY (sub2_id) REFERENCES sub2_category(id),
+    FOREIGN KEY (sub3_id) REFERENCES sub3_category(id),
+    FOREIGN KEY (sub4_id) REFERENCES sub4_category(id),
     FOREIGN KEY (created_user_id) REFERENCES users (id)
 );
 
 -- RECORD --
 CREATE TABLE records
 (
-    id serial PRIMARY KEY,
+    id uuid PRIMARY KEY,
     user_id uuid not null,
-    top_id integer not null,
-    sub1_id integer,
-    sub2_id integer,
-    sub3_id integer,
-    sub4_id integer,
+    alias_id uuid not null,
     total_time float,
     date date,
     start_time bigint,
     end_time bigint,
     pause_starts bigint[] not null,
-    pause_ends bigint[] not null
+    pause_ends bigint[] not null,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (alias_id) REFERENCES category_alias(id)
 );
 
 -- REFRESH TOKEN --
 CREATE TABLE refresh_token
 (
-    uid uuid PRIMARY KEY,
+    uid uuid,
     token varchar not null,
     exp bigint not null,
     iat bigint not null,
-    is_invalid boolean DEFAULT FALSE
+    is_invalid boolean DEFAULT FALSE,
+    FOREIGN KEY (uid) REFERENCES users(id)
 );
 
 -- CREATE USER and GRANT AUTHORITY --
@@ -91,19 +145,24 @@ SET TIME ZONE 'Asia/Tokyo';
 
 GRANT USAGE, CREATE ON SCHEMA time_schema TO app;
 
-GRANT USAGE, SELECT ON SEQUENCE records_id_seq TO app;
-GRANT USAGE, SELECT ON SEQUENCE category_alias_id_seq TO app;
-GRANT USAGE, SELECT ON SEQUENCE main_category_id_seq TO app;
-
 GRANT SELECT, INSERT, UPDATE ON users TO app;
 GRANT SELECT, INSERT, UPDATE ON category_setting TO app;
 GRANT SELECT, INSERT, UPDATE ON main_category TO app;
+GRANT SELECT, INSERT, UPDATE ON sub1_category TO app;
+GRANT SELECT, INSERT, UPDATE ON sub2_category TO app;
+GRANT SELECT, INSERT, UPDATE ON sub3_category TO app;
+GRANT SELECT, INSERT, UPDATE ON sub4_category TO app;
 GRANT SELECT, INSERT, UPDATE ON category_alias TO app;
 GRANT SELECT, INSERT, UPDATE ON records TO app;
-GRANT SELECT, INSERT, UPDATE, DELETE ON refresh_token TO app;
+GRANT SELECT, INSERT, UPDATE ON refresh_token TO app;
 
 GRANT REFERENCES ON TABLE users TO app;
 GRANT REFERENCES ON TABLE main_category TO app;
+GRANT REFERENCES ON TABLE sub1_category TO app;
+GRANT REFERENCES ON TABLE sub2_category TO app;
+GRANT REFERENCES ON TABLE sub3_category TO app;
+GRANT REFERENCES ON TABLE sub4_category TO app;
+GRANT REFERENCES ON TABLE category_alias TO app;
 
 -- CREATE FUNCTIONS --
 -- auto increment in users --
@@ -147,23 +206,6 @@ BEFORE INSERT ON main_category
 FOR EACH ROW
 EXECUTE FUNCTION insert_auto_timestamp();
 
--- Max category limit for category_table --
-CREATE OR REPLACE FUNCTION check_max_row_count()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF (SELECT COUNT(*) FROM time_schema.category_setting WHERE is_invalid = FALSE) >= 5
-        THEN
-            RAISE EXCEPTION 'EXCEED_MAX_CATEGORY: category_setting is allowed up to 5 tables.';
-    END IF;
-    RETURN NEW;
-END
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER category_max_check
-BEFORE INSERT ON category_setting
-FOR EACH ROW
-EXECUTE FUNCTION check_max_row_count();
-
 -- CREATE DATA --
 INSERT INTO
     users (id, username, email, password)
@@ -176,9 +218,9 @@ VALUES
     ('debcc72a-789b-4046-b954-0825d3331861', 'dummy_token', 1717102316, 1716102316);
 
 INSERT INTO
-    category_setting (table_name, display_name, superior_table)
+    category_setting (table_name, display_name)
 VALUES
-    ('main_category', 'メインカテゴリ', null);
+    ('main_category', 'メインカテゴリ');
 
 INSERT INTO
     main_category (name, created_user_id)
