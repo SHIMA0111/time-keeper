@@ -223,9 +223,9 @@ INSERT INTO
 VALUES
     ('debcc72a-789b-4046-b954-0825d3331861', 'main_category', 'メインカテゴリ', FALSE),
     ('debcc72a-789b-4046-b954-0825d3331861', 'sub1_category', 'サブカテゴリ1', FALSE),
-    ('debcc72a-789b-4046-b954-0825d3331861', 'sub1_category', 'サブカテゴリ2', FALSE),
-    ('debcc72a-789b-4046-b954-0825d3331861', 'sub1_category', 'サブカテゴリ3', TRUE),
-    ('debcc72a-789b-4046-b954-0825d3331861', 'sub1_category', 'サブカテゴリ4', TRUE);
+    ('debcc72a-789b-4046-b954-0825d3331861', 'sub2_category', 'サブカテゴリ2', FALSE),
+    ('debcc72a-789b-4046-b954-0825d3331861', 'sub3_category', 'サブカテゴリ3', TRUE),
+    ('debcc72a-789b-4046-b954-0825d3331861', 'sub4_category', 'サブカテゴリ4', TRUE);
 
 INSERT INTO
     main_category (id, name, created_user_id)
