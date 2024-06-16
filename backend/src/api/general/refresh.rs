@@ -7,7 +7,7 @@ use crate::types::api::refresh::{RefreshInput, RefreshResponse};
 use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody};
 use crate::utils::response::ResponseStatus::{InternalServerError, RequestOk, Unauthorized};
 
-pub async fn refresh_endpoint(refresh_info: Json<RefreshInput>, req: HttpRequest) -> impl Responder {
+pub async fn refresh_endpoint(input: Json<RefreshInput>, req: HttpRequest) -> impl Responder {
     info!("{}", get_access_info(&req));
 
     let endpoint_uri = req.uri().to_string();
@@ -17,7 +17,7 @@ pub async fn refresh_endpoint(refresh_info: Json<RefreshInput>, req: HttpRequest
         Either::Right(response) => return response,
     };
 
-    let refresh_token = refresh_info.refresh_token();
+    let refresh_token = input.refresh_token();
 
     let (username, access_token) = match token_refresh(refresh_token, &conn).await {
         Ok(username_token) => username_token,

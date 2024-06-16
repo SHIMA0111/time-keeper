@@ -2,7 +2,7 @@ use log::{error, info};
 use crate::db::DBConnection;
 use crate::errors::TimeKeeperError::DBCURDException;
 use crate::errors::TimeKeeperResult;
-use crate::sql::get::get_refresh_token::get_refresh_token_exist;
+use crate::sql::get::get_refresh_token::{get_refresh_token_by_id};
 use crate::sql::insert::insert;
 use crate::sql::SCHEMA_NAME;
 use crate::sql::update::update_refresh_token::disable_refresh_token;
@@ -10,9 +10,10 @@ use crate::types::db::refresh_token::RefreshToken;
 
 pub(crate) async fn register_refresh_token(refresh_token: &RefreshToken, conn: &DBConnection) -> TimeKeeperResult<()> {
     let user_id = refresh_token.user_id();
-    if get_refresh_token_exist(user_id, conn).await? {
+
+    if let Ok(old_refresh_token) = get_refresh_token_by_id(user_id, conn).await {
         info!("Existing old refresh_token so replace it to new.");
-        disable_refresh_token(refresh_token, conn).await?;
+        disable_refresh_token(&old_refresh_token, conn).await?;
     };
 
     let statement_str = format!(

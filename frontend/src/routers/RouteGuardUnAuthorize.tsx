@@ -2,14 +2,12 @@ import {FC, memo, ReactNode, useEffect, useState} from "react";
 import {useRecoilState, useSetRecoilState} from "recoil";
 import {authenticateState} from "../recoil/authentication/authenticateState.ts";
 import {useNavigate} from "react-router-dom";
-import {RefreshData, RefreshInput} from "../types/api/refresh.ts";
-import {Response} from "../types/api/response.ts";
 import {useToastMessage} from "../hooks/useToastMessage.tsx";
 import {userState} from "../recoil/user/userState.ts";
-import {useGeneralEndpoint} from "../hooks/useGeneralEndpoint.tsx";
 import {Loading} from "../components/pages/Loading.tsx";
-import {selectedCategoryState, SelectedCategoryType} from "../recoil/category/selectedCategoryState.ts";
-import {tempSelectedCategoryState} from "../recoil/category/tempSelectedCategoryState.ts";
+import {categoriesData} from "../recoil/category/categoryData.ts";
+import {useRefresh} from "../hooks/useRefresh.tsx";
+import {useCategory} from "../hooks/useCategory.tsx";
 
 type Props = {
     children: ReactNode;
@@ -21,90 +19,33 @@ export const RouteGuardUnAuthorize: FC<Props> = memo((props) => {
     const [shouldRenderChildren, setShouldRenderChildren] = useState(false);
     const [authenticate, setAuthenticate] = useRecoilState(authenticateState);
     const setUsername = useSetRecoilState(userState);
-    const setSelectedCategory = useSetRecoilState(selectedCategoryState);
-    const setTempSelectedCategory = useSetRecoilState(tempSelectedCategoryState);
+    const setCategoryData = useSetRecoilState(categoriesData);
     const navigate = useNavigate();
     
     const { toastMessage } = useToastMessage();
-    const axiosGeneralEndpoint = useGeneralEndpoint("http://localhost:8888");
+    const { refreshTrigger } = useRefresh();
+    const { categoryGetTrigger } = useCategory();
     
     useEffect(() => {
-        const selectedCategoryJson = localStorage.getItem("categorySetting");
-        if (selectedCategoryJson) {
-            const selectedCategory: SelectedCategoryType = JSON.parse(selectedCategoryJson);
-            if (selectedCategory.top && !isNaN(Number(selectedCategory.top.id))) {
-                setSelectedCategory(selectedCategory);
-                setTempSelectedCategory(selectedCategory);
-            }
-        }
-        
         if (authenticate) {
+            categoryGetTrigger();
             setShouldRenderChildren(true);
             return;
         }
         const refreshToken = localStorage.getItem("refreshToken");
         if (!refreshToken) {
+            setAuthenticate("");
+            setUsername("");
+            setCategoryData([]);
             navigate("/");
             return;
         }
         
-        const refreshInput: RefreshInput = {
-            refresh_token: refreshToken,
-        }
-        axiosGeneralEndpoint.post<Response>("/refresh", refreshInput)
-            .then(res => {
-                if (res.data) {
-                    const resData = res.data;
-                    if (!resData.request_success) {
-                        toastMessage({
-                            title: "Refresh token invalid",
-                            description: "Refresh token invalid. Please login again.",
-                            status: "error",
-                        });
-                        localStorage.removeItem("refreshToken");
-                        navigate("/");
-                    }
-                    const refreshData: RefreshData = JSON.parse(resData.data);
-                    if (refreshData.authenticated) {
-                        setAuthenticate(refreshData.access_token);
-                        setUsername(refreshData.username);
-                    }
-                }
-                else {
-                    toastMessage({
-                        title: "Refresh request rejected",
-                        description: "Please login again. If you face this error continuously, please contact the developer.",
-                        status: "error"
-                    });
-                    localStorage.removeItem("refreshToken");
-                    navigate("/");
-                }
-            })
-            .catch(err => {
-                const statusCode = err.response?.status;
-                
-                if (statusCode == 401) {
-                    toastMessage({
-                        title: "Refresh token expired",
-                        description: "Your refresh token expired, please login again.",
-                        status: "error",
-                    });
-                    localStorage.removeItem("refreshToken");
-                    navigate("/");
-                }
-                else {
-                    toastMessage({
-                        title: "Refresh request failed",
-                        description: "An error occurred while processing your request. " +
-                            "\nIf you face this error continuously, please contact the developer.",
-                        status: "error",
-                    });
-                    localStorage.removeItem("refreshToken");
-                    navigate("/");
-                }
-            })
-            .finally(() => setShouldRenderChildren(true));
-    }, [authenticate, axiosGeneralEndpoint, navigate, setAuthenticate, setSelectedCategory, setTempSelectedCategory, setUsername, toastMessage]);
+        refreshTrigger();
+        categoryGetTrigger();
+        setShouldRenderChildren(true);
+        
+    }, [authenticate, categoryGetTrigger, navigate, refreshTrigger, setAuthenticate, setCategoryData, setUsername, toastMessage]);
     
     return shouldRenderChildren ? children : <Loading />;
 });

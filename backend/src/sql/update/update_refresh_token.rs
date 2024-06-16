@@ -14,7 +14,7 @@ pub async fn update_refresh_token(refresh_token: &RefreshToken,
         "UPDATE {}.refresh_token SET exp=$1 WHERE token=$2",
         SCHEMA_NAME,
     );
-    let new_exp = refresh_token.exp() + exp_duration.num_milliseconds();
+    let new_exp = refresh_token.exp() + exp_duration.num_seconds();
 
     match update(&statement_str, &[&new_exp, &refresh_token.token()], conn.client()).await {
         Ok(update_number) => {

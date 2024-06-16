@@ -1,22 +1,14 @@
 import {useCallback, useEffect, useState} from "react";
 import {TmpTimeData} from "../types/tmpData/TmpTimeData.ts";
 import init, {calc_time} from "wasm-tools";
-import {RecordInput} from "../types/api/record.ts";
 import {useToastMessage} from "./useToastMessage.tsx";
-import {useRecoilValue} from "recoil";
-import {selectedCategoryState} from "../recoil/category/selectedCategoryState.ts";
-import {useAuthedEndpoint} from "./useAuthedEndpoint.tsx";
-import {Response} from "../types/api/response.ts";
 
 export const useTimeCounter = () => {
-    const [validCategory, setValidCategory] = useState<boolean>(false);
     const [isRecording, setIsRecording] = useState<boolean>(false);
     const [isCalculating, setIsCalculating] = useState<boolean>(true);
     const [isSaving, setIsSaving] = useState<boolean>(false);
     const [isPaused, setIsPaused] = useState<boolean>(false);
     const [time, setTime] = useState<number>(0);
-    const categoryValue = useRecoilValue(selectedCategoryState);
-    const authAxiosEndpoint = useAuthedEndpoint("http://localhost:8888/");
     
     const { toastMessage } = useToastMessage();
     
@@ -30,9 +22,6 @@ export const useTimeCounter = () => {
         localStorage.setItem("recordData", JSON.stringify(value));
     }, []);
     
-    useEffect(() => {
-        setValidCategory(!!categoryValue.top.name);
-    }, [categoryValue.top]);
     
     useEffect(() => {
         let timer: number | undefined;
@@ -129,22 +118,11 @@ export const useTimeCounter = () => {
     const onClickStop = useCallback(() => {
         const tmpRecordOnBrowser = storedValueGet();
         if (tmpRecordOnBrowser) {
-            const record: RecordInput = {
-                top_id: categoryValue.top.id,
-                sub1_id: categoryValue.sub1?.id,
-                sub2_id: categoryValue.sub2?.id,
-                sub3_id: categoryValue.sub3?.id,
-                sub4_id: categoryValue.sub4?.id,
-                start: tmpRecordOnBrowser.startTime,
-                end: new Date().getTime(),
-                pause_starts: tmpRecordOnBrowser.pauseStartTime,
-                pause_ends: tmpRecordOnBrowser.pauseEndTime,
-            };
-            authAxiosEndpoint.post<Response>("/register_record", record)
-                .then(res => {
-                    console.log(res);
-                })
-                .catch(err => console.error(err))
+            toastMessage({
+                status: "info",
+                title: "Stop",
+                description: "This is test message."
+            })
         }
         else {
             toastMessage({
@@ -156,7 +134,7 @@ export const useTimeCounter = () => {
         }
         
         onStop();
-    }, [categoryValue, onStop, storedValueGet, toastMessage, authAxiosEndpoint]);
+    }, [onStop, storedValueGet, toastMessage]);
     
-    return { onStart, onPause, isRecording, isCalculating, isSaving, isPaused, time, onClickStop, validCategory }
+    return { onStart, onPause, isRecording, isCalculating, isSaving, isPaused, time, onClickStop }
 }

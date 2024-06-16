@@ -25,7 +25,7 @@ CREATE TABLE category_setting
     user_id uuid,
     table_name varchar CHECK ( table_name in ('main_category', 'sub1_category', 'sub2_category', 'sub3_category', 'sub4_category') ),
     display_name varchar not null,
-    is_invalid bool DEFAULT FALSE,
+    is_invalid bool DEFAULT TRUE,
     FOREIGN KEY (user_id) REFERENCES users (id),
     PRIMARY KEY (user_id, table_name)
 );
@@ -94,11 +94,11 @@ CREATE TABLE category_alias
 (
     id uuid PRIMARY KEY,
     alias_name varchar not null,
-    main_id integer not null,
-    sub1_id integer,
-    sub2_id integer,
-    sub3_id integer,
-    sub4_id integer,
+    main_id uuid not null,
+    sub1_id uuid,
+    sub2_id uuid,
+    sub3_id uuid,
+    sub4_id uuid,
     created_user_id uuid not null,
     is_auto_registered boolean,
     is_deleted boolean DEFAULT FALSE,
@@ -217,12 +217,17 @@ INSERT INTO
 VALUES
     ('debcc72a-789b-4046-b954-0825d3331861', 'dummy_token', 1717102316, 1716102316);
 
-INSERT INTO
-    category_setting (table_name, display_name)
-VALUES
-    ('main_category', 'メインカテゴリ');
 
 INSERT INTO
-    main_category (name, created_user_id)
+    category_setting (user_id, table_name, display_name, is_invalid)
 VALUES
-    ('category1', 'debcc72a-789b-4046-b954-0825d3331861')
+    ('debcc72a-789b-4046-b954-0825d3331861', 'main_category', 'メインカテゴリ', FALSE),
+    ('debcc72a-789b-4046-b954-0825d3331861', 'sub1_category', 'サブカテゴリ1', FALSE),
+    ('debcc72a-789b-4046-b954-0825d3331861', 'sub1_category', 'サブカテゴリ2', FALSE),
+    ('debcc72a-789b-4046-b954-0825d3331861', 'sub1_category', 'サブカテゴリ3', TRUE),
+    ('debcc72a-789b-4046-b954-0825d3331861', 'sub1_category', 'サブカテゴリ4', TRUE);
+
+INSERT INTO
+    main_category (id, name, created_user_id)
+VALUES
+    ('279803fd-d87b-4c18-bdf2-95d30959d2b9', 'category1', 'debcc72a-789b-4046-b954-0825d3331861')

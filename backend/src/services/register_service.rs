@@ -10,10 +10,8 @@ pub async fn user_register(create_user_info: &CreateUser, connection: &DBConnect
         return Err(PasswordHashException("hashed password is empty".to_string()));
     }
     let user_id = Uuid::new_v4();
-    let username = create_user_info.username();
-    let email = create_user_info.email();
-    let hashed_password = create_user_info.hash_password();
-    create_user(user_id, &username, &email, &hashed_password, connection).await?;
+
+    create_user(user_id, create_user_info, connection).await?;
 
     Ok(user_id)
 }

@@ -7,11 +7,11 @@ use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody};
 use crate::utils::regex::regex_email;
 use crate::utils::response::ResponseStatus::{Created, InternalServerError};
 
-pub async fn register_endpoint(register_input: web::Json<CreateUser>, req: HttpRequest) -> impl Responder {
+pub async fn register_endpoint(input: web::Json<CreateUser>, req: HttpRequest) -> impl Responder {
     info!("{}", get_access_info(&req));
 
     let endpoint_uri = req.uri().to_string();
-    let email = register_input.email();
+    let email = input.email();
 
     if let Either::Right(response) = regex_email(&email, &endpoint_uri) {
         return response
@@ -22,7 +22,7 @@ pub async fn register_endpoint(register_input: web::Json<CreateUser>, req: HttpR
         Either::Right(response) => return response
     };
 
-    match user_register(&register_input, &conn).await {
+    match user_register(&input, &conn).await {
         Ok(user_id) => {
             info!("Register complete for user_id='{}'.", user_id);
             let register_info = RegisterResponse::new(true);

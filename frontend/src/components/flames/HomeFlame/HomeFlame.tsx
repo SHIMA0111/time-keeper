@@ -3,16 +3,13 @@ import {FC, memo, ReactNode} from "react";
 import {NavigationBar} from "./NavigationBar/NavigationBar.tsx";
 import {Logo} from "../../uiParts/images/Logo.tsx";
 import {TopBar} from "./TopBar/TopBar.tsx";
-import {Names} from "../../../types/api/categorySetting.ts";
 
 type Props = {
     children: ReactNode;
-    contentNum: number;
-    categoryNames: Names[];
 }
 
 export const HomeFlame: FC<Props> = memo((props) => {
-    const { children, contentNum, categoryNames } = props;
+    const { children } = props;
     
     return (
         <Flex w="100%" h="100vh">
@@ -22,11 +19,11 @@ export const HomeFlame: FC<Props> = memo((props) => {
                 flexDirection="column"
                 display={{ base: "none", md: "flex" }}
             >
-                <Logo src="/timekeeper_logo.webp" />
+                <Logo src="https://source.unsplash.com/bmmcfZqSjBU" />
                 <NavigationBar />
             </Flex>
             <Flex w={{base: "100%", md: "75%", lg: "80%", xl: "85%"}} flexDirection="column" h="100%">
-                <TopBar contentNums={contentNum} categoryNames={categoryNames} />
+                <TopBar />
                 {children}
             </Flex>
         </Flex>

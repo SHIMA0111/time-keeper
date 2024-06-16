@@ -1,34 +1,33 @@
 import {FC, memo, useEffect, useState} from "react";
 import {AnimatePresence, motion} from "framer-motion";
 import {Box, Tooltip} from "@chakra-ui/react";
+import {useRecoilValue} from "recoil";
+import {categoriesData} from "../../../../recoil/category/categoryData.ts";
 
 const MotionBox = motion(Box);
 
-type Props = {
-    information: string[]
-}
 
-export const RotateInformation: FC<Props> = memo((props) => {
-    const { information } = props;
-
+export const RotateInformation: FC = memo(() => {
+    const categories = useRecoilValue(categoriesData);
+    
     const [displayState, setDisplayState] = useState<number>(0);
     useEffect(() => {
         const timer = setInterval(() => {
-            setDisplayState(prevState => (prevState + 1) % information.length);
+            setDisplayState(prevState => (prevState + 1) % categories.length);
         }, 5000);
-
+        
         return () => clearInterval(timer);
-    }, [information]);
-
+    }, [categories.length]);
+    
     return (
         <AnimatePresence mode="wait">
-            <Tooltip label={information[displayState]}>
+            <Tooltip label={categories[displayState]?.display_name}>
                 <MotionBox
                     key={displayState}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}>
-                    {information[displayState]}
+                    {categories[displayState]?.display_name}
                 </MotionBox>
             </Tooltip>
         </AnimatePresence>

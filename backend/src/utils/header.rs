@@ -1,11 +1,13 @@
 use actix_web::http::header::AUTHORIZATION;
 use actix_web::{Either, HttpRequest, HttpResponse};
 use log::{error, info, warn};
+use uuid::Uuid;
 use crate::utils::api::HttpResponseBody;
 use crate::utils::response::ResponseStatus::{BadRequest, Unauthorized};
 use crate::utils::token::access_token_verify;
+use crate::utils::uuid::uuid_from_string;
 
-pub fn get_user_id(req: &HttpRequest) -> Either<String, HttpResponse> {
+pub fn get_user_id(req: &HttpRequest) -> Either<Uuid, HttpResponse> {
     let endpoint_uri = req.uri().to_string();
     let mut user_id = req.headers()
         // 'x-user-id' is always added by middleware so this cannot be None if reachable this method.
@@ -55,5 +57,15 @@ pub fn get_user_id(req: &HttpRequest) -> Either<String, HttpResponse> {
             }
         }
     };
+
+    let user_id = match uuid_from_string(&user_id) {
+        Ok(uuid_uid) => uuid_uid,
+        Err(e) => {
+            error!("Failed to convert the user id to Uuid due to {:?}", e);
+            let response = HttpResponseBody::failed_new("user_id invalud", &endpoint_uri);
+            return Either::Right(BadRequest.json_response_builder(response))
+        }
+    };
+
     Either::Left(user_id)
 }

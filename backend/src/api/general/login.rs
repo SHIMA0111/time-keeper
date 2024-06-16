@@ -8,12 +8,12 @@ use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody};
 use crate::utils::regex::regex_email;
 use crate::utils::response::ResponseStatus::{InternalServerError, RequestOk, Unauthorized};
 
-pub async fn login_endpoint(auth_info: Json<LoginInput>, req: HttpRequest) -> impl Responder {
+pub async fn login_endpoint(input: Json<LoginInput>, req: HttpRequest) -> impl Responder {
     info!("{}", get_access_info(&req));
 
     let endpoint_uri = req.uri().to_string();
-    let email = auth_info.email();
-    let password = auth_info.password();
+    let email = input.email();
+    let password = input.password();
 
     if let Either::Right(failed_response) = regex_email(&email, &endpoint_uri) {
         return failed_response

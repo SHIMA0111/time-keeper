@@ -50,7 +50,7 @@ export const RegisterModal: FC<Props> = memo((props) => {
     const onClickRegister = useCallback(() => {
         const registerInput: RegisterInput = {
             username,
-            user_email: email,
+            email: email,
             password: hashedPassword,
         };
         registerAction(registerInput);

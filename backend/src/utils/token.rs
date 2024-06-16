@@ -59,11 +59,11 @@ fn token_decode_and_verify(token: &str, custom_exp: Option<i64>, is_refresh: boo
 
     let validation = if is_refresh {
         let mut validation = Validation::default();
-        validation.leeway = 0;
+        validation.validate_exp = false;
         validation
     } else {
         let mut validation = Validation::default();
-        validation.validate_exp = false;
+        validation.leeway = 0;
         validation
     };
 
@@ -109,9 +109,13 @@ pub fn access_token_verify(access_token: &str) -> TimeKeeperResult<String> {
 }
 
 pub async fn refresh_token_verify(refresh_token: &RefreshToken) -> TimeKeeperResult<String> {
+    if refresh_token.is_invalid() {
+        error!("This refresh_token was invalidated by user. Cannot authorize by this.");
+        return Err(RefreshTokenException("this is not valid refresh token".to_string()));
+    }
+
     let exp = refresh_token.exp();
     let refresh_token = refresh_token.token();
-
 
     let token_info = token_decode_and_verify(&refresh_token, Some(exp), true)?;
 
