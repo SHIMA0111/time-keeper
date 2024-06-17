@@ -1,0 +1,62 @@
+import {useCallback, useState} from "react";
+import {selectedCategoryData, SelectedCategoryType} from "../recoil/category/selectedCategoryData.ts";
+import {categoriesData, CategoryContent} from "../recoil/category/categoryData.ts";
+import {useRecoilValue, useSetRecoilState} from "recoil";
+
+const superiorTableStructure = new Map([
+    ["sub4_category", "sub3_category"],
+    ["sub3_category", "sub2_category"],
+    ["sub2_category", "sub1_category"],
+    ["sub1_category", "main_category"],
+]);
+
+export const useGlobalSelectedCategory = () => {
+    const [tmpSelectedCategory, setTmpSelectedCategory]
+        = useState<SelectedCategoryType>({
+        aliasId: undefined,
+        main_category: undefined,
+        sub1_category: undefined,
+        sub2_category: undefined,
+        sub3_category: undefined,
+        sub4_category: undefined,
+    });
+    const categories = useRecoilValue(categoriesData);
+    const setSelectedCategory = useSetRecoilState(selectedCategoryData);
+
+    const addSelectedCategory = useCallback((tableName: string, category: CategoryContent) => {
+        setTmpSelectedCategory(oldVal => {
+            return {
+                ...oldVal,
+                [tableName]: category,
+            }
+        });
+        let childTable = tableName;
+        let childCategory = category;
+        while (superiorTableStructure.has(childTable)) {
+            if (childCategory.superior_id === undefined) break;
+            const superiorTable = superiorTableStructure.get(childTable);
+            if (!superiorTable) break;
+
+            const categoryTable = categories.filter(category => {
+                return category.table_name === superiorTable;
+            })[0];
+            const superiorCategory = categoryTable.categories.filter(content => {
+                return content.id === childCategory.superior_id;
+            })[0];
+            setTmpSelectedCategory(oldVal => {
+                return {
+                    ...oldVal,
+                    [superiorTable]: superiorCategory,
+                }
+            });
+            childTable = superiorTable;
+            childCategory = superiorCategory;
+        }
+    }, [categories]);
+
+    const onSave = useCallback(() => {
+        setSelectedCategory(tmpSelectedCategory);
+    }, [setSelectedCategory, tmpSelectedCategory]);
+
+    return {tmpSelectedCategory, addSelectedCategory, onSave};
+}
