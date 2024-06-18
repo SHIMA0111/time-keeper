@@ -11,9 +11,9 @@ import {
 } from "@chakra-ui/react";
 import {IconButtonWithName} from "../../../uiParts/buttons/IconButtonWithName.tsx";
 import {BiLogOut} from "react-icons/bi";
-import {HomeNavigations} from "./HomeNavigation.tsx";
 import {useLogout} from "../../../../hooks/useLogout.tsx";
 import {MainButton} from "../../../uiParts/buttons/MainButton.tsx";
+import {HomeRoutes} from "../../../../routers/HomeRoutes.tsx";
 
 export const NavigationBar: FC = memo(() => {
     const { onLogout } = useLogout();
@@ -22,8 +22,12 @@ export const NavigationBar: FC = memo(() => {
         <>
             <Flex as="aside" h="92%" flexDirection="column" justify="space-between">
                 <Flex flexDirection="column" overflow="scroll">
-                    {HomeNavigations.map(route => (
-                        <IconButtonWithName key={route.pageName} icon={route.icon} w="100%">
+                    {HomeRoutes.map(route => (
+                        <IconButtonWithName
+                            key={route.pageName}
+                            icon={route.icon}
+                            to={`/home${route.path}`}
+                            w="100%">
                             {route.pageName}
                         </IconButtonWithName>
                     ))}

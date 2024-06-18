@@ -3,7 +3,8 @@ use actix_cors::Cors;
 use actix_web::{App, HttpServer, web};
 use log::{warn};
 use serde::{Deserialize, Serialize};
-use crate::api::authed::category::category_endpoint;
+use crate::api::authed::create_category::create_category_endpoint;
+use crate::api::authed::get_category::get_category_endpoint;
 use crate::api::authed::logout::logout_endpoint;
 use crate::api::general::login::login_endpoint;
 use crate::api::general::refresh::refresh_endpoint;
@@ -43,7 +44,8 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/v1/authed")
                     .wrap(AccessTokenVerification)
                     .route("/logout", web::post().to(logout_endpoint))
-                    .route("/categories", web::get().to(category_endpoint))
+                    .route("/categories", web::get().to(get_category_endpoint))
+                    .route("/create_category", web::post().to(create_category_endpoint))
             )
             .service(
                 web::scope("/v1/general")

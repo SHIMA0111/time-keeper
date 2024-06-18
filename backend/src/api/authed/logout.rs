@@ -1,7 +1,7 @@
 use actix_web::{Either, HttpRequest, Responder};
 use actix_web::web::Json;
 use log::{error, info};
-use crate::services::logout_service::logout;
+use crate::services::logout_service::logout_service;
 use crate::types::api::logout::LogoutInput;
 use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody};
 use crate::utils::response::ResponseStatus::{InternalServerError, RequestOk};
@@ -20,7 +20,7 @@ pub async fn logout_endpoint(input: Json<LogoutInput>, req: HttpRequest) -> impl
         },
     };
 
-    if let Err(e) = logout(&refresh_token, &conn).await {
+    if let Err(e) = logout_service(&refresh_token, &conn).await {
         error!("disable refresh_token failed due to {:?}", e);
         let error_message = e.to_string();
         let response = HttpResponseBody::failed_new(

@@ -1,9 +1,11 @@
-import {FC, memo, ReactNode} from "react";
+import {FC, memo, ReactNode, useCallback} from "react";
 import {Box, Flex} from "@chakra-ui/react";
+import {useNavigate} from "react-router-dom";
 
 type Props = {
     children: ReactNode;
     w?: number | string;
+    to?: string;
     icon?: ReactNode;
     bgColor?: string;
     borderRadius?: string;
@@ -16,13 +18,25 @@ export const IconButtonWithName: FC<Props> = memo((props) => {
     const {
         children,
         w,
+        to,
         icon,
         bgColor="white",
         borderRadius,
         border,
         onClick,
-        disabled
+        disabled,
     } = props;
+    
+    const navigate = useNavigate();
+    
+    const handleClick = useCallback(() => {
+        if (to) {
+            navigate(to);
+        }
+        else if (onClick) {
+            onClick();
+        }
+    }, [navigate, onClick, to]);
     
     const hoverStyle = {
         cursor: disabled ? "not-allowed" : "pointer",
@@ -46,7 +60,7 @@ export const IconButtonWithName: FC<Props> = memo((props) => {
             justify="space-between"
             borderRadius={borderRadius}
             border={border}
-            onClick={disabled ? undefined : onClick}
+            onClick={disabled ? undefined : handleClick}
             _hover={hoverStyle}
             _active={activeStyle}
         >

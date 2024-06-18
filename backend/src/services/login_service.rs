@@ -11,9 +11,9 @@ use crate::types::token::Token;
 use crate::utils::hash::{verify_password};
 use crate::utils::token::generate_jwt_token;
 
-pub async fn user_authentication(email: &str,
-                                 password: &str,
-                                 conn: &DBConnection) -> TimeKeeperResult<(Token, Token, Uuid, String)> {
+pub async fn login_service(email: &str,
+                           password: &str,
+                           conn: &DBConnection) -> TimeKeeperResult<(Token, Token, Uuid, String)> {
     let user_row = get_user(email, conn).await?;
 
     let user_password = user_row.password();

@@ -5,7 +5,7 @@ use crate::errors::TimeKeeperResult;
 use crate::sql::insert::create_user::create_user;
 use crate::types::db::user::CreateUser;
 
-pub async fn user_register(create_user_info: &CreateUser, connection: &DBConnection) -> TimeKeeperResult<Uuid> {
+pub async fn register_service(create_user_info: &CreateUser, connection: &DBConnection) -> TimeKeeperResult<Uuid> {
     if create_user_info.hash_password().is_empty() {
         return Err(PasswordHashException("hashed password is empty".to_string()));
     }

@@ -1,5 +1,6 @@
 pub mod create_user;
 pub mod create_refresh_token;
+pub mod create_category;
 
 use log::{debug};
 use tokio_postgres::Client;

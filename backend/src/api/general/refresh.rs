@@ -2,7 +2,7 @@ use actix_web::{Either, HttpRequest, Responder};
 use actix_web::web::Json;
 use log::{error, info};
 use crate::errors::TimeKeeperError;
-use crate::services::refresh_service::token_refresh;
+use crate::services::refresh_service::refresh_service;
 use crate::types::api::refresh::{RefreshInput, RefreshResponse};
 use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody};
 use crate::utils::response::ResponseStatus::{InternalServerError, RequestOk, Unauthorized};
@@ -19,7 +19,7 @@ pub async fn refresh_endpoint(input: Json<RefreshInput>, req: HttpRequest) -> im
 
     let refresh_token = input.refresh_token();
 
-    let (username, access_token) = match token_refresh(refresh_token, &conn).await {
+    let (username, access_token) = match refresh_service(refresh_token, &conn).await {
         Ok(username_token) => username_token,
         Err(e) => {
             error!("Failed to refresh the refresh token due to {:?}", e);

@@ -2,7 +2,7 @@ use actix_web::{Either, HttpRequest, Responder};
 use actix_web::web::Json;
 use log::{error, info};
 use crate::errors::TimeKeeperError;
-use crate::services::login_service::user_authentication;
+use crate::services::login_service::login_service;
 use crate::types::api::login::{LoginInput, LoginResponse};
 use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody};
 use crate::utils::regex::regex_email;
@@ -25,7 +25,7 @@ pub async fn login_endpoint(input: Json<LoginInput>, req: HttpRequest) -> impl R
     };
 
     let (access_token, refresh_token, user_id, username) =
-        match user_authentication(&email, &password, &conn).await {
+        match login_service(&email, &password, &conn).await {
             Ok(user_id_and_name) => user_id_and_name,
             Err(e) => {
                 error!("Failed to authenticate user {:?}", e);

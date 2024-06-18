@@ -5,7 +5,7 @@ use crate::sql::get::get_category::{get_all_category, get_specified_category};
 use crate::sql::get::get_category_setting::get_validate_category_setting;
 use crate::types::db::category::Category;
 
-pub async fn category_info(user_id: Uuid, conn: &DBConnection) -> TimeKeeperResult<Vec<Category>> {
+pub async fn get_category_service(user_id: Uuid, conn: &DBConnection) -> TimeKeeperResult<Vec<Category>> {
     let valid_tables = get_validate_category_setting(user_id, conn).await?;
 
     let categories =

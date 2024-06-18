@@ -1,2 +1,3 @@
 pub mod logout;
-pub mod category;
+pub mod get_category;
+pub mod create_category;

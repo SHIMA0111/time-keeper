@@ -1,11 +1,11 @@
 use actix_web::{Either, HttpRequest, HttpResponse, Responder};
 use log::{error, info};
-use crate::services::category_service::category_info;
+use crate::services::get_category_service::get_category_service;
 use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody};
 use crate::utils::header::get_user_id;
 use crate::utils::response::ResponseStatus::{InternalServerError, RequestOk};
 
-pub async fn category_endpoint(req: HttpRequest) -> impl Responder {
+pub async fn get_category_endpoint(req: HttpRequest) -> impl Responder {
     info!("{}", get_access_info(&req));
 
     let endpoint_uri = req.uri().to_string();
@@ -18,7 +18,7 @@ pub async fn category_endpoint(req: HttpRequest) -> impl Responder {
         Either::Left(conn) => conn,
         Either::Right(res) => return res,
     };
-    let categories = category_info(user_id, &conn).await;
+    let categories = get_category_service(user_id, &conn).await;
     if let Err(e) = categories {
         error!("Failed to get category information due to {:?}", e);
         let error_message = e.to_string();

@@ -9,7 +9,7 @@ use crate::types::token::Token;
 use crate::utils::token::{generate_jwt_token, refresh_token_verify};
 use crate::utils::uuid::uuid_from_string;
 
-pub async fn token_refresh(refresh_token: String, conn: &DBConnection) -> TimeKeeperResult<(String, Token)> {
+pub async fn refresh_service(refresh_token: String, conn: &DBConnection) -> TimeKeeperResult<(String, Token)> {
     let refresh_token = get_refresh_token(&refresh_token, &conn).await?;
     let user_id = refresh_token_verify(&refresh_token).await?;
     let user_id = uuid_from_string(&user_id)?;

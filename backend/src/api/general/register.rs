@@ -1,6 +1,6 @@
 use actix_web::{Either, HttpRequest, Responder, web};
 use log::{error, info};
-use crate::services::register_service::user_register;
+use crate::services::register_service::register_service;
 use crate::types::api::register::RegisterResponse;
 use crate::types::db::user::CreateUser;
 use crate::utils::api::{get_access_info, get_db_connection, HttpResponseBody};
@@ -22,7 +22,7 @@ pub async fn register_endpoint(input: web::Json<CreateUser>, req: HttpRequest) -
         Either::Right(response) => return response
     };
 
-    match user_register(&input, &conn).await {
+    match register_service(&input, &conn).await {
         Ok(user_id) => {
             info!("Register complete for user_id='{}'.", user_id);
             let register_info = RegisterResponse::new(true);
