@@ -11,13 +11,14 @@ import {
 
 type Props = {
     value: string;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onBlur?: () => void;
     errorMessage?: string;
     isValid?: boolean;
     placeholder?: string;
     type?: "text" | "password";
     label?: string;
+    noSelect?: boolean;
     leftIcon?: {
         icon: ReactNode;
         onClick?: () => void;
@@ -27,6 +28,7 @@ type Props = {
         onClick?: () => void;
     };
     readOnly?: boolean;
+    cursor?: string;
 }
 
 export const FormInput: FC<Props> = memo((props) => {
@@ -39,9 +41,12 @@ export const FormInput: FC<Props> = memo((props) => {
         errorMessage="" ,
         type="text",
         label,
+        noSelect=false,
         leftIcon,
         rightIcon,
-        readOnly = false} = props;
+        readOnly = false,
+        cursor= "text"
+    } = props;
     
     return (
         <FormControl
@@ -65,6 +70,8 @@ export const FormInput: FC<Props> = memo((props) => {
                     placeholder={placeholder}
                     type={type}
                     readOnly={readOnly}
+                    userSelect={noSelect ? "none" : "unset"}
+                    cursor={cursor}
                     _focusVisible={{
                         outline: "none",
                         boxShadow: "none",

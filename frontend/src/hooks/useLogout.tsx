@@ -2,7 +2,7 @@ import {useCallback} from "react";
 import {useNavigate} from "react-router-dom";
 import {useSetRecoilState} from "recoil";
 import {userState} from "../recoil/user/userState.ts";
-import {authenticateState} from "../recoil/authentication/authenticateState.ts";
+import {accessTokenState} from "../recoil/authentication/accessTokenState.ts";
 import {useAuthedEndpoint} from "./useAuthedEndpoint.tsx";
 import {Response} from "../types/api/response.ts";
 import {LogoutInput} from "../types/api/logout.ts";
@@ -10,12 +10,12 @@ import {useToastMessage} from "./useToastMessage.tsx";
 import {categoriesData} from "../recoil/category/categoryData.ts";
 
 export const useLogout = () => {
-    const setAccessToken = useSetRecoilState(authenticateState);
+    const setAccessToken = useSetRecoilState(accessTokenState);
     const setUsername = useSetRecoilState(userState);
     const setCategories = useSetRecoilState(categoriesData);
     const navigate = useNavigate();
     
-    const axiosAuthedEndpoint = useAuthedEndpoint("http://localhost:8888");
+    const axiosAuthedEndpoint = useAuthedEndpoint();
     const {toastMessage} = useToastMessage();
     
     const backendLogoutFailedToast = useCallback(() => {

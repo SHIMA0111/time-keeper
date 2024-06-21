@@ -4,16 +4,16 @@ import {Response} from "../types/api/response.ts";
 import {useToastMessage} from "./useToastMessage.tsx";
 import {useNavigate} from "react-router-dom";
 import {useSetRecoilState} from "recoil";
-import {authenticateState} from "../recoil/authentication/authenticateState.ts";
+import {accessTokenState} from "../recoil/authentication/accessTokenState.ts";
 import {userState} from "../recoil/user/userState.ts";
 import {useGeneralEndpoint} from "./useGeneralEndpoint.tsx";
 
 export const useLogin = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const setAuthenticate = useSetRecoilState(authenticateState);
+    const setAuthenticate = useSetRecoilState(accessTokenState);
     const setUsername = useSetRecoilState(userState);
-    const axiosGeneralEndpoint = useGeneralEndpoint("http://localhost:8888");
+    const axiosGeneralEndpoint = useGeneralEndpoint();
     
     const {toastMessage} = useToastMessage();
     

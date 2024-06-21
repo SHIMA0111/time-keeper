@@ -7,7 +7,7 @@ import {useCallback} from "react";
 
 export const useCategory = () => {
     const setCategoryData = useSetRecoilState(categoriesData);
-    const axiosAuthedEndpoint = useAuthedEndpoint("http://localhost:8888");
+    const axiosAuthedEndpoint = useAuthedEndpoint();
     const { toastMessage } = useToastMessage();
     
     const categoryGetTrigger = useCallback(() => {

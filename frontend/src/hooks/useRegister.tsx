@@ -10,7 +10,7 @@ export const useRegister = () => {
     const navigate = useNavigate();
     
     const {toastMessage} = useToastMessage();
-    const axiosGeneralEndpoint = useGeneralEndpoint("http://localhost:8888");
+    const axiosGeneralEndpoint = useGeneralEndpoint();
     
     const registerAction = useCallback((registerInput: RegisterInput) => {
         setLoading(true);

@@ -1,6 +1,6 @@
 import {FC, memo, ReactNode, useEffect, useState} from "react";
 import {useRecoilState, useSetRecoilState} from "recoil";
-import {authenticateState} from "../recoil/authentication/authenticateState.ts";
+import {accessTokenState} from "../recoil/authentication/accessTokenState.ts";
 import {useNavigate} from "react-router-dom";
 import {useToastMessage} from "../hooks/useToastMessage.tsx";
 import {userState} from "../recoil/user/userState.ts";
@@ -17,7 +17,7 @@ export const RouteGuardUnAuthorize: FC<Props> = memo((props) => {
     const {children} = props;
     
     const [shouldRenderChildren, setShouldRenderChildren] = useState(false);
-    const [authenticate, setAuthenticate] = useRecoilState(authenticateState);
+    const [authenticate, setAuthenticate] = useRecoilState(accessTokenState);
     const setUsername = useSetRecoilState(userState);
     const setCategoryData = useSetRecoilState(categoriesData);
     const navigate = useNavigate();

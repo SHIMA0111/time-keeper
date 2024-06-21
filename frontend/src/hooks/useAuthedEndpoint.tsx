@@ -1,24 +1,26 @@
 import {useRecoilState} from "recoil";
-import {authenticateState} from "../recoil/authentication/authenticateState.ts";
+import {accessTokenState} from "../recoil/authentication/accessTokenState.ts";
 import axios, {AxiosInstance} from "axios";
 import {useGeneralEndpoint} from "./useGeneralEndpoint.tsx";
 import {RefreshData, RefreshInput} from "../types/api/refresh.ts";
 import {Response} from "../types/api/response.ts";
 import {useNavigate} from "react-router-dom";
 import {useMemo} from "react";
+import {backendConfig} from "../config/backendConfig.ts";
 
-export const useAuthedEndpoint = (backend_url: string) => {
-    const [accessToken, setAccessToken] = useRecoilState(authenticateState);
-    const axiosGeneralEndpoint = useGeneralEndpoint("http://localhost:8888");
+export const useAuthedEndpoint = () => {
+    const [accessToken, setAccessToken] = useRecoilState(accessTokenState);
     const navigate = useNavigate();
+    const {apiUrl, port} = backendConfig;
     
     const axiosAuthedEndpoint: AxiosInstance = useMemo(() => {
-        const url = backend_url.endsWith("/") ? backend_url.slice(0, -1) : backend_url;
+        const url = apiUrl.endsWith("/") ? apiUrl.slice(0, -1) : apiUrl;
         return axios.create({
-            baseURL: `${url}/v1/authed`,
+            baseURL: `${url}:${port}/v1/authed`,
             timeout: 10000,
         })
-    }, [backend_url]);
+    }, [apiUrl, port]);
+    const axiosGeneralEndpoint = useGeneralEndpoint();
 
     axiosAuthedEndpoint.interceptors.request.use(
         (requestValue) => {

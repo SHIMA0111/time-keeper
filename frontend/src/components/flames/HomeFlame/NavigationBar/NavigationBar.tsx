@@ -12,15 +12,21 @@ import {
 import {IconButtonWithName} from "../../../uiParts/buttons/IconButtonWithName.tsx";
 import {BiLogOut} from "react-icons/bi";
 import {useLogout} from "../../../../hooks/useLogout.tsx";
-import {MainButton} from "../../../uiParts/buttons/MainButton.tsx";
 import {HomeRoutes} from "../../../../routers/HomeRoutes.tsx";
+import {SubButton} from "../../../uiParts/buttons/SubButton.tsx";
 
-export const NavigationBar: FC = memo(() => {
+type Props = {
+    h: string;
+}
+
+export const NavigationBar: FC<Props> = memo((props) => {
+    const {h} = props;
+    
     const { onLogout } = useLogout();
     const { isOpen, onOpen, onClose } = useDisclosure();
     return (
         <>
-            <Flex as="aside" h="92%" flexDirection="column" justify="space-between">
+            <Flex as="aside" h={h} flexDirection="column" justify="space-between">
                 <Flex flexDirection="column" overflow="scroll">
                     {HomeRoutes.map(route => (
                         <IconButtonWithName
@@ -41,7 +47,7 @@ export const NavigationBar: FC = memo(() => {
                         <ModalHeader>ログアウト</ModalHeader>
                         <ModalCloseButton />
                         <ModalBody>ログアウトボタンが押されました。本当にログアウトしますか？</ModalBody>
-                        <MainButton onClick={onLogout}>はい</MainButton>
+                        <SubButton onClick={onLogout}>はい</SubButton>
                     </Stack>
                 </ModalContent>
             </Modal>

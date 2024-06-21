@@ -1,14 +1,16 @@
 import axios from "axios";
 import {useMemo} from "react";
+import {backendConfig} from "../config/backendConfig.ts";
 
-export const useGeneralEndpoint = (backend_url: string) => {
+export const useGeneralEndpoint = () => {
+    const {apiUrl, port} = backendConfig;
     const axiosGeneralEndpoint = useMemo(() => {
-        const url = backend_url.endsWith("/") ? backend_url.slice(0, -1) : backend_url;
+        const url = apiUrl.endsWith("/") ? apiUrl.slice(0, -1) : apiUrl;
         return axios.create({
-            baseURL: `${url}/v1/general`,
+            baseURL: `${url}:${port}/v1/general`,
             timeout: 5000
         })
-    }, [backend_url]);
+    }, [apiUrl, port]);
     
     return axiosGeneralEndpoint;
 }

@@ -1,7 +1,7 @@
 import {ChangeEvent, useState} from "react";
 
-export const useInputChange = (): [string, (e: ChangeEvent<HTMLInputElement>) => void] => {
-    const [inputValue, setInputValue] = useState("");
+export const useInputChange = (defaultValue: string = ""): [string, (e: ChangeEvent<HTMLInputElement>) => void] => {
+    const [inputValue, setInputValue] = useState(defaultValue);
     
     const inputChange = (e: ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value);
@@ -10,8 +10,8 @@ export const useInputChange = (): [string, (e: ChangeEvent<HTMLInputElement>) =>
     return [inputValue, inputChange];
 };
 
-export const useInputChangeCleanUp = (): [string, (e: ChangeEvent<HTMLInputElement>) => void, () => void] => {
-    const [inputValue, setInputValue] = useState("");
+export const useInputChangeCleanUp = (defaultValue: string = ""): [string, (e: ChangeEvent<HTMLInputElement>) => void, () => void] => {
+    const [inputValue, setInputValue] = useState(defaultValue);
     
     const inputChange = (e: ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value);

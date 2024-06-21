@@ -35,7 +35,9 @@ async fn main() -> std::io::Result<()> {
         let cors = Cors::default()
             .allow_any_header()
             .allow_any_method()
-            .allowed_origin("http://localhost:5173");
+            .allowed_origin("http://localhost:5173")
+            .allowed_origin("http://10.13.98.142:5173")
+            .allowed_origin("http://127.0.0.1:5173");
 
         App::new()
             .wrap(cors)
@@ -53,7 +55,8 @@ async fn main() -> std::io::Result<()> {
                     .route("/refresh", web::post().to(refresh_endpoint))
             )
     })
-        .bind(("127.0.0.1", 8888))?
+        .bind(("10.13.98.142", 8888))?
+        .bind(("localhost", 8888))?
         .run()
         .await
 }
