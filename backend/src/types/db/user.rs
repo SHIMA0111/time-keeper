@@ -1,3 +1,4 @@
+use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use crate::utils::hash::hash_password;
@@ -36,13 +37,23 @@ pub struct User {
     username: String,
     email: String,
     password: Option<String>,
+    created_datetime: NaiveDateTime
 }
 
 impl User {
-    pub fn new(id: Uuid, username: String, email: String, password: Option<String>) -> Self {
+    pub fn new(id: Uuid,
+               username: String,
+               email: String,
+               password: Option<String>,
+               created_datetime: NaiveDateTime) -> Self {
         Self {
-            id, username, email, password
+            id, username, email, password, created_datetime
         }
+    }
+
+    pub fn remove_password_info(mut self) -> Self {
+        self.password = None;
+        self
     }
 
     pub fn user_id(&self) -> Uuid {
@@ -59,5 +70,9 @@ impl User {
 
     pub fn password(&self) -> Option<String> {
         self.password.clone()
+    }
+
+    pub fn created_datetime(&self) -> NaiveDateTime {
+        self.created_datetime
     }
 }

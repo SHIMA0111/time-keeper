@@ -9,11 +9,11 @@ import {
     Stack,
     useDisclosure
 } from "@chakra-ui/react";
-import {IconButtonWithName} from "../../../uiParts/buttons/IconButtonWithName.tsx";
+import {IconButtonWithName} from "../../../buttons/IconButtonWithName.tsx";
 import {BiLogOut} from "react-icons/bi";
-import {useLogout} from "../../../../hooks/useLogout.tsx";
-import {HomeRoutes} from "../../../../routers/HomeRoutes.tsx";
-import {SubButton} from "../../../uiParts/buttons/SubButton.tsx";
+import {useLogout} from "../../../../../hooks/useLogout.tsx";
+import {HomeRoutes} from "../../../../../routers/HomeRoutes.tsx";
+import {SubButton} from "../../../buttons/SubButton.tsx";
 
 type Props = {
     h: string;

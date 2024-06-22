@@ -1,5 +1,5 @@
 import {useSetRecoilState} from "recoil";
-import {userState} from "../recoil/user/userState.ts";
+import {userState, UserStateType} from "../recoil/user/userState.ts";
 import {accessTokenState} from "../recoil/authentication/accessTokenState.ts";
 import {useCallback} from "react";
 import {RefreshData, RefreshInput} from "../types/api/refresh.ts";
@@ -9,7 +9,7 @@ import {Response} from "../types/api/response.ts";
 import {useToastMessage} from "./useToastMessage.tsx";
 
 export const useRefresh = () => {
-    const setUsername = useSetRecoilState(userState);
+    const setUserState = useSetRecoilState(userState);
     const setAccessToken = useSetRecoilState(accessTokenState);
    
     const navigate = useNavigate();
@@ -43,8 +43,15 @@ export const useRefresh = () => {
                     }
                     const refreshData: RefreshData = JSON.parse(resData.data);
                     if (refreshData.authenticated) {
+                        const userState: UserStateType = {
+                            userId: refreshData.user_id,
+                            username: refreshData.username,
+                            email: refreshData.email,
+                            createdDateTime: refreshData.created_datetime,
+                        };
+                        
                         setAccessToken(refreshData.access_token);
-                        setUsername(refreshData.username);
+                        setUserState(userState);
                     }
                 }
                 else {
@@ -80,7 +87,7 @@ export const useRefresh = () => {
                     navigate("/");
                 }
             });
-    }, [axiosGeneralEndpoint, navigate, setAccessToken, setUsername, toastMessage]);
+    }, [axiosGeneralEndpoint, navigate, setAccessToken, setUserState, toastMessage]);
     
     return {refreshTrigger}
 }

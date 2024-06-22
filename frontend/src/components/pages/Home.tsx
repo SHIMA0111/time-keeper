@@ -1,6 +1,6 @@
 import {Box} from "@chakra-ui/react";
 import {FC, memo} from "react";
-import {HomeFlame} from "../flames/HomeFlame/HomeFlame.tsx";
+import {HomeFlame} from "../uiParts/flames/HomeFlame/HomeFlame.tsx";
 
 export const Home: FC = memo(() => {
     return (

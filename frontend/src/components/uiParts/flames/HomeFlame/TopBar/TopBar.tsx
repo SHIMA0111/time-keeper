@@ -7,13 +7,13 @@ import {
 import {MdFiberManualRecord} from "react-icons/md";
 import {IoStopSharp} from "react-icons/io5";
 import {IoMdPause} from "react-icons/io";
-import {IconButton} from "../../../uiParts/buttons/IconButton.tsx";
+import {IconButton} from "../../../buttons/IconButton.tsx";
 import {RecordingDisplay} from "./RecordingDisplay.tsx";
 import {SettingsIcon} from "@chakra-ui/icons";
-import {NoShadowSelect} from "../../../uiParts/inputs/NoShadowSelect.tsx";
+import {NoShadowSelect} from "../../../inputs/NoShadowSelect.tsx";
 import {DetailModal} from "./DetailModal.tsx";
 import {CurrentSettingDisplay} from "./CurrentSettingDisplay.tsx";
-import {useTimeCounter} from "../../../../hooks/useTimeCounter.tsx";
+import {useTimeCounter} from "../../../../../hooks/useTimeCounter.tsx";
 
 
 export const TopBar: FC = memo(() => {

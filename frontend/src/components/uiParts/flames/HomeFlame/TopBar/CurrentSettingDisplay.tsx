@@ -2,8 +2,8 @@ import {FC, memo} from "react";
 import {Box, HStack, Text, Tooltip} from "@chakra-ui/react";
 import {RotateInformation} from "./RotateInformation.tsx";
 import {useRecoilValue} from "recoil";
-import {categoriesData} from "../../../../recoil/category/categoryData.ts";
-import {selectedCategoryData, SelectedCategoryType} from "../../../../recoil/category/selectedCategoryData.ts";
+import {categoriesData} from "../../../../../recoil/category/categoryData.ts";
+import {selectedCategoryData, SelectedCategoryType} from "../../../../../recoil/category/selectedCategoryData.ts";
 
 export const CurrentSettingDisplay: FC = memo(() => {
     const categories = useRecoilValue(categoriesData);

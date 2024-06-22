@@ -24,7 +24,7 @@ pub async fn login_endpoint(input: Json<LoginInput>, req: HttpRequest) -> impl R
         Either::Right(response) => return response
     };
 
-    let (access_token, refresh_token, user_id, username) =
+    let (access_token, refresh_token, userData) =
         match login_service(&email, &password, &conn).await {
             Ok(user_id_and_name) => user_id_and_name,
             Err(e) => {
@@ -45,12 +45,15 @@ pub async fn login_endpoint(input: Json<LoginInput>, req: HttpRequest) -> impl R
             }
         };
 
-    info!("Login process success for {}", user_id);
+    info!("Login process success for {}", userData.user_id());
     let login_info = LoginResponse::new(
         true,
         access_token.token(),
         refresh_token.token(),
-        username
+        userData.user_id(),
+        userData.username(),
+        userData.email(),
+        userData.created_datetime(),
     );
 
     let response = HttpResponseBody::success_new(login_info, &endpoint_uri);

@@ -2,7 +2,7 @@ import {FC, memo, useEffect, useState} from "react";
 import {AnimatePresence, motion} from "framer-motion";
 import {Box, Tooltip} from "@chakra-ui/react";
 import {useRecoilValue} from "recoil";
-import {categoriesData} from "../../../../recoil/category/categoryData.ts";
+import {categoriesData} from "../../../../../recoil/category/categoryData.ts";
 
 const MotionBox = motion(Box);
 

@@ -7,7 +7,7 @@ use crate::types::db::user::User;
 
 pub async fn get_user(email: &str, conn: &DBConnection) -> TimeKeeperResult<User> {
     let stmt =
-        format!("SELECT id, username, password FROM {}.users WHERE email=$1", SCHEMA_NAME);
+        format!("SELECT id, username, password, created_timestamp FROM {}.users WHERE email=$1", SCHEMA_NAME);
 
     let response = get_one(&stmt, &[&email], conn.client()).await?;
 
@@ -16,6 +16,7 @@ pub async fn get_user(email: &str, conn: &DBConnection) -> TimeKeeperResult<User
         response.get("username"),
         email.to_string(),
         Some(response.get("password")),
+        response.get("created_timestamp"),
     );
 
     Ok(user)
@@ -23,21 +24,22 @@ pub async fn get_user(email: &str, conn: &DBConnection) -> TimeKeeperResult<User
 
 pub async fn get_user_by_id(user_id: Uuid, conn: &DBConnection) -> TimeKeeperResult<User> {
     let stmt =
-        format!("SELECT username, email, password FROM {}.users WHERE id=$1", SCHEMA_NAME);
+        format!("SELECT username, email, password, created_timestamp FROM {}.users WHERE id=$1", SCHEMA_NAME);
     let response = get_one(&stmt, &[&user_id], conn.client()).await?;
 
     let user = User::new(
         user_id,
         response.get("username"),
         response.get("email"),
-        Some(response.get("password"))
+        Some(response.get("password")),
+        response.get("created_timestamp"),
     );
 
     Ok(user)
 }
 
 pub async fn get_all_users(conn: &DBConnection) -> TimeKeeperResult<Vec<User>> {
-    let stmt = format!("SELECT id, username, email FROM {}.users", SCHEMA_NAME);
+    let stmt = format!("SELECT id, username, email, created_timestamp FROM {}.users", SCHEMA_NAME);
 
     let response = get_all(&stmt, &[], conn.client()).await?;
 
@@ -47,6 +49,7 @@ pub async fn get_all_users(conn: &DBConnection) -> TimeKeeperResult<Vec<User>> {
             row.get("username"),
             row.get("email"),
             None,
+            row.get("created_timestamp"),
         )
     }).collect::<Vec<_>>();
 

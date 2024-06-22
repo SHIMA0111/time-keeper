@@ -8,11 +8,11 @@ import {
     ModalHeader,
     ModalOverlay
 } from "@chakra-ui/react";
-import {NoShadowSelect} from "../../../uiParts/inputs/NoShadowSelect.tsx";
-import {IconButtonWithName} from "../../../uiParts/buttons/IconButtonWithName.tsx";
+import {NoShadowSelect} from "../../../inputs/NoShadowSelect.tsx";
+import {IconButtonWithName} from "../../../buttons/IconButtonWithName.tsx";
 import {MdSaveAlt} from "react-icons/md";
 import {useRecoilValue} from "recoil";
-import {categoriesData} from "../../../../recoil/category/categoryData.ts";
+import {categoriesData} from "../../../../../recoil/category/categoryData.ts";
 
 type Props = {
     isOpen: boolean;

@@ -10,9 +10,9 @@ import {
 } from "@chakra-ui/react";
 import {FC, memo, ReactNode} from "react";
 import {NavigationBar} from "./NavigationBar/NavigationBar.tsx";
-import {Logo} from "../../uiParts/images/Logo.tsx";
+import {Logo} from "../../images/Logo.tsx";
 import {TopBar} from "./TopBar/TopBar.tsx";
-import {FloatingMenuButton} from "../../uiParts/buttons/FloatingMenuButton.tsx";
+import {FloatingMenuButton} from "../../buttons/FloatingMenuButton.tsx";
 
 type Props = {
     children: ReactNode;

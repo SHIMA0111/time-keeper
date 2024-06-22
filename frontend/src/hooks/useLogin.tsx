@@ -5,14 +5,14 @@ import {useToastMessage} from "./useToastMessage.tsx";
 import {useNavigate} from "react-router-dom";
 import {useSetRecoilState} from "recoil";
 import {accessTokenState} from "../recoil/authentication/accessTokenState.ts";
-import {userState} from "../recoil/user/userState.ts";
+import {userState, UserStateType} from "../recoil/user/userState.ts";
 import {useGeneralEndpoint} from "./useGeneralEndpoint.tsx";
 
 export const useLogin = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const setAuthenticate = useSetRecoilState(accessTokenState);
-    const setUsername = useSetRecoilState(userState);
+    const setUserState = useSetRecoilState(userState);
     const axiosGeneralEndpoint = useGeneralEndpoint();
     
     const {toastMessage} = useToastMessage();
@@ -37,8 +37,17 @@ export const useLogin = () => {
                     const processResult: LoginData = JSON.parse(resData.data);
                     if (processResult.authenticated) {
                         localStorage.setItem("refreshToken", processResult.refresh_token);
+                        const createdDate = processResult.created_datetime;
+                        const localDate = new Date(createdDate).toLocaleString();
+                        const userState: UserStateType = {
+                            userId: processResult.user_id,
+                            username: processResult.username,
+                            email: processResult.email,
+                            createdDateTime: localDate,
+                        };
+                        
                         setAuthenticate(processResult.access_token);
-                        setUsername(processResult.username);
+                        setUserState(userState);
                         
                         navigate("/home");
                     }
@@ -72,7 +81,7 @@ export const useLogin = () => {
             })
             .finally(() => setLoading(false))
         
-    }, [axiosGeneralEndpoint, navigate, setAuthenticate, setUsername, toastMessage]);
+    }, [axiosGeneralEndpoint, navigate, setAuthenticate, setUserState, toastMessage]);
     
     return {loading, loginAction};
 }
