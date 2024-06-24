@@ -38,7 +38,7 @@ export const useCategory = () => {
                 const errorReason = err.response?.data?.failed_reason;
                 toastMessage({
                     title: "Failed to get category information",
-                    description: errorReason && "Unexpected error occurred",
+                    description: errorReason || "Unexpected error occurred",
                     status: "error",
                 })
             });

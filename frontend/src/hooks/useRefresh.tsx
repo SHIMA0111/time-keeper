@@ -7,10 +7,12 @@ import {useNavigate} from "react-router-dom";
 import {useGeneralEndpoint} from "./useGeneralEndpoint.tsx";
 import {Response} from "../types/api/response.ts";
 import {useToastMessage} from "./useToastMessage.tsx";
+import {useTimestamp} from "./useTimestamp.tsx";
 
 export const useRefresh = () => {
     const setUserState = useSetRecoilState(userState);
     const setAccessToken = useSetRecoilState(accessTokenState);
+    const {convertEasyToReadTimestamp} = useTimestamp();
    
     const navigate = useNavigate();
     
@@ -44,7 +46,8 @@ export const useRefresh = () => {
                     const refreshData: RefreshData = JSON.parse(resData.data);
                     if (refreshData.authenticated) {
                         const createdDate = refreshData.created_datetime;
-                        const localDate = new Date(createdDate).toLocaleString();
+                        const date = new Date(createdDate);
+                        const localDate = convertEasyToReadTimestamp(date);
                         const userState: UserStateType = {
                             userId: refreshData.user_id,
                             username: refreshData.username,

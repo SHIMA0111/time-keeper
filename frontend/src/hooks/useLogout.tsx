@@ -1,7 +1,7 @@
 import {useCallback} from "react";
 import {useNavigate} from "react-router-dom";
 import {useSetRecoilState} from "recoil";
-import {userState} from "../recoil/user/userState.ts";
+import {userState, UserStateType} from "../recoil/user/userState.ts";
 import {accessTokenState} from "../recoil/authentication/accessTokenState.ts";
 import {useAuthedEndpoint} from "./useAuthedEndpoint.tsx";
 import {Response} from "../types/api/response.ts";
@@ -32,7 +32,7 @@ export const useLogout = () => {
         if (!refreshToken) {
             localStorage.removeItem("refreshToken");
             setAccessToken("");
-            setUsername("");
+            setUsername({} as UserStateType);
             setCategories([]);
             navigate("/");
             return;
@@ -72,7 +72,7 @@ export const useLogout = () => {
             .finally(() => {
                 localStorage.removeItem("refreshToken");
                 setAccessToken("");
-                setUsername("");
+                setUsername({} as UserStateType);
                 setCategories([]);
                 navigate("/");
             });

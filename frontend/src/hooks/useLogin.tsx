@@ -38,7 +38,7 @@ export const useLogin = () => {
                     if (processResult.authenticated) {
                         localStorage.setItem("refreshToken", processResult.refresh_token);
                         const createdDate = processResult.created_datetime;
-                        const localDate = new Date(createdDate).toLocaleString();
+                        const localDate = new Date(createdDate).toISOString();
                         const userState: UserStateType = {
                             userId: processResult.user_id,
                             username: processResult.username,

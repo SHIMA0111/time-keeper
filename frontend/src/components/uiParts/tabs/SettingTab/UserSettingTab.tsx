@@ -7,19 +7,24 @@ import {MainButton} from "../../buttons/MainButton.tsx";
 import {SubButton} from "../../buttons/SubButton.tsx";
 import {useCheckSecure} from "../../../../hooks/useCheckSecure.tsx";
 import {FaCheckCircle} from "react-icons/fa";
-import {useRecoilValue} from "recoil";
-import {userState} from "../../../../recoil/user/userState.ts";
+import {useRecoilState} from "recoil";
+import {userState, UserStateType} from "../../../../recoil/user/userState.ts";
 import {useRegex} from "../../../../hooks/useRegex.tsx";
 import {EmailPattern} from "../../../../types/regex.ts";
+import {useAuthedEndpoint} from "../../../../hooks/useAuthedEndpoint.tsx";
+import {UpdateUser} from "../../../../types/api/update/user.ts";
+import {useToastMessage} from "../../../../hooks/useToastMessage.tsx";
 
 export const UserSettingTab: FC = memo(() => {
-    const userInfo = useRecoilValue(userState);
+    const [userInfo, setUserInfo] = useRecoilState(userState);
     const [enableUpdate, setEnableUpdate] = useState(false);
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const { onCopy, value, hasCopied} = useClipboard(userInfo.userId);
     const { isSecureConnection } = useCheckSecure();
+    const {toastMessage} = useToastMessage();
     const [isValidEmail, validHandler] = useRegex(EmailPattern);
+    const axiosAuthedEndpoint = useAuthedEndpoint();
     
     useEffect(() => {
         setUsername(userInfo.username);
@@ -45,15 +50,48 @@ export const UserSettingTab: FC = memo(() => {
     }, [setEmail, setUsername, userInfo.email, userInfo.username])
     
     const onClickSaveButton = useCallback(() => {
-        alert("Saved!!!");
-    }, []);
+        if (userInfo.username === username && userInfo.email === email) return;
+        const userUpdate: UpdateUser = {
+            username,
+            email,
+        };
+        axiosAuthedEndpoint.post("/update_user", userUpdate)
+            .then(res => {
+                if (!res.data) {
+                    console.error("Update request was success but the response was invalid.");
+                }
+                const newUserData: UserStateType = {
+                    ...userInfo,
+                    username,
+                    email,
+                };
+                setUserInfo(newUserData);
+                const messageDetails =
+                    userInfo.username === username ? `Update Email to email: ${email}` : (
+                        userInfo.email === email ? `Update Username to username: ${username}` :
+                            `Update User Information to username: ${username} and email: ${email}`);
+                toastMessage({
+                    status: "success",
+                    title: "Update succeeded",
+                    description: messageDetails,
+                });
+            })
+            .catch(err => {
+                const errorReason = err.response?.data?.failed_reason;
+                toastMessage({
+                    title: "Failed to update user data",
+                    description: errorReason || "Unexpected error occurred",
+                    status: "error",
+                })
+            })
+    }, [axiosAuthedEndpoint, email, setUserInfo, toastMessage, userInfo, username]);
     
     return (
         <TabPanel>
             <Box>
                 <VStack spacing={4}>
                     <FormInput
-                        label="User ID"
+                        label="ユーザID"
                         cursor="not-allowed"
                         value={value}
                         readOnly

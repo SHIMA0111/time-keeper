@@ -57,7 +57,6 @@ async fn main() -> std::io::Result<()> {
                     .route("/refresh", web::post().to(refresh_endpoint))
             )
     })
-        .bind(("10.13.98.142", 8888))?
         .bind(("localhost", 8888))?
         .run()
         .await

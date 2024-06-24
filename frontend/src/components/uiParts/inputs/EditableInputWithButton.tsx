@@ -40,14 +40,15 @@ const EditableInputComponent: FC<EditableComponentProps> = memo((props) => {
 type EditableInputWithButtonType = {
     value: string;
     aliaName: string;
+    isUpdated: boolean;
     onChange: (nextValue: string) => void;
 }
 
 export const EditableInputWithButton: FC<EditableInputWithButtonType> = memo((props) => {
-    const {value, onChange, aliaName} = props;
+    const {value, onChange, aliaName, isUpdated} = props;
     
     return (
-        <Skeleton isLoaded={!!value}>
+        <Skeleton isLoaded={(!!value || isUpdated)}>
             <Editable value={value} isPreviewFocusable={false} onChange={onChange}>
                 <EditableInputComponent aliaName={aliaName} />
             </Editable>

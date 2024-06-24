@@ -82,6 +82,7 @@ export const LoginCard: FC = memo(() => {
                     }}
                 />
                 <MainButton
+                    useEnterSubmit
                     tooltipLabel={isValidEmail && password.length !== 0 ?
                         "" : (isValidEmail && emailAddress.length !== 0 ? "パスワードを入力してください" : "正しいメールアドレスを入力してください")}
                     isDisabled={!isValidEmail || emailAddress.length === 0 || password.length === 0}
