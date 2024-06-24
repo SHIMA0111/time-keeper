@@ -1,8 +1,10 @@
-import {FC, memo, ReactElement, ReactNode, useEffect} from "react";
+import {FC, memo, ReactElement, ReactNode} from "react";
 import {Button} from "@chakra-ui/react";
+import {useEnterTrigger} from "../../../hooks/useEnterTrigger.tsx";
 
 type Props = {
     children: ReactNode;
+    useEnterSubmit?: boolean;
     onClick?: () => void;
     spinner?: ReactElement;
     isDisabled?: boolean;
@@ -10,18 +12,8 @@ type Props = {
 }
 
 export const SubButton: FC<Props> = memo((props) => {
-    const { children, spinner, onClick, isDisabled, isLoading } = props;
-    useEffect(() => {
-        const pushEnter = (e: KeyboardEvent) => {
-            if (e.key === "Enter" && !isDisabled && onClick) {
-                onClick();
-            }
-        }
-        
-        document.addEventListener("keydown", pushEnter);
-        
-        return () => document.removeEventListener("keydown", pushEnter);
-    }, [isDisabled, onClick]);
+    const { children, spinner, useEnterSubmit = false, onClick=() => {}, isDisabled=false, isLoading } = props;
+    useEnterTrigger(useEnterSubmit, isDisabled, onClick);
     
     return (
         <Button

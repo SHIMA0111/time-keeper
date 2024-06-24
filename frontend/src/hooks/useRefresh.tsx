@@ -43,11 +43,13 @@ export const useRefresh = () => {
                     }
                     const refreshData: RefreshData = JSON.parse(resData.data);
                     if (refreshData.authenticated) {
+                        const createdDate = refreshData.created_datetime;
+                        const localDate = new Date(createdDate).toLocaleString();
                         const userState: UserStateType = {
                             userId: refreshData.user_id,
                             username: refreshData.username,
                             email: refreshData.email,
-                            createdDateTime: refreshData.created_datetime,
+                            createdDateTime: localDate,
                         };
                         
                         setAccessToken(refreshData.access_token);

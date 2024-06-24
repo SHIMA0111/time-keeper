@@ -5,6 +5,7 @@ use log::{warn};
 use serde::{Deserialize, Serialize};
 use crate::api::authed::category::{create_category_endpoint, get_category_endpoint};
 use crate::api::authed::logout::logout_endpoint;
+use crate::api::authed::update::user_update_endpoint;
 use crate::api::general::login::login_endpoint;
 use crate::api::general::refresh::refresh_endpoint;
 use crate::api::general::register::register_endpoint;
@@ -47,6 +48,7 @@ async fn main() -> std::io::Result<()> {
                     .route("/logout", web::post().to(logout_endpoint))
                     .route("/categories", web::get().to(get_category_endpoint))
                     .route("/create_category", web::post().to(create_category_endpoint))
+                    .route("/update_user", web::post().to(user_update_endpoint))
             )
             .service(
                 web::scope("/v1/general")

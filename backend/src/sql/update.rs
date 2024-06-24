@@ -1,5 +1,6 @@
 pub mod update_refresh_token;
 pub mod update_login_footprint;
+pub mod update_user;
 
 use log::{debug};
 use tokio_postgres::Client;

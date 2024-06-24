@@ -1,4 +1,4 @@
-import {ChangeEvent, useState} from "react";
+import {ChangeEvent, Dispatch, SetStateAction, useState} from "react";
 
 export const useInputChange = (defaultValue: string = ""): [string, (e: ChangeEvent<HTMLInputElement>) => void] => {
     const [inputValue, setInputValue] = useState(defaultValue);
@@ -23,3 +23,13 @@ export const useInputChangeCleanUp = (defaultValue: string = ""): [string, (e: C
     
     return [inputValue, inputChange, cleanUp];
 }
+
+export const useInputChangeSetValue = (defaultValue: string = ""): [string, (e: ChangeEvent<HTMLInputElement>) => void, Dispatch<SetStateAction<string>>] => {
+    const [inputValue, setInputValue] = useState(defaultValue);
+    
+    const inputChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setInputValue(e.target.value);
+    };
+    
+    return [inputValue, inputChange, setInputValue];
+};

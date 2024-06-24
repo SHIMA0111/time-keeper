@@ -1,20 +1,27 @@
-import {ChangeEvent, FC, memo} from "react";
-import {Editable, EditableInput, EditablePreview, IconButton, Input, useEditableControls} from "@chakra-ui/react";
+import {FC, memo} from "react";
+import {
+    Editable,
+    EditableInput,
+    EditablePreview,
+    IconButton,
+    Input,
+    Skeleton,
+    useEditableControls
+} from "@chakra-ui/react";
 import {FaEdit} from "react-icons/fa";
 
 type EditableComponentProps = {
     aliaName: string;
-    onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
 const EditableInputComponent: FC<EditableComponentProps> = memo((props) => {
-    const {onChange, aliaName} = props;
+    const {aliaName} = props;
     const { isEditing, getEditButtonProps } = useEditableControls();
     
     return (
         <>
             <EditablePreview p="8px" />
-            <Input as={EditableInput} onChange={onChange} p="8px" />
+            <Input as={EditableInput} p="8px" />
             {
                 isEditing || <IconButton
                     aria-label={`editable_${aliaName}`}
@@ -31,17 +38,19 @@ const EditableInputComponent: FC<EditableComponentProps> = memo((props) => {
 })
 
 type EditableInputWithButtonType = {
-    defaultValue: string;
+    value: string;
     aliaName: string;
-    onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+    onChange: (nextValue: string) => void;
 }
 
 export const EditableInputWithButton: FC<EditableInputWithButtonType> = memo((props) => {
-    const {defaultValue, onChange, aliaName} = props;
+    const {value, onChange, aliaName} = props;
     
     return (
-        <Editable defaultValue={defaultValue} isPreviewFocusable={false}>
-            <EditableInputComponent aliaName={aliaName} onChange={onChange} />
-        </Editable>
+        <Skeleton isLoaded={!!value}>
+            <Editable value={value} isPreviewFocusable={false} onChange={onChange}>
+                <EditableInputComponent aliaName={aliaName} />
+            </Editable>
+        </Skeleton>
     )
 })
