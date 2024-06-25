@@ -7,7 +7,7 @@ use crate::sql::get::get_user::get_user_by_id;
 use crate::sql::update::update_refresh_token::update_refresh_token;
 use crate::types::db::user::User;
 use crate::types::token::Token;
-use crate::utils::token::{generate_jwt_token, refresh_token_verify};
+use crate::utils::token::{generate_jwt_token, get_now, refresh_token_verify};
 use crate::utils::uuid::uuid_from_string;
 
 pub async fn refresh_service(refresh_token: String, conn: &DBConnection) -> TimeKeeperResult<(User, Token)> {
@@ -17,9 +17,10 @@ pub async fn refresh_service(refresh_token: String, conn: &DBConnection) -> Time
 
     let user = get_user_by_id(user_id, conn).await?;
     let access_token = generate_jwt_token(user_id, false)?;
+    let now = get_now()?;
+    let new_exp = (now + Duration::hours(1)).timestamp();
 
-    let refresh_duration = Duration::hours(1);
-    if let Err(e) = update_refresh_token(&refresh_token, refresh_duration, conn).await {
+    if let Err(e) = update_refresh_token(&refresh_token, new_exp, conn).await {
         warn!("refresh_token exp time extend process failed due to {:?} so the exp time is still old", e);
     };
 

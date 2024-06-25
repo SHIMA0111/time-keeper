@@ -9,7 +9,7 @@ use crate::types::db::refresh_token::RefreshToken;
 use crate::types::token::Token;
 use crate::types::TokenInfo;
 
-fn get_now() -> TimeKeeperResult<DateTime<Utc>> {
+pub fn get_now() -> TimeKeeperResult<DateTime<Utc>> {
     let now = Utc::now();
     if now.timestamp() <= 0 {
         return Err(EnvironmentSettingException(

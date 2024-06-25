@@ -18,7 +18,3 @@ async fn get_statement(stmt: &str, client: &Client) -> TimeKeeperResult<Statemen
         }
     }
 }
-
-fn get_constraint_name(on_table: &str, foreign_table: &str) -> String {
-    format!("{}_{}_fk", on_table, foreign_table)
-}

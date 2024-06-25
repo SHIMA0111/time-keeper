@@ -1,4 +1,4 @@
-use actix_web::{Either, HttpRequest, HttpResponse, Responder};
+use actix_web::{Either, HttpRequest, Responder};
 use actix_web::web::Json;
 use log::{error, info};
 use crate::services::category_service::{create_category_service, get_category_service};

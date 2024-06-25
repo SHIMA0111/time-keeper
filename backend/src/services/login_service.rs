@@ -1,5 +1,4 @@
 use log::{error, info};
-use uuid::Uuid;
 use crate::db::DBConnection;
 use crate::errors::TimeKeeperError::UserAuthenticationException;
 use crate::errors::TimeKeeperResult;

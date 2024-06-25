@@ -7,6 +7,7 @@ import {useSetRecoilState} from "recoil";
 import {accessTokenState} from "../recoil/authentication/accessTokenState.ts";
 import {userState, UserStateType} from "../recoil/user/userState.ts";
 import {useGeneralEndpoint} from "./useGeneralEndpoint.tsx";
+import {useTimestamp} from "./useTimestamp.tsx";
 
 export const useLogin = () => {
     const [loading, setLoading] = useState(false);
@@ -14,6 +15,7 @@ export const useLogin = () => {
     const setAuthenticate = useSetRecoilState(accessTokenState);
     const setUserState = useSetRecoilState(userState);
     const axiosGeneralEndpoint = useGeneralEndpoint();
+    const {convertEasyToReadTimestamp} = useTimestamp();
     
     const {toastMessage} = useToastMessage();
     
@@ -38,7 +40,8 @@ export const useLogin = () => {
                     if (processResult.authenticated) {
                         localStorage.setItem("refreshToken", processResult.refresh_token);
                         const createdDate = processResult.created_datetime;
-                        const localDate = new Date(createdDate).toISOString();
+                        const date = new Date(createdDate);
+                        const localDate = convertEasyToReadTimestamp(date);
                         const userState: UserStateType = {
                             userId: processResult.user_id,
                             username: processResult.username,

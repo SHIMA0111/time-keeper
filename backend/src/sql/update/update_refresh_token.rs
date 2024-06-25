@@ -1,4 +1,3 @@
-use chrono::{TimeDelta};
 use log::error;
 use crate::db::DBConnection;
 use crate::errors::TimeKeeperError::{DBCURDException, RefreshTokenException};
@@ -8,13 +7,12 @@ use crate::sql::update::update;
 use crate::types::db::refresh_token::RefreshToken;
 
 pub async fn update_refresh_token(refresh_token: &RefreshToken,
-                                  exp_duration: TimeDelta,
+                                  new_exp: i64,
                                   conn: &DBConnection) -> TimeKeeperResult<()> {
     let statement_str = format!(
         "UPDATE {}.refresh_token SET exp=$1 WHERE token=$2",
         SCHEMA_NAME,
     );
-    let new_exp = refresh_token.exp() + exp_duration.num_seconds();
 
     match update(&statement_str, &[&new_exp, &refresh_token.token()], conn.client()).await {
         Ok(update_number) => {

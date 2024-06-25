@@ -1,7 +1,5 @@
 import {useCallback} from "react";
 
-const Day = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
 export const useTimestamp = () => {
     const convertEasyToReadTimestamp = useCallback((timestamp: Date) => {
         const year = timestamp.getFullYear();

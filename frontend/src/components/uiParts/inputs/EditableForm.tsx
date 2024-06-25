@@ -6,10 +6,12 @@ type Props = {
     label: string;
     value: string;
     setFunction: Dispatch<SetStateAction<string>>,
+    isDisplayLabel?: boolean;
+    w?: string;
 }
 
 export const EditableForm: FC<Props> = memo((props) => {
-    const {label, value, setFunction} = props;
+    const {label, value, setFunction, isDisplayLabel=true, w} = props;
     const [isUpdated, setIsUpdated] = useState(false);
     const updateValue = useCallback((newValue: string) => {
         if (!isUpdated) {
@@ -20,11 +22,14 @@ export const EditableForm: FC<Props> = memo((props) => {
     
     return (
         <FormControl>
-            <FormLabel>{label}</FormLabel>
+            {
+                isDisplayLabel && <FormLabel>{label}</FormLabel>
+            }
             <EditableInputWithButton
                 isUpdated={isUpdated}
                 aliaName={label}
                 value={value}
+                w={w}
                 onChange={updateValue} />
         </FormControl>
     )

@@ -25,13 +25,6 @@ impl CreateUser {
 }
 
 #[derive(Debug)]
-pub struct UpdateUserInfo {
-    id: Uuid,
-    username: String,
-    email: String,
-}
-
-#[derive(Debug)]
 pub struct User {
     id: Uuid,
     username: String,
