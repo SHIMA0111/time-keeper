@@ -12,7 +12,7 @@ import {CategorySettingTab} from "./SettingTab/CategorySettingTab.tsx";
 
 export const SettingTab: FC = memo(() => {
     return (
-        <Flex my={{base: "16px", md: "10%"}} align="center" justify="center">
+        <Flex my={{base: "16px", md: "5%"}} justify="center">
             <Tabs
                 w={{ base: "85%", md: "70%", lg: "50%"}}
                 borderRadius="8px"

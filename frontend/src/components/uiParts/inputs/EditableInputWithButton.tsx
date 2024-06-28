@@ -1,9 +1,8 @@
 import React, {FC, memo, useState} from "react";
 import {
-    Box,
     Editable,
     EditableInput,
-    EditablePreview,
+    EditablePreview, Flex,
     IconButton, Input,
     Skeleton,
     useEditableControls
@@ -35,7 +34,7 @@ const EditableInputComponent: FC<EditableComponentProps> = memo((props) => {
     
     
     return (
-        <Box w={w} px="8px" >
+        <Flex w={w} px="8px" align="center" justify="space-between">
             <EditablePreview />
             <Input as={EditableInput}
                    onKeyDown={handleKeyDown}
@@ -52,7 +51,7 @@ const EditableInputComponent: FC<EditableComponentProps> = memo((props) => {
                     }}
                     {...getEditButtonProps()}/>
             }
-        </Box>
+        </Flex>
     )
 })
 

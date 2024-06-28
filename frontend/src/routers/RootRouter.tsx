@@ -5,6 +5,7 @@ import {FC, memo} from "react";
 import {HomeRoutes} from "./HomeRoutes.tsx";
 import {Register} from "../components/pages/Register.tsx";
 import {RouteGuardUnAuthorize} from "./RouteGuardUnAuthorize.tsx";
+import {HomeFlame} from "../components/uiParts/flames/HomeFlame/HomeFlame.tsx";
 
 export const RootRouter: FC = memo(() => {
     return (
@@ -15,7 +16,8 @@ export const RootRouter: FC = memo(() => {
                 <RouteGuardUnAuthorize>
                     <Routes>
                         {HomeRoutes.map(route => (
-                            <Route key={route.path} path={route.path} element={route.element} />
+                            <Route key={route.path} path={route.path} element={
+                                <HomeFlame>{route.element}</HomeFlame>} />
                         ))}
                     </Routes>
                 </RouteGuardUnAuthorize>
