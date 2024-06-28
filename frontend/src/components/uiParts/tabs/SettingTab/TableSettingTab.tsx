@@ -1,25 +1,21 @@
-import {FC, memo, useEffect, useState} from "react";
+import {FC, memo, useEffect} from "react";
 import {
-    Button,
     Center,
-    HStack,
-    Switch, Table,
+    HStack, Table,
     TableContainer,
-    TabPanel, Tbody, Td, Th, Thead, Tr,
+    TabPanel, Tbody, Th, Thead, Tr,
     VStack
 } from "@chakra-ui/react";
-import {EditableForm} from "../../inputs/EditableForm.tsx";
-import {useAuthedEndpoint} from "../../../../hooks/useAuthedEndpoint.tsx";
+import {useTableSetting} from "../../../../hooks/useTableSetting.tsx";
+import {TableSettingRow} from "./TableSettingTab/TableSettingRow.tsx";
+import {MainButton} from "../../buttons/MainButton.tsx";
+import {SubButton} from "../../buttons/SubButton.tsx";
 
 export const TableSettingTab: FC = memo(() => {
-    const [table1, setTable1] = useState("メインカテゴリ");
-    const axiosAuthedEndpoint = useAuthedEndpoint();
-    
+    const {initializeTableSetting, tableSettingInfo, setTableSetting, saveEditing, cancelEditing, isUpdated} = useTableSetting();
     useEffect(() => {
-        axiosAuthedEndpoint.get("/category_setting")
-            .then(res => console.log(res))
-            .catch(err => console.error(err))
-    }, [axiosAuthedEndpoint]);
+        initializeTableSetting();
+    }, [initializeTableSetting]);
     
     return (
         <TabPanel>
@@ -34,98 +30,32 @@ export const TableSettingTab: FC = memo(() => {
                             </Tr>
                         </Thead>
                         <Tbody>
-                            <Tr>
-                                <Td>main_category</Td>
-                                <Td>
-                                    <EditableForm
-                                        isDisplayLabel={false}
-                                        w="250px"
-                                        label="table1"
-                                        value={table1}
-                                        setFunction={setTable1} />
-                                </Td>
-                                <Td>
-                                    <Switch
-                                        id="table1-switch"
-                                        isDisabled
-                                        isChecked />
-                                </Td>
-                            </Tr>
-                            <Tr>
-                                <Td>main_category</Td>
-                                <Td>
-                                    <EditableForm
-                                        isDisplayLabel={false}
-                                        w="250px"
-                                        label="table1"
-                                        value={table1}
-                                        setFunction={setTable1} />
-                                </Td>
-                                <Td>
-                                    <Switch
-                                        id="table1-switch"
-                                        isDisabled
-                                        isChecked />
-                                </Td>
-                            </Tr>
-                            <Tr>
-                                <Td>main_category</Td>
-                                <Td>
-                                    <EditableForm
-                                        isDisplayLabel={false}
-                                        w="250px"
-                                        label="table1"
-                                        value={table1}
-                                        setFunction={setTable1} />
-                                </Td>
-                                <Td>
-                                    <Switch
-                                        id="table1-switch"
-                                        isDisabled
-                                        isChecked />
-                                </Td>
-                            </Tr>
-                            <Tr>
-                                <Td>main_category</Td>
-                                <Td>
-                                    <EditableForm
-                                        isDisplayLabel={false}
-                                        w="250px"
-                                        label="table1"
-                                        value={table1}
-                                        setFunction={setTable1} />
-                                </Td>
-                                <Td>
-                                    <Switch
-                                        id="table1-switch"
-                                        isDisabled
-                                        isChecked />
-                                </Td>
-                            </Tr>
-                            <Tr>
-                                <Td>main_category</Td>
-                                <Td>
-                                    <EditableForm
-                                        isDisplayLabel={false}
-                                        w="250px"
-                                        label="table1"
-                                        value={table1}
-                                        setFunction={setTable1} />
-                                </Td>
-                                <Td>
-                                    <Switch
-                                        id="table1-switch"
-                                        isDisabled
-                                        isChecked />
-                                </Td>
-                            </Tr>
+                            {
+                                tableSettingInfo.map((table, id) => {
+                                    const parentTableEnable =
+                                        id - 1 < 0 ? false : !tableSettingInfo[id - 1].is_invalid;
+                                    const childTableEnable =
+                                        tableSettingInfo.length === id + 1 ? false : !tableSettingInfo[id + 1].is_invalid;
+                                    return (
+                                        <TableSettingRow
+                                            key={table.table_name}
+                                            parentTableEnable={parentTableEnable}
+                                            childTableEnable={childTableEnable}
+                                            table={table}
+                                            setTableSetting={setTableSetting} />
+                                    )
+                                })
+                            }
                         </Tbody>
                     </Table>
                 </TableContainer>
                 <Center>
                     <HStack spacing={4}>
-                        <Button colorScheme="teal">Save</Button>
-                        <Button variant="outline">Cancel</Button>
+                        <MainButton
+                            onClick={saveEditing}
+                            isDisabled={!isUpdated}>Save</MainButton>
+                        <SubButton
+                            onClick={cancelEditing}>Cancel</SubButton>
                     </HStack>
                 </Center>
             </VStack>

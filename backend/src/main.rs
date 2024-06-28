@@ -3,10 +3,9 @@ use actix_cors::Cors;
 use actix_web::{App, HttpServer, web};
 use log::{warn};
 use serde::{Deserialize, Serialize};
-use crate::api::authed::category::{create_category_endpoint, get_category_endpoint};
-use crate::api::authed::category_setting::get_category_setting_endpoint;
+use crate::api::authed::get::{create_category_endpoint, get_category_endpoint, get_table_setting_endpoint};
 use crate::api::authed::logout::logout_endpoint;
-use crate::api::authed::update::user_update_endpoint;
+use crate::api::authed::update::{update_table_setting_endpoint, update_user_endpoint};
 use crate::api::general::login::login_endpoint;
 use crate::api::general::refresh::refresh_endpoint;
 use crate::api::general::register::register_endpoint;
@@ -47,10 +46,11 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/v1/authed")
                     .wrap(AccessTokenVerification)
                     .route("/categories", web::get().to(get_category_endpoint))
-                    .route("/category_setting", web::get().to(get_category_setting_endpoint))
+                    .route("/table_setting", web::get().to(get_table_setting_endpoint))
+                    .route("/table_setting", web::post().to(update_table_setting_endpoint))
                     .route("/logout", web::post().to(logout_endpoint))
                     .route("/create_category", web::post().to(create_category_endpoint))
-                    .route("/update_user", web::post().to(user_update_endpoint))
+                    .route("/update_user", web::post().to(update_user_endpoint))
             )
             .service(
                 web::scope("/v1/general")

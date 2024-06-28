@@ -1,11 +1,10 @@
-import {FC, memo} from "react";
+import React, {FC, memo, useState} from "react";
 import {
     Box,
     Editable,
     EditableInput,
     EditablePreview,
-    IconButton,
-    Input,
+    IconButton, Input,
     Skeleton,
     useEditableControls
 } from "@chakra-ui/react";
@@ -17,13 +16,31 @@ type EditableComponentProps = {
 }
 
 const EditableInputComponent: FC<EditableComponentProps> = memo((props) => {
+    const [isComposite, setIsComposite] = useState(false);
     const {aliaName, w = "100%"} = props;
     const { isEditing, getEditButtonProps } = useEditableControls();
+    
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter' && isComposite) {
+            e.preventDefault();
+        }
+    };
+    const handleCompositionStart = () => {
+        setIsComposite(true);
+    };
+    
+    const handleCompositionEnd = () => {
+        setIsComposite(false);
+    };
+    
     
     return (
         <Box w={w} px="8px" >
             <EditablePreview />
-            <Input as={EditableInput} p="8px" />
+            <Input as={EditableInput}
+                   onKeyDown={handleKeyDown}
+                   onCompositionStart={handleCompositionStart}
+                   onCompositionEnd={handleCompositionEnd} p="8px" />
             {
                 isEditing || <IconButton
                     aria-label={`editable_${aliaName}`}

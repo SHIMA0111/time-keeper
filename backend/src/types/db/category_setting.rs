@@ -1,15 +1,16 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct CategorySetting {
+pub struct TableSetting {
     table_name: String,
     display_name: String,
+    is_invalid: bool,
 }
 
-impl CategorySetting {
-    pub fn new(table_name: String, display_name: String) -> Self {
+impl TableSetting {
+    pub fn new(table_name: String, display_name: String, is_invalid: bool) -> Self {
         Self {
-            table_name, display_name,
+            table_name, display_name, is_invalid
         }
     }
 
@@ -19,5 +20,9 @@ impl CategorySetting {
 
     pub fn display_name(&self) -> String {
         self.display_name.clone()
+    }
+
+    pub fn is_invalid(&self) -> bool {
+        self.is_invalid
     }
 }
