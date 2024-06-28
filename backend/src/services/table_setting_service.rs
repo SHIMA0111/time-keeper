@@ -4,7 +4,6 @@ use crate::db::DBConnection;
 use crate::errors::TimeKeeperError::DBCURDException;
 use crate::errors::TimeKeeperResult;
 use crate::services::category_service::get_category_service;
-use crate::sql::get::get_category::get_all_category;
 use crate::sql::get::get_table_setting::get_all_table_setting;
 use crate::sql::update::update_table_setting::update_table_setting;
 use crate::types::db::category::Category;

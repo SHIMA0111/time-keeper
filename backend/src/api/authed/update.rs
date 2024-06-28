@@ -1,4 +1,4 @@
-use actix_web::{Either, HttpRequest, HttpResponse, Responder};
+use actix_web::{Either, HttpRequest, Responder};
 use actix_web::web::Json;
 use log::{error, info};
 use crate::services::table_setting_service::update_table_setting_service;
@@ -31,6 +31,7 @@ pub async fn update_user_endpoint(input: Json<UserUpdateInput>, req: HttpRequest
 
     match update_user_service(user_id, &new_username, &new_email, &db_connection).await {
         Ok(_) => {
+            info!("Finish update user data process for '{}'", user_id);
             let res = HttpResponseBody::success_new("", &endpoint_uri);
             RequestOk.json_response_builder(res)
         },
@@ -74,6 +75,7 @@ pub async fn update_table_setting_endpoint(input: Json<Vec<TableSetting>>, req: 
         return InternalServerError.json_response_builder(response);
     }
 
+    info!("Finish update table setting process for '{}'", user_id);
     let response = HttpResponseBody::success_new(
         categories.unwrap(),
         &endpoint_uri,

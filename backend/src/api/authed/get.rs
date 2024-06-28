@@ -31,11 +31,12 @@ pub async fn get_category_endpoint(req: HttpRequest) -> impl Responder {
         );
         return InternalServerError.json_response_builder(response);
     }
+
+    info!("Finish get category process for '{}'", user_id);
     let response = HttpResponseBody::success_new(
         categories.unwrap(),
         &endpoint_uri,
     );
-
     RequestOk.json_response_builder(response)
 }
 
@@ -68,6 +69,7 @@ pub async fn create_category_endpoint(input: Json<CreateCategoryInput>, req: Htt
         return InternalServerError.json_response_builder(response);
     }
 
+    info!("Finish create category process for '{}'", user_id);
     let response = HttpResponseBody::success_new(created_category_contents.unwrap(), &endpoint_uri);
     RequestOk.json_response_builder(response)
 }
@@ -98,6 +100,7 @@ pub async fn get_table_setting_endpoint(req: HttpRequest) -> impl Responder {
         return InternalServerError.json_response_builder(response);
     }
 
+    info!("Finish get table setting process for '{}'", user_id);
     let response = HttpResponseBody::success_new(
         category_settings.unwrap(), &endpoint_uri);
     RequestOk.json_response_builder(response)
