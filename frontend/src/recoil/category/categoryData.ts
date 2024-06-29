@@ -1,7 +1,7 @@
 import {atom} from "recoil";
 
 export type CategoryContent = {
-    id: string;
+    id: string | undefined;
     name: string;
     superior_id: string | undefined;
 };
