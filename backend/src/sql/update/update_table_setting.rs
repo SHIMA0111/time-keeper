@@ -7,8 +7,8 @@ use crate::sql::SCHEMA_NAME;
 use crate::sql::update::{transaction_update};
 
 pub async fn update_table_setting(user_id: Uuid,
-                                  table_name: &str,
-                                  display_name: &str,
+                                  table_name: String,
+                                  display_name: String,
                                   is_invalid: bool,
                                   allow_no_update: bool,
                                   transaction: &Transaction<'_>) -> TimeKeeperResult<()> {

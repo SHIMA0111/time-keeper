@@ -1,3 +1,4 @@
+use futures_util::future::join_all;
 use log::error;
 use uuid::Uuid;
 use crate::db::DBConnection;
@@ -19,14 +20,21 @@ pub async fn update_table_setting_service(update_data: &[&TableSetting],
                                           conn: &mut DBConnection) -> TimeKeeperResult<Vec<Category>> {
     let transaction = conn.transaction().await?;
 
+    let mut async_vec = Vec::new();
+
     for data in update_data {
         let table_name = data.table_name();
         let display_name = data.display_name();
         let is_invalid = data.is_invalid();
 
-        update_table_setting(
-            user_id, &table_name, &display_name, is_invalid, true, &transaction).await?;
+        let update_task = update_table_setting(
+            user_id, table_name, display_name, is_invalid, true, &transaction);
+        async_vec.push(update_task);
     };
+    let results = join_all(async_vec).await;
+    for result in results {
+        result?;
+    }
 
     let commit_res = transaction.commit().await;
     if let Err(e) = commit_res {

@@ -85,7 +85,7 @@ CREATE TABLE sub4_category
     created_timestamp timestamp,
     created_user_id uuid not null,
     is_deleted bool DEFAULT FALSE,
-    FOREIGN KEY (superior_id) REFERENCES sub4_category (id),
+    FOREIGN KEY (superior_id) REFERENCES sub3_category (id),
     FOREIGN KEY (created_user_id) REFERENCES users (id)
 );
 
@@ -203,6 +203,26 @@ EXECUTE FUNCTION insert_auto_timestamp();
 
 CREATE TRIGGER auto_created_timestamp_main
 BEFORE INSERT ON main_category
+FOR EACH ROW
+EXECUTE FUNCTION insert_auto_timestamp();
+
+CREATE TRIGGER auto_created_timestamp_main
+BEFORE INSERT ON sub1_category
+FOR EACH ROW
+EXECUTE FUNCTION insert_auto_timestamp();
+
+CREATE TRIGGER auto_created_timestamp_main
+BEFORE INSERT ON sub2_category
+FOR EACH ROW
+EXECUTE FUNCTION insert_auto_timestamp();
+
+CREATE TRIGGER auto_created_timestamp_main
+BEFORE INSERT ON sub3_category
+FOR EACH ROW
+EXECUTE FUNCTION insert_auto_timestamp();
+
+CREATE TRIGGER auto_created_timestamp_main
+BEFORE INSERT ON sub4_category
 FOR EACH ROW
 EXECUTE FUNCTION insert_auto_timestamp();
 

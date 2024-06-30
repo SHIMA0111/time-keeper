@@ -23,6 +23,15 @@ export const useCategory = () => {
                         });
                     }
                     const categoriesData: CategoryData[] = JSON.parse(resData.data);
+                    categoriesData.sort((a, b) => {
+                        if (a.table_name < b.table_name) {
+                            return -1;
+                        }
+                        if (a.table_name > b.table_name) {
+                            return 1;
+                        }
+                        return 0;
+                    })
                     setCategoryData(categoriesData);
                 }
                 else {

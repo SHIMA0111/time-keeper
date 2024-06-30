@@ -89,7 +89,7 @@ export const useTableSetting = () => {
                     title: "Request failed",
                     description: errorReason || "Unexpected error occurred",
                     status: "error",
-                })
+                });
             });
     }, [authedEndpoint, toastMessage]);
     

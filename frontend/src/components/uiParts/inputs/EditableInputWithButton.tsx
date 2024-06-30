@@ -1,4 +1,4 @@
-import React, {FC, memo, useState} from "react";
+import React, {FC, memo, useCallback, useEffect, useState} from "react";
 import {
     Editable,
     EditableInput,
@@ -59,16 +59,23 @@ type EditableInputWithButtonType = {
     value: string;
     aliaName: string;
     isUpdated: boolean;
-    onChange: (nextValue: string) => void;
+    onSubmit: (nextValue: string) => void;
     w?: string;
 }
 
 export const EditableInputWithButton: FC<EditableInputWithButtonType> = memo((props) => {
-    const {value, onChange, aliaName, isUpdated, w} = props;
+    const {value, onSubmit, aliaName, isUpdated, w} = props;
+    const [tmpValue, setTmpValue] = useState(value);
+    useEffect(() => {
+        setTmpValue(value);
+    }, [value]);
+    const onChangeTmpValue = useCallback((nextValue: string) => {
+        setTmpValue(nextValue);
+    }, []);
     
     return (
         <Skeleton isLoaded={(!!value || isUpdated)}>
-            <Editable value={value} isPreviewFocusable={false} onChange={onChange}>
+            <Editable value={tmpValue} isPreviewFocusable={false} onChange={onChangeTmpValue} onSubmit={onSubmit}>
                 <EditableInputComponent aliaName={aliaName} w={w} />
             </Editable>
         </Skeleton>

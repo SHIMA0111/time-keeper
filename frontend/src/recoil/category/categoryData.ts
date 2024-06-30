@@ -16,3 +16,4 @@ export const categoriesData = atom<CategoryData[]>({
     key: 'categoryData',
     default: [],
 });
+

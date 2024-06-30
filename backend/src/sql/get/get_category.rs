@@ -31,7 +31,7 @@ pub async fn get_specified_category(user_id: Uuid,
             let superior_id = if table.table_name() == "main_category" {
                 None
             } else {
-                Some(row.get::<_, Uuid>("superior_id"))
+                row.get::<_, Option<Uuid>>("superior_id")
             };
 
             CategoryContents::new(

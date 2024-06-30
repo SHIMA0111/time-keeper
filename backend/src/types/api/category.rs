@@ -1,14 +1,18 @@
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct CreateCategoryInput {
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct CategoryInput {
+    id: String,
     table_name: String,
     new_category_name: String,
-    superior_id: Option<Uuid>,
+    superior_id: Option<String>,
 }
 
-impl CreateCategoryInput {
+impl CategoryInput {
+    pub fn dummy_id(&self) -> String {
+        self.id.clone()
+    }
+
     pub fn table_name(&self) -> String {
         self.table_name.clone()
     }
@@ -17,7 +21,7 @@ impl CreateCategoryInput {
         self.new_category_name.clone()
     }
 
-    pub fn superior_id(&self) -> Option<Uuid> {
-        self.superior_id
+    pub fn superior_id(&self) -> Option<String> {
+        self.superior_id.clone()
     }
 }

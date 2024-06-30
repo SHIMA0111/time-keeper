@@ -45,6 +45,7 @@ impl CategoryContents {
     }
 }
 
+#[derive(Debug)]
 pub struct CreateCategory {
     table_name: String,
     category: CategoryContents,
@@ -83,9 +84,5 @@ impl CreateCategory {
 
     pub fn created_user_id(&self) -> Uuid {
         self.created_user_id
-    }
-
-    pub fn category_contents(&self) -> CategoryContents {
-        self.category.clone()
     }
 }

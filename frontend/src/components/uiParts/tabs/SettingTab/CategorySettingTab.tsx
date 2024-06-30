@@ -12,7 +12,7 @@ import {CategorySettingAccordionItem} from "./CategorySettingTab/CategorySetting
 import {useCategorySetting} from "../../../../hooks/useCategorySetting.tsx";
 
 export const CategorySettingTab: FC = memo(() => {
-    const {categories, setNewCategories, saveEditing, cancelEditing} = useCategorySetting();
+    const {categories, setNewCategories, saveEditing, cancelEditing, removeCategory} = useCategorySetting();
     
     return (
         <TabPanel>
@@ -26,7 +26,8 @@ export const CategorySettingTab: FC = memo(() => {
                                     key={category.table_name}
                                     category={category}
                                     parentCategoryItems={parentCategory}
-                                    setNewCategory={setNewCategories} />
+                                    setNewCategory={setNewCategories}
+                                    removeCategory={removeCategory} />
                             );
                         })
                     }

@@ -1,4 +1,4 @@
-import {Dispatch, FC, memo, SetStateAction, useCallback, useState} from "react";
+import {Dispatch, FC, memo, SetStateAction, useCallback, useEffect, useState} from "react";
 import {FormControl, FormLabel} from "@chakra-ui/react";
 import {EditableInputWithButton} from "./EditableInputWithButton.tsx";
 
@@ -8,10 +8,16 @@ type Props = {
     setFunction: Dispatch<SetStateAction<string>>,
     isDisplayLabel?: boolean;
     w?: string;
+    setIsUpdatedDispatch?: Dispatch<SetStateAction<boolean>>,
 }
 
 export const EditableForm: FC<Props> = memo((props) => {
-    const {label, value, setFunction, isDisplayLabel=true, w} = props;
+    const {label,
+        value,
+        setFunction,
+        isDisplayLabel=true,
+        w,
+        setIsUpdatedDispatch} = props;
     const [isUpdated, setIsUpdated] = useState(false);
     const updateValue = useCallback((newValue: string) => {
         if (!isUpdated) {
@@ -19,6 +25,11 @@ export const EditableForm: FC<Props> = memo((props) => {
         }
         setFunction(newValue)
     }, [isUpdated, setFunction]);
+    useEffect(() => {
+        if (setIsUpdatedDispatch) {
+            setIsUpdatedDispatch(isUpdated);
+        }
+    }, [isUpdated, setIsUpdatedDispatch]);
     
     return (
         <FormControl>
@@ -30,7 +41,7 @@ export const EditableForm: FC<Props> = memo((props) => {
                 aliaName={label}
                 value={value}
                 w={w}
-                onChange={updateValue} />
+                onSubmit={updateValue} />
         </FormControl>
     )
 });
