@@ -39,7 +39,8 @@ async fn main() -> std::io::Result<()> {
             .allow_any_method()
             .allowed_origin("http://localhost:5173")
             .allowed_origin("http://10.13.98.142:5173")
-            .allowed_origin("http://127.0.0.1:5173");
+            .allowed_origin("http://127.0.0.1:5173")
+            .allowed_origin("http://localhost:3000");
 
         App::new()
             .wrap(cors)

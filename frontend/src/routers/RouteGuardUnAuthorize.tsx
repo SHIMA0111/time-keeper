@@ -3,7 +3,7 @@ import {useRecoilState, useSetRecoilState} from "recoil";
 import {accessTokenState} from "../recoil/authentication/accessTokenState.ts";
 import {useNavigate} from "react-router-dom";
 import {useToastMessage} from "../hooks/useToastMessage.tsx";
-import {userState} from "../recoil/user/userState.ts";
+import {userState, UserStateType} from "../recoil/user/userState.ts";
 import {Loading} from "../components/pages/Loading.tsx";
 import {categoriesData} from "../recoil/category/categoryData.ts";
 import {useRefresh} from "../hooks/useRefresh.tsx";
@@ -35,7 +35,7 @@ export const RouteGuardUnAuthorize: FC<Props> = memo((props) => {
         const refreshToken = localStorage.getItem("refreshToken");
         if (!refreshToken) {
             setAuthenticate("");
-            setUsername("");
+            setUsername({} as UserStateType);
             setCategoryData([]);
             navigate("/");
             return;
