@@ -6,13 +6,13 @@ import {Setting} from "../components/pages/Setting.tsx";
 export const HomeRoutes = [
     {
         path: "/",
-        pageName: "HOME",
+        pageName: "Home",
         element: <Home />,
         icon: <BiHome />
     },
     {
         path: "/setting",
-        pageName: "SETTING",
+        pageName: "Setting",
         element: <Setting />,
         icon: <IoSettingsOutline />,
     }
