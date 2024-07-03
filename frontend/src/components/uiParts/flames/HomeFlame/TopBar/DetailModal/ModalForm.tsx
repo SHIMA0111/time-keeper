@@ -4,13 +4,16 @@ import {NoShadowSelect} from "../../../../inputs/NoShadowSelect.tsx";
 import {CategoryContent, CategoryData} from "../../../../../../recoil/category/categoryData.ts";
 
 type Props = {
+    superiorSelectedId: string | undefined;
     category: CategoryData;
     value?: string;
     setSelectedCategory: (table_name: string, categoryContent: CategoryContent) => void;
 }
 
 export const ModalForm: FC<Props> = memo((props) => {
-    const {category,
+    const {
+        superiorSelectedId,
+        category,
         value="",
         setSelectedCategory} = props;
 
@@ -30,7 +33,12 @@ export const ModalForm: FC<Props> = memo((props) => {
                 value={value}
                 onChange={onChangeSelectedCategory}
             >
-                {category.categories.map(categoryDetail => (
+                {category.categories
+                    .filter(category => {
+                        if (!superiorSelectedId) return true;
+                        return category.superior_id === superiorSelectedId
+                    })
+                    .map(categoryDetail => (
                     <option key={categoryDetail.id} value={categoryDetail.id}>
                         {categoryDetail.name}
                     </option>

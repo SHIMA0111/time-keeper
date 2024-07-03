@@ -20,10 +20,34 @@ export const useGlobalSelectedCategory = () => {
         sub3_category: undefined,
         sub4_category: undefined,
     });
+
+    const superiorIdGetter = useCallback((tableName: string) => {
+        const superiorTable = superiorTableStructure.get(tableName);
+        if (!superiorTable) return;
+        const superiorCategory = tmpSelectedCategory[superiorTable as keyof SelectedCategoryType];
+        if (!superiorCategory || typeof superiorCategory === "string") return;
+
+        return superiorCategory.id;
+    }, [tmpSelectedCategory])
+
+    const resetTmpSelectedCategory = useCallback(() => {
+        setTmpSelectedCategory(prev => {
+            return {
+                aliasId: prev.aliasId,
+                main_category: undefined,
+                sub1_category: undefined,
+                sub2_category: undefined,
+                sub3_category: undefined,
+                sub4_category: undefined,
+            }
+        });
+    }, []);
+
     const categories = useRecoilValue(categoriesData);
     const setSelectedCategory = useSetRecoilState(selectedCategoryData);
 
     const addSelectedCategory = useCallback((tableName: string, category: CategoryContent) => {
+        resetTmpSelectedCategory();
         setTmpSelectedCategory(oldVal => {
             return {
                 ...oldVal,
@@ -58,5 +82,5 @@ export const useGlobalSelectedCategory = () => {
         setSelectedCategory(tmpSelectedCategory);
     }, [setSelectedCategory, tmpSelectedCategory]);
 
-    return {tmpSelectedCategory, addSelectedCategory, onSave};
+    return {tmpSelectedCategory, addSelectedCategory, superiorIdGetter, onSave};
 }

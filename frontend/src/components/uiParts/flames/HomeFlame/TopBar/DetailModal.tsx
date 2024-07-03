@@ -23,7 +23,7 @@ type Props = {
 export const DetailModal: FC<Props> = memo((props) => {
     const { isOpen, onClose } = props;
     const categories = useRecoilValue(categoriesData);
-    const { tmpSelectedCategory, addSelectedCategory } = useGlobalSelectedCategory();
+    const { tmpSelectedCategory, addSelectedCategory, superiorIdGetter } = useGlobalSelectedCategory();
     
     return(
         <Modal isOpen={isOpen} onClose={onClose} autoFocus={false}>
@@ -36,9 +36,11 @@ export const DetailModal: FC<Props> = memo((props) => {
                         categories.map(category => {
                             const tableName = category.table_name as keyof SelectedCategoryType;
                             const selectedCategory = tmpSelectedCategory[tableName];
+                            const superiorId = superiorIdGetter(category.table_name);
                             if (typeof selectedCategory === "string") return;
                             return (
                                 <ModalForm key={category.table_name}
+                                           superiorSelectedId={superiorId}
                                            category={category}
                                            value={selectedCategory?.id}
                                            setSelectedCategory={addSelectedCategory}/>
