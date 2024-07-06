@@ -9,7 +9,7 @@ import {
 import {MainButton} from "../../buttons/MainButton.tsx";
 import {SubButton} from "../../buttons/SubButton.tsx";
 import {CategorySettingAccordionItem} from "./CategorySettingTab/CategorySettingAccordionItem.tsx";
-import {useCategorySetting} from "../../../../hooks/useCategorySetting.tsx";
+import {useCategorySetting} from "../../../../hooks/useCategorySetting.ts";
 
 export const CategorySettingTab: FC = memo(() => {
     const {categories, setNewCategories, saveEditing, cancelEditing, removeCategory} = useCategorySetting();

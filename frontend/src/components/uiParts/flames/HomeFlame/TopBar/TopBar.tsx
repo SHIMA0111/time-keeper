@@ -13,7 +13,7 @@ import {SettingsIcon} from "@chakra-ui/icons";
 import {NoShadowSelect} from "../../../inputs/NoShadowSelect.tsx";
 import {DetailModal} from "./DetailModal.tsx";
 import {CurrentSettingDisplay} from "./CurrentSettingDisplay.tsx";
-import {useTimeCounter} from "../../../../../hooks/useTimeCounter.tsx";
+import {useTimeCounter} from "../../../../../hooks/useTimeCounter.ts";
 
 
 export const TopBar: FC = memo(() => {

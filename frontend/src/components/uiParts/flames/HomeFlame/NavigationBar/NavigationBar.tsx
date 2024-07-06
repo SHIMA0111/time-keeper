@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import {IconButtonWithName} from "../../../buttons/IconButtonWithName.tsx";
 import {BiLogOut} from "react-icons/bi";
-import {useLogout} from "../../../../../hooks/useLogout.tsx";
+import {useLogout} from "../../../../../hooks/useLogout.ts";
 import {HomeRoutes} from "../../../../../routers/HomeRoutes.tsx";
 import {SubButton} from "../../../buttons/SubButton.tsx";
 

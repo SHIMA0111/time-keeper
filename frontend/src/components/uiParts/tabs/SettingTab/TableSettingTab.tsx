@@ -6,7 +6,7 @@ import {
     TabPanel, Tbody, Th, Thead, Tr,
     VStack
 } from "@chakra-ui/react";
-import {useTableSetting} from "../../../../hooks/useTableSetting.tsx";
+import {useTableSetting} from "../../../../hooks/useTableSetting.ts";
 import {TableSettingRow} from "./TableSettingTab/TableSettingRow.tsx";
 import {MainButton} from "../../buttons/MainButton.tsx";
 import {SubButton} from "../../buttons/SubButton.tsx";

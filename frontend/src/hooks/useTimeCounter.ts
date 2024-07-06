@@ -1,7 +1,7 @@
 import {useCallback, useEffect, useState} from "react";
 import {TmpTimeData} from "../types/tmpData/TmpTimeData.ts";
 import init, {calc_time} from "wasm-tools";
-import {useToastMessage} from "./useToastMessage.tsx";
+import {useToastMessage} from "./useToastMessage.ts";
 
 export const useTimeCounter = () => {
     const [isRecording, setIsRecording] = useState<boolean>(false);

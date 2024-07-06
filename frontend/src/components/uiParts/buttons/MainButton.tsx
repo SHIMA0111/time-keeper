@@ -1,6 +1,6 @@
 import {FC, memo, ReactElement, ReactNode} from "react";
 import {Button, Tooltip} from "@chakra-ui/react";
-import {useEnterTrigger} from "../../../hooks/useEnterTrigger.tsx";
+import {useEnterTrigger} from "../../../hooks/useEnterTrigger.ts";
 
 type Props = {
     children: ReactNode;

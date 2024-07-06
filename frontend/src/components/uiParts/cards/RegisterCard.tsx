@@ -10,8 +10,8 @@ import {
 } from "@chakra-ui/react";
 import {FormInput} from "../inputs/FormInput.tsx";
 import {EmailIcon, LockIcon, ViewIcon, ViewOffIcon} from "@chakra-ui/icons";
-import {useInputChange} from "../../../hooks/useInputChange.tsx";
-import {useRegex} from "../../../hooks/useRegex.tsx";
+import {useInputChange} from "../../../hooks/useInputChange.ts";
+import {useRegex} from "../../../hooks/useRegex.ts";
 import {FaUser} from "react-icons/fa";
 import {EmailPattern} from "../../../types/regex.ts";
 import {MainButton} from "../buttons/MainButton.tsx";

@@ -5,8 +5,8 @@ import {FaKey} from "react-icons/fa";
 import {MainButton} from "../buttons/MainButton.tsx";
 import {BeatLoader} from "react-spinners";
 import {RegisterInput} from "../../../types/api/register.ts";
-import {useRegister} from "../../../hooks/useRegister.tsx";
-import {useInputChangeCleanUp} from "../../../hooks/useInputChange.tsx";
+import {useRegister} from "../../../hooks/useRegister.ts";
+import {useInputChangeCleanUp} from "../../../hooks/useInputChange.ts";
 import init, {hash_from_str} from "wasm-tools";
 
 type Props = {

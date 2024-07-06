@@ -5,15 +5,15 @@ import {MdOutlineCopyAll} from "react-icons/md";
 import {EditableForm} from "../../inputs/EditableForm.tsx";
 import {MainButton} from "../../buttons/MainButton.tsx";
 import {SubButton} from "../../buttons/SubButton.tsx";
-import {useCheckSecure} from "../../../../hooks/useCheckSecure.tsx";
+import {useCheckSecure} from "../../../../hooks/useCheckSecure.ts";
 import {FaCheckCircle} from "react-icons/fa";
 import {useRecoilState} from "recoil";
 import {userState, UserStateType} from "../../../../recoil/user/userState.ts";
-import {useRegex} from "../../../../hooks/useRegex.tsx";
+import {useRegex} from "../../../../hooks/useRegex.ts";
 import {EmailPattern} from "../../../../types/regex.ts";
-import {useAuthedEndpoint} from "../../../../hooks/useAuthedEndpoint.tsx";
+import {useAuthedEndpoint} from "../../../../hooks/useAuthedEndpoint.ts";
 import {UpdateUser} from "../../../../types/api/update/user.ts";
-import {useToastMessage} from "../../../../hooks/useToastMessage.tsx";
+import {useToastMessage} from "../../../../hooks/useToastMessage.ts";
 
 export const UserSettingTab: FC = memo(() => {
     const [userInfo, setUserInfo] = useRecoilState(userState);

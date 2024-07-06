@@ -12,7 +12,7 @@ import {MdSaveAlt} from "react-icons/md";
 import {useRecoilValue} from "recoil";
 import {categoriesData} from "../../../../../recoil/category/categoryData.ts";
 import {ModalForm} from "./DetailModal/ModalForm.tsx";
-import {useGlobalSelectedCategory} from "../../../../../hooks/useGlobalSelectedCategory.tsx";
+import {useGlobalSelectedCategory} from "../../../../../hooks/useGlobalSelectedCategory.ts";
 import {SelectedCategoryType} from "../../../../../recoil/category/selectedCategoryData.ts";
 
 type Props = {

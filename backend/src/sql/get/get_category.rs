@@ -2,17 +2,9 @@ use uuid::Uuid;
 use crate::db::DBConnection;
 use crate::errors::TimeKeeperResult;
 use crate::sql::get::get_all;
-use crate::sql::get::get_table_setting::get_all_table_setting;
 use crate::sql::SCHEMA_NAME;
 use crate::types::db::category::{CategoryContents, Category};
 use crate::types::db::category_setting::TableSetting;
-
-
-
-pub async fn get_all_category(user_id: Uuid, conn: &DBConnection) -> TimeKeeperResult<Vec<Category>> {
-    let table_infos = get_all_table_setting(user_id, conn).await?;
-    get_specified_category(user_id, &table_infos, conn).await
-}
 
 pub async fn get_specified_category(user_id: Uuid,
                                     table_info: &[TableSetting],

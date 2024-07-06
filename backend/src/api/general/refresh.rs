@@ -19,7 +19,7 @@ pub async fn refresh_endpoint(input: Json<RefreshInput>, req: HttpRequest) -> im
 
     let refresh_token = input.refresh_token();
 
-    let (user_data, access_token) = match refresh_service(refresh_token, &conn).await {
+    let access_token = match refresh_service(refresh_token, &conn).await {
         Ok(username_token) => username_token,
         Err(e) => {
             error!("Failed to refresh the refresh token due to {:?}", e);
@@ -41,11 +41,7 @@ pub async fn refresh_endpoint(input: Json<RefreshInput>, req: HttpRequest) -> im
 
     let refresh_response = RefreshResponse::new(
         true,
-        access_token.token(),
-        user_data.user_id(),
-        user_data.username(),
-        user_data.email(),
-        user_data.created_datetime());
+        access_token.token());
     let response = HttpResponseBody::success_new(
         refresh_response,
         &endpoint_uri,

@@ -35,6 +35,7 @@ export const ModalForm: FC<Props> = memo((props) => {
             >
                 {category.categories
                     .filter(category => {
+                        if (!category.superior_id) return true;
                         if (!superiorSelectedId) return true;
                         return category.superior_id === superiorSelectedId
                     })

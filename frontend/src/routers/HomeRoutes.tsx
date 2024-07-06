@@ -15,5 +15,5 @@ export const HomeRoutes = [
         pageName: "Setting",
         element: <Setting />,
         icon: <IoSettingsOutline />,
-    }
+    },
 ]

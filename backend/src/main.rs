@@ -4,7 +4,7 @@ use actix_web::{App, HttpServer, web};
 use log::{warn};
 use serde::{Deserialize, Serialize};
 use crate::api::authed::create::create_category_endpoint;
-use crate::api::authed::get::{get_category_endpoint, get_table_setting_endpoint};
+use crate::api::authed::get::{get_category_endpoint, get_table_setting_endpoint, get_user_data_endpoint};
 use crate::api::authed::logout::logout_endpoint;
 use crate::api::authed::update::{update_table_setting_endpoint, update_user_endpoint};
 use crate::api::general::login::login_endpoint;
@@ -53,6 +53,7 @@ async fn main() -> std::io::Result<()> {
                     .route("/logout", web::post().to(logout_endpoint))
                     .route("/create_category", web::post().to(create_category_endpoint))
                     .route("/update_user", web::post().to(update_user_endpoint))
+                    .route("/user", web::get().to(get_user_data_endpoint))
             )
             .service(
                 web::scope("/v1/general")

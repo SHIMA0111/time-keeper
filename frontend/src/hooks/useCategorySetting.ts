@@ -2,9 +2,10 @@ import {useRecoilState} from "recoil";
 import {categoriesData, CategoryContent, CategoryData} from "../recoil/category/categoryData.ts";
 import {useCallback, useEffect, useState} from "react";
 import {NewOrUpdateCategory} from "../types/api/category.ts";
-import {useAuthedEndpoint} from "./useAuthedEndpoint.tsx";
+import {useAuthedEndpoint} from "./useAuthedEndpoint.ts";
 import {Response} from "../types/api/response.ts";
-import {useToastMessage} from "./useToastMessage.tsx";
+import {useToastMessage} from "./useToastMessage.ts";
+import {HandleApiRequest} from "../utils/handleApiRequest.ts";
 
 export const useCategorySetting = () => {
     const [originalCategories, setOriginalCategories] = useRecoilState(categoriesData);
@@ -48,15 +49,7 @@ export const useCategorySetting = () => {
                 categories: newCategoryContents,
             };
         });
-        newCategories.sort((a, b) => {
-            if (a.table_name < b.table_name) {
-                return -1;
-            }
-            if (a.table_name > b.table_name) {
-                return 1;
-            }
-            return 0;
-        });
+        newCategories.sort((a, b) => a.table_name.localeCompare(b.table_name));
         setCategories(newCategories);
     }, [categories, dummyIdNum]);
     
@@ -64,7 +57,7 @@ export const useCategorySetting = () => {
         setCategories([...originalCategories]);
     }, [originalCategories]);
     
-    const saveEditing = useCallback(() => {
+    const saveEditing = useCallback(async () => {
         const inputCategories: NewOrUpdateCategory[] = [];
         categories.map(category => {
             const tableName = category.table_name;
@@ -81,47 +74,18 @@ export const useCategorySetting = () => {
             inputCategories.push(...res);
         });
         
-        authedEndpoint.post<Response>("/create_category", inputCategories)
-            .then(res => {
-                if (res.data) {
-                    const resData = res.data;
-                    const categorySetting: CategoryData[] = JSON.parse(resData.data);
-                    categorySetting.sort((a, b) => {
-                        if (a.table_name < b.table_name) {
-                            return -1;
-                        }
-                        if (a.table_name > b.table_name) {
-                            return 1;
-                        }
-                        return 0;
-                    });
-                    setCategories([...categorySetting]);
-                    setOriginalCategories([...categorySetting]);
-                    toastMessage({
-                        title: "Success Category update",
-                        status: "success",
-                    });
-                }
-                else {
-                    toastMessage({
-                        title: "Response invalid",
-                        description: "Failed to access server. Please try later.",
-                        status: "error"
-                    })
-                }
-            })
-            .catch(err => {
-                const statusCode = err.response?.status;
-                let errorReason = err.response?.data?.failed_reason;
-                if (statusCode === 403) {
-                    errorReason = "Authentication failed by token invalid";
-                }
-                toastMessage({
-                    title: "Request failed",
-                    description: errorReason || "Unexpected error occurred",
-                    status: "error",
-                })
-            });
+        await HandleApiRequest<CategoryData[]>(
+            authedEndpoint.post<Response>("/create_category", inputCategories),
+            "save category setting",
+            (categorySetting) => {
+                categorySetting.sort(
+                    (a, b) => a.table_name.localeCompare(b.table_name));
+                setCategories([...categorySetting]);
+                setOriginalCategories([...categorySetting]);
+            },
+            true,
+            toastMessage,
+        );
     }, [authedEndpoint, categories, setOriginalCategories, toastMessage]);
     
     const removeCategory = useCallback((tableName: string, categoryId: string | undefined) => {
