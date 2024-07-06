@@ -7,7 +7,7 @@ type Props = {
     superiorSelectedId: string | undefined;
     category: CategoryData;
     value?: string;
-    setSelectedCategory: (table_name: string, categoryContent: CategoryContent) => void;
+    setSelectedCategory: (table_name: string, categoryContent: CategoryContent | undefined) => void;
 }
 
 export const ModalForm: FC<Props> = memo((props) => {
@@ -19,9 +19,10 @@ export const ModalForm: FC<Props> = memo((props) => {
 
     const onChangeSelectedCategory = useCallback((e: ChangeEvent<HTMLSelectElement>) => {
         const table_name = category.table_name;
-        const selectedCategory = category.categories.filter(category => {
+        const selectedCategoryList = category.categories.filter(category => {
             return category.id === e.target.value;
-        })[0];
+        });
+        const selectedCategory = selectedCategoryList.length > 0 ? selectedCategoryList[0] : undefined;
         setSelectedCategory(table_name, selectedCategory);
     }, [category.categories, category.table_name, setSelectedCategory]);
 

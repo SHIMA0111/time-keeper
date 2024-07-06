@@ -118,6 +118,7 @@ export const useTimeCounter = () => {
     const onClickStop = useCallback(() => {
         const tmpRecordOnBrowser = storedValueGet();
         if (tmpRecordOnBrowser) {
+            
             toastMessage({
                 status: "info",
                 title: "Stop",
