@@ -2,6 +2,7 @@ pub mod get_user;
 pub mod get_refresh_token;
 pub mod get_category;
 pub mod get_table_setting;
+mod get_alias;
 
 use tokio_postgres::{Client, Row};
 use tokio_postgres::types::ToSql;
